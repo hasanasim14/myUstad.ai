@@ -1,12 +1,29 @@
+"use client";
+
 import React, { useState } from "react";
-import { FiX } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import "./CardOne.css";
 import { cardData } from "@/lib/utils";
-import { ChevronDown, ChevronLeft, ChevronRight, FileText } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  FileText,
+  X,
+} from "lucide-react";
+import "./CardOne.css";
 
-const CardOne = ({ selectedDocs, setSelectedDocs, onCollapseChange }) => {
+interface CardOneProps {
+  selectedDocs: Record<string, any>;
+  setSelectedDocs: (docs: Record<string, any>) => void;
+  onCollapseChange: (collapsed: boolean) => void;
+}
+
+const CardOne = ({
+  selectedDocs,
+  setSelectedDocs,
+  onCollapseChange,
+}: CardOneProps) => {
   // this state variable has been added to keep track of which modules are open
   const [openModules, setOpenModules] = useState({});
   // this state variable has been added to store the document that is currently opened
@@ -111,7 +128,7 @@ const CardOne = ({ selectedDocs, setSelectedDocs, onCollapseChange }) => {
                       onClick={() => setOpenedDoc(null)}
                       className="text-red-500 text-xl hover:text-red-700"
                     >
-                      <FiX />
+                      <X />
                     </button>
                   </div>
                   <div className="mt-2 doc-content">

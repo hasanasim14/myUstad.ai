@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./CardThree.css";
 import ReactMarkdown from "react-markdown";
-import AudioOverview from "./AudioOverview";
+// import AudioOverview from "./AudioOverview";
 import axios from "axios";
-import MindmapModal from "./MindmapModal";
+// import MindmapModal from "./MindmapModal";
 import {
   ChevronLeft,
   ChevronRight,
@@ -16,6 +16,8 @@ import {
   Plus,
 } from "lucide-react";
 import remarkGfm from "remark-gfm";
+import AudioOverview from "./AudioOverview";
+import MindmapModal from "./MindmapModal";
 
 const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   // const [notes, setNotes] = useState([]);
