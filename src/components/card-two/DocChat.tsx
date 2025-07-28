@@ -11,42 +11,42 @@ import {
   Bot,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { Input } from "../ui/input";
 
-// interface DocChatProps {
-//   selectedDocs:,
-//   refreshTrigger:number,
-//   onPinNote:,
-// }
+interface DocChatProps {
+  selectedDocs: string[];
+  refreshTrigger: number;
+  onPinNote: (question: string, answer: string) => void;
+}
 
-const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
-  const initialBotMessage = {
-    from: "bot",
-    text: "Hi there! I'm StudyBot, your AI study assistant. How can I help you today?",
-    time: new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
-  };
+// bot message initially
+const initialBotMessage = {
+  from: "bot",
+  text: "Hi there! I'm StudyBot, your AI study assistant. How can I help you today?",
+  time: new Date().toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  }),
+};
 
+const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
   const [messages, setMessages] = useState([initialBotMessage]);
   const [input, setInput] = useState("");
   const [clickedIndex, setClickedIndex] = useState(null);
   const [playingIndex, setPlayingIndex] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
-
   const audioRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const streamRef = useRef(null);
-
-  // const endpoint = import.meta.env.VITE_API_URL;
   const endpoint = `${process.env.NEXT_PUBLIC_API_URL}`;
 
   useEffect(() => {
     setMessages([initialBotMessage]);
   }, [refreshTrigger]);
 
-  const playNoteAudioFromAPI = async (text, index) => {
+  // eslint-disable-next-line
+  const playNoteAudioFromAPI = async (text: string, index: any) => {
     console.log("in the audio method");
     setClickedIndex(index);
     if (playingIndex === index) {
@@ -192,14 +192,14 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
       const payload = {
         question: userInput,
         timestamp: new Date().toISOString(),
-        session_id: sessionId, // ✅ Add this line
+        session_id: sessionId,
         conversation: conversationHistory,
       };
       const filterpayload = {
         question: payload.question,
         timestamp: payload.timestamp,
         conversation: payload.conversation,
-        session_id: sessionId, // ✅ Add this line
+        session_id: sessionId,
         selectedDocs: selectedDocs,
       };
 
@@ -364,8 +364,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
       </div>
 
       <div className="flex pr-4">
-        <input
-          // className="w-[100]"
+        <Input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -378,12 +377,10 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
         />
         <div
           className="p-2 hover:bg-gray-100 rounded-full"
-          // className="mic-icon"
           onClick={toggleRecording}
           style={{ color: isRecording ? "green" : "black", cursor: "pointer" }}
           title={isRecording ? "Stop Recording" : "Start Recording"}
         >
-          {/* <FaMicrophone size={18} /> */}
           <Mic className="w-6 h-6" />
         </div>
         <button
