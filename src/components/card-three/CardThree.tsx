@@ -1,20 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./CardThree.css";
-import {
-  FiChevronRight,
-  FiInfo,
-  FiHeadphones,
-  FiChevronLeft,
-} from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
 import AudioOverview from "./AudioOverview";
 import axios from "axios";
 import MindmapModal from "./MindmapModal";
 import {
+  ChevronLeft,
   ChevronRight,
   Edit,
   FileText,
   GraduationCap,
+  Headphones,
   MessageSquareText,
   Network,
   Plus,
@@ -298,14 +294,11 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     >
       {isCollapsed ? (
         <div className="flex justify-center p-3 border-b border-gray-200">
-          {/* // <div className="flex justify-end p-2"> */}
           <button
             className="cursor-pointer p-2 rounded-lg hover:bg-gray-200 text-[#64748b]"
             onClick={toggleCollapse}
           >
-            {/* <ChevronRight /> */}
-            <FiChevronLeft />
-            {/* {isCollapsed ? <FiChevronRight /> : <FiChevronLeft />} */}
+            <ChevronLeft />
           </button>
         </div>
       ) : (
@@ -319,7 +312,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
               // onClick={() => setIsCollapsed((prev) => (prev === 1 ? 0 : 1))}
               onClick={toggleCollapse}
             >
-              <FiChevronRight />
+              <ChevronRight />
             </button>
             {/* </span> */}
           </div>
@@ -432,7 +425,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                             outline: "none",
                           }}
                         >
-                          <FiHeadphones />
+                          <Headphones />
                         </button>
                         <button
                           onClick={(e) => {
