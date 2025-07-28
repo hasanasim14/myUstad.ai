@@ -11,7 +11,6 @@ import {
   FileText,
   X,
 } from "lucide-react";
-import "./CardOne.css";
 
 interface CardOneProps {
   selectedDocs: Record<string, any>;
@@ -24,20 +23,20 @@ const CardOne = ({
   setSelectedDocs,
   onCollapseChange,
 }: CardOneProps) => {
-  // this state variable has been added to keep track of which modules are open
-  const [openModules, setOpenModules] = useState({});
-  // this state variable has been added to store the document that is currently opened
-  const [openedDoc, setOpenedDoc] = useState(null);
+  const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [openedDoc, setOpenedDoc] = useState<{
+    name: string;
+    content: string;
+  } | null>(null);
 
-  // this function has been added to toggle the open state of a module
-  const toggleModule = (moduleName) => {
+  // eslint-disable-next-line
+  const toggleModule = (moduleName: any) => {
     setOpenModules((prev) => ({
       ...prev,
       [moduleName]: !prev[moduleName],
     }));
   };
-  // maintaining the state for card
-  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // this function has been added to handle the checkbox change event
   // const handleCheckboxChange = (doc) => {
@@ -51,11 +50,15 @@ const CardOne = ({
   //   });
   // };
 
-  const handleCheckboxChange = (doc) => {
-    setSelectedDocs((prevSelected) => {
-      const exists = prevSelected.some((d) => d.uniqueId === doc.uniqueId);
+  // eslint-disable-next-line
+  const handleCheckboxChange = (doc: any) => {
+    // eslint-disable-next-line
+    setSelectedDocs((prevSelected: any) => {
+      // eslint-disable-next-line
+      const exists = prevSelected.some((d: any) => d.uniqueId === doc.uniqueId);
       if (exists) {
-        return prevSelected.filter((d) => d.uniqueId !== doc.uniqueId);
+        // eslint-disable-next-line
+        return prevSelected.filter((d: any) => d.uniqueId !== doc.uniqueId);
       } else {
         return [...prevSelected, doc];
       }
@@ -63,7 +66,8 @@ const CardOne = ({
   };
 
   // this function has been added to display the contents of a document when the user clicks on it
-  const openDocument = async (doc) => {
+  // eslint-disable-next-line
+  const openDocument = async (doc: any) => {
     try {
       const res = await fetch(doc.viewpath);
       const text = await res.text();
@@ -91,7 +95,6 @@ const CardOne = ({
       }`}
     >
       {isCollapsed ? (
-        // When collapsed: center the button in the entire card
         <div className="flex justify-center p-3 border-b border-gray-200">
           <button
             className="cursor-pointer p-2 rounded-lg hover:bg-gray-200 text-[#64748b]"
@@ -101,12 +104,9 @@ const CardOne = ({
           </button>
         </div>
       ) : (
-        // When expanded: show header + content
         <>
-          {/* Header */}
-          <div className="card-header">
-            {/* <div className="flex items-center justify-between p-2"> */}
-            <span className="title text-lg font-semibold">
+          <div className="flex justify-between items-center font-semibold border-b-[1.5px] border-slate-200 rounded-t-[10px] text-[#222222] bg-[#f8fafc]">
+            <span className="text-[clamp(15px,2vw,17px)] p-[clamp(12px,2vw,19px)] text-lg font-semibold">
               {cardData.title}
             </span>
             <button
@@ -118,7 +118,7 @@ const CardOne = ({
           </div>
 
           {/* Content */}
-          <div className="card-content">
+          <div className="text-sm md:text-base ml-[12px]">
             <div className={`scroll-area ${!openedDoc ? "scrollable" : ""}`}>
               {openedDoc ? (
                 <div className="opened-doc-full p-4">
@@ -175,7 +175,8 @@ const CardOne = ({
                                   type="checkbox"
                                   className="doc-checkbox ml-auto"
                                   checked={selectedDocs.some(
-                                    (d) =>
+                                    // eslint-disable-next-line
+                                    (d: any) =>
                                       d.uniqueId === `${module.name}-${doc.id}`
                                   )}
                                   onChange={() =>

@@ -1,8 +1,22 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from "react";
-import { FaUser, FaRobot } from "react-icons/fa";
-import { Pin, Headphones, Mic, SendHorizonal, Copy } from "lucide-react";
+import {
+  Pin,
+  Headphones,
+  Mic,
+  SendHorizonal,
+  Copy,
+  User,
+  Bot,
+} from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import "./DocChat.css";
+
+// interface DocChatProps {
+//   selectedDocs:,
+//   refreshTrigger:number,
+//   onPinNote:,
+// }
 
 const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
   const initialBotMessage = {
@@ -25,7 +39,8 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
   const audioChunksRef = useRef([]);
   const streamRef = useRef(null);
 
-  const endpoint = import.meta.env.VITE_API_URL;
+  // const endpoint = import.meta.env.VITE_API_URL;
+  const endpoint = `${process.env.NEXT_PUBLIC_API_URL}`;
 
   useEffect(() => {
     setMessages([initialBotMessage]);
@@ -189,7 +204,6 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
       };
 
       let response;
-      console.log("API Endpoint:", import.meta.env.VITE_API_URL);
       if (!selectedDocs || selectedDocs.length === 0) {
         response = await fetch(`${endpoint}/ask`, {
           method: "POST",
@@ -260,12 +274,12 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
             {/* Icon */}
             <div className="flex-shrink-0">
               {msg.from === "user" ? (
-                <FaUser
+                <User
                   size={25}
                   className="text-white bg-[#bbdefb] rounded-full p-1"
                 />
               ) : (
-                <FaRobot
+                <Bot
                   size={25}
                   className="text-white bg-[#c8e6c9] rounded-full p-1"
                 />

@@ -1,14 +1,24 @@
+"use client";
+
 import React, { useState } from "react";
-// import DocChat from "./DocChat";
-import "./CardTwo.css";
 import { RefreshCcw } from "lucide-react";
 import DocChat from "./DocChat";
 
-const CardTwo = ({ onPinNote, selectedDocs }) => {
+interface CardTwoProps {
+  onPinNote: (note: { id: string; content: string }) => void;
+  selectedDocs: {
+    id: number;
+    name: string;
+    uniqueId: string;
+    viewpath: string;
+  }[];
+}
+
+const CardTwo = ({ onPinNote, selectedDocs }: CardTwoProps) => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleRefresh = () => {
-    setRefreshTrigger((prev) => prev + 1); // Increment to trigger Chat reset
+    setRefreshTrigger((prev) => prev + 1);
   };
 
   return (
