@@ -3,18 +3,26 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Info } from "lucide-react";
 
+// eslint-disable-next-line
 const AudioOverview = ({ selectedDocs }: any) => {
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("English");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState("");
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}`;
   const languages = ["English", "Urdu", "Punjabi", "Sindhi", "Pashto"];
-  const sessionId = sessionStorage.getItem("session_id") || "";
 
-  // eslint-disable-next-line
+  // store the session ID if found
+  useEffect(() => {
+    const id = sessionStorage.getItem("session_id");
+    if (id) {
+      setSessionId(id);
+    }
+  }, []);
+
   const handleLanguageSelect = (lang: string) => {
     setSelectedLanguage(lang);
     setShowLanguageMenu(false);
@@ -105,15 +113,12 @@ const AudioOverview = ({ selectedDocs }: any) => {
   }, []);
 
   return (
-    <div className="audio-overview">
-      <div className="audio-header" style={{ position: "relative" }}>
-        <span className="audio-title" style={{ fontSize: "13px" }}>
-          Audio Overview
-        </span>
+    <div className="border border-[#e0e0e0] rounded-lg p-3 mb-4">
+      <div className="flex justify-between items-center font-semibold mb-[10px] relative">
+        <span>Audio Overview</span>
         <Info
-          className="info-icon"
+          className="cursor-pointer"
           onClick={() => setShowLanguageMenu(!showLanguageMenu)}
-          style={{ cursor: "pointer" }}
         />
         {showLanguageMenu && (
           <div className="absolute top-full right-0 bg-white border border-[#ccc] p-2 z-[100] rounded shadow-[#00000026]">
@@ -137,8 +142,8 @@ const AudioOverview = ({ selectedDocs }: any) => {
         )}
       </div>
 
-      <div className="load-box">
-        <span className="load-text" style={{ fontSize: "11px" }}>
+      <div className="flex flex-row flex-nowrap items-center justify-between gap-3 mt-3 w-full">
+        <span className="flex-grow flex-shrink text-[clamp(13px,2vw,14px)] whitespace-nowrap overflow-hidden text-ellipsis m-0">
           Click to generate the podcast.
         </span>
         <button
@@ -148,7 +153,7 @@ const AudioOverview = ({ selectedDocs }: any) => {
         >
           {loading ? (
             <div className="flex items-center justify-center">
-              <div className="spinner" />
+              <div className="border-[4px] border-[#f3f3f3] border-t-[#7d868c] rounded-full w-[clamp(14px,2vw,18px)] h-[clamp(14px,2vw,18px)] animate-spin" />
             </div>
           ) : (
             "Generate"
@@ -156,7 +161,7 @@ const AudioOverview = ({ selectedDocs }: any) => {
         </button>
       </div>
 
-      {error && <div style={{ color: "red", marginTop: "8px" }}>{error}</div>}
+      {error && <div className="color-red-500 mt-2">{error}</div>}
 
       {audioUrl && (
         <div style={{ marginTop: "16px" }}>
