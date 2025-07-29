@@ -3,7 +3,12 @@
 import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { cardData } from "@/lib/utils";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 import {
   ChevronDown,
   ChevronLeft,
@@ -11,10 +16,11 @@ import {
   FileText,
   X,
 } from "lucide-react";
+import { cardData } from "@/lib/utils";
 
 interface CardOneProps {
-  selectedDocs: Record<string, any>;
-  setSelectedDocs: (docs: Record<string, any>) => void;
+  selectedDocs: any;
+  setSelectedDocs: any;
   onCollapseChange: (collapsed: boolean) => void;
 }
 
@@ -23,41 +29,16 @@ const CardOne = ({
   setSelectedDocs,
   onCollapseChange,
 }: CardOneProps) => {
-  const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [openedDoc, setOpenedDoc] = useState<{
     name: string;
     content: string;
   } | null>(null);
 
-  // eslint-disable-next-line
-  const toggleModule = (moduleName: any) => {
-    setOpenModules((prev) => ({
-      ...prev,
-      [moduleName]: !prev[moduleName],
-    }));
-  };
-
-  // this function has been added to handle the checkbox change event
-  // const handleCheckboxChange = (doc) => {
-  //   setSelectedDocs(prevSelected => {
-  //     const exists = prevSelected.some(d => d.id === doc.id);
-  //     if (exists) {
-  //       return prevSelected.filter(d => d.id !== doc.id);
-  //     } else {
-  //       return [...prevSelected, doc];
-  //     }
-  //   });
-  // };
-
-  // eslint-disable-next-line
   const handleCheckboxChange = (doc: any) => {
-    // eslint-disable-next-line
     setSelectedDocs((prevSelected: any) => {
-      // eslint-disable-next-line
       const exists = prevSelected.some((d: any) => d.uniqueId === doc.uniqueId);
       if (exists) {
-        // eslint-disable-next-line
         return prevSelected.filter((d: any) => d.uniqueId !== doc.uniqueId);
       } else {
         return [...prevSelected, doc];
@@ -65,8 +46,6 @@ const CardOne = ({
     });
   };
 
-  // this function has been added to display the contents of a document when the user clicks on it
-  // eslint-disable-next-line
   const openDocument = async (doc: any) => {
     try {
       const res = await fetch(doc.viewpath);
@@ -117,7 +96,6 @@ const CardOne = ({
             </button>
           </div>
 
-          {/* Content */}
           <div className="text-sm md:text-base ml-[12px]">
             <div className={`scroll-area ${!openedDoc ? "scrollable" : ""}`}>
               {openedDoc ? (
@@ -143,23 +121,19 @@ const CardOne = ({
                     Test Development and Evaluation
                   </h3>
 
-                  {cardData.modules.map((module, idx) => {
-                    const isOpen = openModules[module.name];
-                    return (
-                      <div key={idx} className="module px-4 py-2">
-                        <div
-                          className="module-header flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded"
-                          onClick={() => toggleModule(module.name)}
-                        >
-                          {isOpen ? <ChevronDown /> : <ChevronRight />}
-                          <span className="module-name font-medium">
-                            {module.name}
-                          </span>
-                        </div>
-
-                        {isOpen && module.documents.length > 0 && (
-                          <div className="module-documents pl-6">
-                            {module.documents.map((doc, docIdx) => (
+                  <Accordion type="multiple" className="w-full">
+                    {cardData.modules.map((module, idx) => (
+                      <AccordionItem
+                        key={idx}
+                        value={module.name}
+                        className="px-4"
+                      >
+                        <AccordionTrigger className="flex items-center gap-2 text-sm font-medium">
+                          {module.name}
+                        </AccordionTrigger>
+                        <AccordionContent className="pl-6">
+                          {module.documents.length > 0 ? (
+                            module.documents.map((doc, docIdx) => (
                               <div
                                 key={docIdx}
                                 className="document flex items-center gap-2 py-1"
@@ -175,7 +149,6 @@ const CardOne = ({
                                   type="checkbox"
                                   className="doc-checkbox ml-auto"
                                   checked={selectedDocs.some(
-                                    // eslint-disable-next-line
                                     (d: any) =>
                                       d.uniqueId === `${module.name}-${doc.id}`
                                   )}
@@ -187,12 +160,16 @@ const CardOne = ({
                                   }
                                 />
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                            ))
+                          ) : (
+                            <p className="text-sm text-gray-400">
+                              No documents available
+                            </p>
+                          )}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
 
                   {cardData.audioOverview && (
                     <div className="extra-link px-4 py-2 text-blue-600 hover:underline cursor-pointer">
