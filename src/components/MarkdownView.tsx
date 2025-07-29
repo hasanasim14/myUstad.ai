@@ -157,7 +157,6 @@ import DOMPurify from "dompurify";
 // import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 // import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import slugify from "slugify";
-// import "./MarkdownViewer.css";
 
 const SOURCE_MAP: Record<string, string> = {
   "classroom-assessment-for-student-learning-jan-chappuis-et-al-second-edition":
@@ -249,8 +248,6 @@ const MarkdownViewer = () => {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const endpoint = process.env.NEXT_PUBLIC_API_URL;
-
   useEffect(() => {
     const el = document.querySelector(".highlight-chunk");
     if (el) {
@@ -283,14 +280,17 @@ const MarkdownViewer = () => {
         if (chunkId) {
           const actualSourceName = SOURCE_MAP[bookSlug] || bookSlug;
 
-          const apiRes = await fetch(`${endpoint}/getchunk`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              source: actualSourceName,
-              chunkid: chunkId,
-            }),
-          });
+          const apiRes = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/getchunk`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                source: actualSourceName,
+                chunkid: chunkId,
+              }),
+            }
+          );
 
           const json = await apiRes.json();
 

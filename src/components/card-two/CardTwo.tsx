@@ -5,7 +5,7 @@ import { RefreshCcw } from "lucide-react";
 import DocChat from "./DocChat";
 
 interface CardTwoProps {
-  onPinNote: (note: { id: string; content: string }) => void;
+  onPinNote: any;
   selectedDocs: {
     id: number;
     name: string;

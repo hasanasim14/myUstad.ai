@@ -12,7 +12,6 @@ const AudioOverview = ({ selectedDocs }: any) => {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState("");
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}`;
   const languages = ["English", "Urdu", "Punjabi", "Sindhi", "Pashto"];
 
   // store the session ID if found
@@ -38,12 +37,15 @@ const AudioOverview = ({ selectedDocs }: any) => {
   const pollForPodcast = (key: string) => {
     pollingIntervalRef.current = setInterval(async () => {
       try {
-        const response = await fetch(`${endpoint}/fetch/podcast/${key}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/fetch/podcast/${key}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (!response.ok)
           throw new Error(`Polling failed: ${response.statusText}`);
@@ -76,17 +78,20 @@ const AudioOverview = ({ selectedDocs }: any) => {
     clearPolling();
 
     try {
-      const response = await fetch(`${endpoint}/v1/podcast`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          session_id: sessionId,
-          language: selectedLanguage,
-          selectedDocs,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/v1/podcast`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            session_id: sessionId,
+            language: selectedLanguage,
+            selectedDocs,
+          }),
+        }
+      );
 
       if (!response.ok) throw new Error(`API error: ${response.statusText}`);
 

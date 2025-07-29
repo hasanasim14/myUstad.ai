@@ -14,7 +14,7 @@ import ReactMarkdown from "react-markdown";
 import { Input } from "../ui/input";
 
 interface DocChatProps {
-  selectedDocs: string[];
+  selectedDocs: any;
   refreshTrigger: number;
   onPinNote: (question: string, answer: string) => void;
 }
@@ -39,7 +39,6 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
-  const endpoint = `${process.env.NEXT_PUBLIC_API_URL}`;
 
   useEffect(() => {
     setMessages([initialBotMessage]);
@@ -60,8 +59,8 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
     }
 
     try {
-      console.log("the endpoint being called is", `${endpoint}/generate-audio`);
-      const response = await fetch(`${endpoint}/generate-audio/`, {
+      console.log("the endpoint being called is", `${process.env.NEXT_PUBLIC_API_URL}/generate-audio`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-audio/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text }),
@@ -125,7 +124,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
           formData.append("audio", audioBlob, "recording.webm");
 
           try {
-            const response = await fetch(`${endpoint}/transcribe`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/transcribe`, {
               method: "POST",
               body: formData,
             });
@@ -205,14 +204,14 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
 
       let response;
       if (!selectedDocs || selectedDocs.length === 0) {
-        response = await fetch(`${endpoint}/ask`, {
+        response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ask`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
       } else {
         console.log("Selected Docs being sent:", selectedDocs);
-        response = await fetch(`${endpoint}/query_with_filter`, {
+        response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/query_with_filter`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(filterpayload),
