@@ -35,10 +35,10 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
   const [clickedIndex, setClickedIndex] = useState(null);
   const [playingIndex, setPlayingIndex] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
-  const audioRef = useRef(null);
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
-  const streamRef = useRef(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
   const endpoint = `${process.env.NEXT_PUBLIC_API_URL}`;
 
   useEffect(() => {
@@ -145,7 +145,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
     }
   };
 
-  const sendMessage = async (customInput) => {
+  const sendMessage = async (customInput: any) => {
     const userInput = customInput || input;
     if (!userInput.trim()) return;
 

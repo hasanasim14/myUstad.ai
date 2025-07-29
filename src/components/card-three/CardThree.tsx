@@ -1,9 +1,8 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from "react";
-import "./CardThree.css";
 import ReactMarkdown from "react-markdown";
-// import AudioOverview from "./AudioOverview";
 import axios from "axios";
-// import MindmapModal from "./MindmapModal";
 import {
   ChevronLeft,
   ChevronRight,
@@ -16,14 +15,43 @@ import {
   Plus,
 } from "lucide-react";
 import remarkGfm from "remark-gfm";
-import AudioOverview from "./AudioOverview";
+// import AudioOverview from "./AudioOverview";
 import MindmapModal from "./MindmapModal";
+import AudioOverview from "./AudioOverview";
 
-const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
-  // const [notes, setNotes] = useState([]);
+interface CardThreeProps {
+  notes: Array<{
+    title: string;
+    content: string;
+    editable?: boolean;
+    type?: string;
+  }>;
+  setNotes: React.Dispatch<
+    React.SetStateAction<
+      Array<{
+        title: string;
+        content: string;
+        editable?: boolean;
+        type?: string;
+      }>
+    >
+  >;
+  selectedDocs: any;
+  onCollapseChange?: (collapsed: boolean) => void;
+}
+
+// interface for nodes/markdown
+type MarkdownComponentProps = {
+  children?: React.ReactNode;
+};
+
+const CardThree = ({
+  notes,
+  setNotes,
+  selectedDocs,
+  onCollapseChange,
+}: CardThreeProps) => {
   const [menuOpenIndex, setMenuOpenIndex] = useState(null);
-  const menuRef = useRef(null);
-  const modalRef = useRef(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentEditNoteIndex, setCurrentEditNoteIndex] = useState(null);
   const [editTitle, setEditTitle] = useState("");
@@ -38,15 +66,16 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   const [mindmapOpen, setMindmapOpen] = useState(false);
   const [mindmapMarkdown, setMindmapMarkdown] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
-
-  const endpoint = import.meta.env.VITE_API_URL;
+  const menuRef = useRef(null);
+  const modalRef = useRef(null);
+  const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}`;
 
   // better formatting for markdown
   const renderers = {
-    h4: ({ children }) => (
+    h4: ({ children }: MarkdownComponentProps) => (
       <h4 style={{ fontWeight: "bold", marginTop: "1.5rem" }}>{children}</h4>
     ),
-    p: ({ children }) => (
+    p: ({ children }: MarkdownComponentProps) => (
       <p style={{ marginBottom: "1rem", lineHeight: 1.6 }}>{children}</p>
     ),
   };
@@ -82,17 +111,14 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
       setMindmapMarkdown(markdownContent);
       setMindmapOpen(true);
     } catch (error) {
-      console.error(
-        "Error generating mindmap",
-        error.response?.data || error.message
-      );
+      console.error("Error generating mindmap:", error);
     } finally {
       setLoading(false);
     }
   };
 
   // function added to play the audio of the note content when the user clicks on the headphone icon
-  const playNoteAudioFromAPI = async (text, index) => {
+  const playNoteAudioFromAPI = async (text: string, index: any) => {
     setClickedIndex(index);
     if (playingIndex === index) {
       if (audioRef.current) {

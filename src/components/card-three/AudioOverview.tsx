@@ -1,29 +1,25 @@
-import React, { useEffect, useRef, useState } from "react";
-import { FiInfo } from "react-icons/fi";
-import "./CardThree.css";
-import "./AudioOverview.css";
+"use client";
 
-const AudioOverview = ({ selectedDocs }) => {
+import React, { useEffect, useRef, useState } from "react";
+import { Info } from "lucide-react";
+
+const AudioOverview = ({ selectedDocs }: any) => {
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("English");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [audioUrl, setAudioUrl] = useState(null);
-  const pollingIntervalRef = useRef(null);
-  const endpoint = import.meta.env.VITE_API_URL;
-
+  const [error, setError] = useState("");
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}`;
   const languages = ["English", "Urdu", "Punjabi", "Sindhi", "Pashto"];
   const sessionId = sessionStorage.getItem("session_id") || "";
 
-  // this function handles the selection of a language from the dropdown menu
-  // it updates the selectedLanguage state and closes the menu
-  const handleLanguageSelect = (lang) => {
+  // eslint-disable-next-line
+  const handleLanguageSelect = (lang: string) => {
     setSelectedLanguage(lang);
     setShowLanguageMenu(false);
   };
 
-  // this function handles the click event for generating the podcast
-  // it sends a POST request to the backend with the selected language and documents
   const clearPolling = () => {
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
@@ -31,7 +27,7 @@ const AudioOverview = ({ selectedDocs }) => {
     }
   };
 
-  const pollForPodcast = (key) => {
+  const pollForPodcast = (key: string) => {
     pollingIntervalRef.current = setInterval(async () => {
       try {
         const response = await fetch(`${endpoint}/fetch/podcast/${key}`, {
@@ -55,21 +51,21 @@ const AudioOverview = ({ selectedDocs }) => {
         } else {
           console.log("Audio not ready yet. Will retry...");
         }
-      } catch (err) {
-        console.error("Polling error:", err);
+      } catch (error) {
+        console.error("Polling error:", error);
         setError("Failed to fetch podcast audio.");
         clearPolling();
         setLoading(false);
       }
-    }, 30000); // every 30 seconds
+    }, 30000);
   };
 
   const handleGenerateClick = async () => {
-    localStorage.removeItem("Key"); // remove previous session key
+    localStorage.removeItem("Key");
     setLoading(true);
-    setError(null);
+    setError("");
     setAudioUrl(null);
-    clearPolling(); // just in case
+    clearPolling();
 
     try {
       const response = await fetch(`${endpoint}/v1/podcast`, {
@@ -92,9 +88,8 @@ const AudioOverview = ({ selectedDocs }) => {
 
       localStorage.setItem("Key", key);
       pollForPodcast(key);
-    } catch (err) {
-      console.error("Failed to generate podcast:", err);
-      setError(err.message || "Failed to generate podcast");
+    } catch (error) {
+      console.error("Failed to generate podcast:", error);
       setLoading(false);
     }
   };
@@ -106,7 +101,7 @@ const AudioOverview = ({ selectedDocs }) => {
       pollForPodcast(key);
     }
 
-    return () => clearPolling(); // clean up when component unmounts
+    return () => clearPolling();
   }, []);
 
   return (
@@ -115,46 +110,26 @@ const AudioOverview = ({ selectedDocs }) => {
         <span className="audio-title" style={{ fontSize: "13px" }}>
           Audio Overview
         </span>
-        <FiInfo
+        <Info
           className="info-icon"
           onClick={() => setShowLanguageMenu(!showLanguageMenu)}
           style={{ cursor: "pointer" }}
         />
         {showLanguageMenu && (
-          <div
-            style={{
-              position: "absolute",
-              top: "100%",
-              right: 0,
-              backgroundColor: "white",
-              border: "1px solid #ccc",
-              padding: "8px",
-              zIndex: 100,
-              borderRadius: "4px",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-            }}
-          >
-            <div
-              style={{
-                marginBottom: "4px",
-                fontWeight: "normal",
-                fontSize: "10px",
-              }}
-            >
-              Select Language:
-            </div>
+          <div className="absolute top-full right-0 bg-white border border-[#ccc] p-2 z-[100] rounded shadow-[#00000026]">
+            <div className="mb-1 font-normal text-[10px]">Select Language:</div>
             {languages.map((lang) => (
               <div
                 key={lang}
                 onClick={() => handleLanguageSelect(lang)}
-                style={{
-                  cursor: "pointer",
-                  padding: "4px 0",
-                  fontSize: "9px",
-                  fontWeight: lang === selectedLanguage ? "bold" : "normal",
-                  color: lang === selectedLanguage ? "#007bff" : "inherit",
-                }}
+                className={`cursor-pointer py-1 text-[9px] ${
+                  lang === selectedLanguage
+                    ? "font-bold text-[#007bff]"
+                    : "font-normal"
+                }`}
               >
+                {lang}
+
                 {lang}
               </div>
             ))}
@@ -172,13 +147,7 @@ const AudioOverview = ({ selectedDocs }) => {
           disabled={loading || selectedDocs.length === 0}
         >
           {loading ? (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
+            <div className="flex items-center justify-center">
               <div className="spinner" />
             </div>
           ) : (
