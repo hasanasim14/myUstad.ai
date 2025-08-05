@@ -91,9 +91,9 @@ export default function LoginForm() {
               Not Harder
             </h2>
             <p className="text-sm text-black font-light">
-              "Success doesn’t come from what you do occasionally, it comes from
-              what you do consistently. Focus, learn, revise — and believe in
-              your potential."
+              &quot;Success doesn&apos;t come from what you do occasionally, it
+              comes from what you do consistently. Focus, learn, revise — and
+              believe in your potential.&quot;
             </p>
           </div>
         </div>

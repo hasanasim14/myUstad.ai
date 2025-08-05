@@ -1,12 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Bell, Languages, Menu, User, X } from "lucide-react";
+import {
+  Bell,
+  CircleUser,
+  Languages,
+  LogOut,
+  Menu,
+  User,
+  X,
+} from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Button } from "./ui/button";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const router = useRouter();
 
   useEffect(() => {
     const handleResize = () => {
@@ -21,6 +35,14 @@ const Navbar = () => {
 
   const toggleMenu = () => {
     setShowMenu(!showMenu);
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    toast.success("Logged out successfully");
+    setTimeout(() => {
+      router.push("/login");
+    }, 500);
   };
 
   return (
@@ -62,18 +84,41 @@ const Navbar = () => {
         <div className="flex items-center space-x-4">
           {!isMobile && (
             <>
-              <button className="flex items-center space-x-2 text-gray-900 hover:text-gray-700 transition-colors duration-200 cursor-pointer">
+              <Button className="bg-transparent hover:bg-[#e5e5e5] flex items-center space-x-2 text-gray-900 hover:text-gray-700 transition-colors duration-200">
                 <Languages className="w-5 h-5" />
                 <span className="text-sm font-medium">English</span>
-              </button>
+              </Button>
 
-              <button className="cursor-pointer bg-[#f5f5f5] hover:bg-[#e5e5e5] text-gray-800 p-2 rounded-full border border-gray-300 shadow-sm transition duration-200">
-                <Bell className="w-4 h-4" />
-              </button>
+              <Button className="h-10 w-10 rounded-full p-2 bg-[#f5f5f5] hover:bg-[#e5e5e5] text-gray-800 border border-gray-300">
+                <Bell className="w-5 h-5" />
+              </Button>
 
-              <button className="cursor-pointer bg-[#f5f5f5] hover:bg-[#e5e5e5] text-gray-800 p-2 rounded-full border border-gray-300 shadow-sm transition duration-200">
-                <User className="w-4 h-4" />
-              </button>
+              <div className="relative inline-block text-left z-50">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button className="h-10 w-10 rounded-full p-2 bg-[#f5f5f5] hover:bg-[#e5e5e5] text-gray-800 border border-gray-300">
+                      <CircleUser className="h-5 w-5" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-56 p-1 rounded-lg border border-gray-300 bg-[#f5f5f5] hover:bg-[#e5e5e5] text-white"
+                    align="end"
+                    sideOffset={8}
+                  >
+                    <div className="grid gap-0.5 font-mono">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="justify-start gap-2 px-3 py-2 h-8 text-sm font-normal text-red-500 hover:bg-red-200 hover:text-red-400"
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="h-3.5 w-3.5 text-red-500" />
+                        <span>Logout</span>
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
             </>
           )}
 
