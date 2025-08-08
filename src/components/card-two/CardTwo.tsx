@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { RefreshCcw } from "lucide-react";
+import { RefreshCcw, Trash2 } from "lucide-react";
 import DocChat from "./DocChat";
 
 interface CardTwoProps {
@@ -17,26 +17,23 @@ interface CardTwoProps {
 const CardTwo = ({ onPinNote, selectedDocs }: CardTwoProps) => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const handleRefresh = () => {
+  const handleClear = () => {
     setRefreshTrigger((prev) => prev + 1);
   };
 
   return (
-    <div className="h-[84vh] md:border md:rounded-lg border-gray-200">
-      <div className="flex justify-between items-center font-semibold border-b-[1.5px] border-slate-200 m-0 rounded-t-[10px] text-[#222222] h-[60px] bg-[#f8fafc]">
+    <div className="h-[83vh] md:border md:rounded-lg border-neutral-500  text-white">
+      <div className="flex justify-between items-center font-semibold p-2 pb-3 bg-white/5 border-b border-neutral-500 ">
         <span>AI Chat</span>
         <div
-          className="flex items-center gap-1 text-[13px] text-slate-500 cursor-pointer hover:bg-gray-200 rounded-lg p-2 mr-2"
-          onClick={handleRefresh}
-          style={{ cursor: "pointer" }}
+          className="flex items-center gap-1 text-[13px] cursor-pointer hover:bg-red-200 hover:text-red-500 rounded-lg p-2 mr-2"
+          onClick={handleClear}
         >
-          <RefreshCcw className="text-[17px] pr-[5px]" />
-          <span className="text-[14px] text-slate-500 cursor-pointer">
-            Refresh
-          </span>
+          <Trash2 className="mr-2" />
+          <span className="text-base">Clear</span>
         </div>
       </div>
-      <div className="p-[5px] h-[calc(100%-60px)] overflow-y-auto">
+      <div className="p-3 h-[calc(100%-60px)] overflow-y-auto">
         <DocChat
           refreshTrigger={refreshTrigger}
           onPinNote={onPinNote}

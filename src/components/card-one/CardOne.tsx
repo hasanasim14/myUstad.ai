@@ -63,7 +63,7 @@ const CardOne = ({
 
   return (
     <div
-      className={`h-[83vh] md:border md:rounded-lg border-gray-200 transition-all duration-300 overflow-hidden ${
+      className={`h-[83vh] md:border md:rounded-lg border-neutral-500 transition-all duration-300 overflow-hidden text-white ${
         isCollapsed ? "w-15" : "w-full"
       }`}
     >
@@ -78,7 +78,7 @@ const CardOne = ({
         </div>
       ) : (
         <>
-          <div className="flex justify-between items-center font-semibold border-b-[1.5px] border-slate-200 rounded-t-[10px] text-[#222222] bg-[#f8fafc]">
+          <div className="flex justify-between items-center font-semibold border-b-[1.5px] border-slate-200 rounded-t-[10px] bg-white/5">
             <span className="text-[clamp(15px,2vw,17px)] p-[clamp(12px,2vw,19px)] text-lg font-semibold">
               {cardData.title}
             </span>
@@ -186,92 +186,3 @@ const CardOne = ({
 };
 
 export default CardOne;
-
-// below is the implementation for opening a pdf instead of a markdown file in the left panel when the user clicks on the document name
-//   const openDocument = (doc) => {
-//   setOpenedDoc({
-//     name: doc.name,
-//     viewpath: doc.viewpath
-//   });
-// };
-
-{
-  /* <div className="card-content">
-  {openedDoc ? (
-    <div className="opened-doc-full" style={{ padding: '20px', backgroundColor: ' f9f9f9', borderRadius: '8px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3>{openedDoc.name}</h3>
-        <button
-          onClick={() => setOpenedDoc(null)}
-          style={{
-            border: 'none',
-            background: 'transparent',
-            fontSize: '20px',
-            cursor: 'pointer'
-          }}
-        >
-          ❌
-        </button>
-      </div>
-
-      <div style={{ marginTop: '20px' }}>
-        {openedDoc.viewpath.toLowerCase().endsWith('.pdf') ? (
-          // === Render PDF in iframe ===
-          <iframe
-            src={openedDoc.viewpath}
-            title={openedDoc.name}
-            width="100%"
-            height="600px"
-            style={{ border: '1px solid #ccc', borderRadius: '4px' }}
-          ></iframe>
-        ) : (
-          // === Fallback if not PDF, treat as text/markdown ===
-          <ReactMarkdown>{openedDoc.content}</ReactMarkdown>
-        )}
-      </div>
-    </div>
-  ) : (
-    // === Normal modules view ===
-    <>
-      <h3>Test Development and Evaluation</h3>
-
-      {cardData.modules.map((module, idx) => {
-        const isOpen = openModules[module.name];
-        return (
-          <div key={idx} className="module">
-            <div className="module-header" onClick={() => toggleModule(module.name)}>
-              {isOpen ? <FiChevronDown /> : <FiChevronRight />}
-              <span className="module-name">{module.name}</span>
-            </div>
-            {isOpen && module.documents.length > 0 && (
-              <div className="module-documents">
-                {module.documents.map((doc, docIdx) => (
-                  <div key={docIdx} className="document">
-                    <FiFileText className="doc-icon" />
-                    <span
-                      className="doc-link"
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => openDocument(doc)}
-                    >
-                      {doc.name}
-                    </span>
-                    <input
-                      type="checkbox"
-                      className="doc-checkbox"
-                      checked={selectedDocs.some(d => d.id === doc.id)}
-                      onChange={() => handleCheckboxChange(doc)}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })}
-
-      {cardData.audioOverview && <div className="extra-link">▶ Audio Overview</div>}
-      {cardData.notesAndHighlights && <div className="extra-link">🗒️ Notes and Highlights</div>}
-    </>
-  )}
-</div> */
-}

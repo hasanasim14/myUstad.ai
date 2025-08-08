@@ -252,11 +252,11 @@ const CardThree = ({
   };
 
   const librarybtn =
-    "flex items-center justify-center bg-[#f5f5f5] rounded-xl p-2 text-sm font-semibold cursor-pointer border border-gray-200 hover:bg-[#e0e0e0] text-black";
+    "flex items-center justify-center bg-white/5 p-2 text-sm font-semibold border border-neutral-500 hover:bg-[#333333]";
 
   return (
     <div
-      className={`h-[84vh] md:border md:rounded-lg border-gray-200 transition-all duration-300 ease-in-out overflow-hidden ml-auto ${
+      className={`h-[83vh] md:border md:rounded-lg border-neutral-500 transition-all duration-300 ease-in-out overflow-hidden ml-auto text-white ${
         isCollapsed ? "w-15" : "w-full"
       }`}
     >
@@ -271,8 +271,9 @@ const CardThree = ({
         </div>
       ) : (
         <>
-          <div className="flex justify-between items-center font-semibold border-b-[1.5px] border-slate-200 rounded-t-[10px] text-[#222222] h-[60px] bg-[#f8fafc] m-0">
-            <span className="p-5 text-base">Library</span>
+          <div className="flex justify-between items-center font-semibold border-b border-neutral-500  p-2 bg-white/5">
+            {/* Check the padding */}
+            <span className="p-1 text-base">Library</span>
             <button
               className="cursor-pointer p-2 m-2 rounded-lg hover:bg-gray-200 text-[#64748b]"
               onClick={toggleCollapse}
@@ -282,8 +283,11 @@ const CardThree = ({
           </div>
           <div className="p-3">
             <AudioOverview selectedDocs={selectedDocs} />
-            <div className="border-t-[1.5px] border-t-[#e2e8f0]">
-              <span className="mb-2 block text-sm">Notes</span>
+            {/* <div className="border-t border-[#7a7a7a]"> */}
+            <div className="border-t border-neutral-500">
+              <span className="text-center p-2 block text-sm font-bold">
+                Notes
+              </span>
               <Button
                 className={`w-full mb-2 ${librarybtn}`}
                 onClick={handleAddNote}

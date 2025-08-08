@@ -10,8 +10,6 @@ import { useRouter } from "next/navigation";
 const Navbar = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-
   const router = useRouter();
 
   useEffect(() => {
@@ -38,17 +36,20 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white/5 backdrop-blur-md text-white px-4 py-3 shadow">
-      <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
+    <nav className="bg-white/5 backdrop-blur-md text-white px-4 py-2 shadow">
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-6">
           <span className="text-2xl font-bold tracking-wide">myUstad.ai</span>
         </div>
 
         {!isMobile && (
           <div className="flex space-x-6 text-sm font-medium text-gray-200">
-            <a href="#" className="hover:text-white
+            <a
+              href="#"
+              className="hover:text-white
             
-            transition-colors">
+            transition-colors"
+            >
               Home
             </a>
             <a href="#" className="hover:text-gray-800 transition-colors">
@@ -66,24 +67,24 @@ const Navbar = () => {
         <div className="flex items-center space-x-4">
           {!isMobile && (
             <>
-              <Button className="bg-transparent hover:bg-[#333333] flex items-center space-x-2 text-white transition-colors duration-200">
+              <Button className="bg-transparent hover:bg-[#333333] flex items-center space-x-2 transition-colors duration-200">
                 <Languages className="w-5 h-5" />
                 <span className="text-sm font-medium">English</span>
               </Button>
 
-              <Button className="h-10 w-10 rounded-full p-2 bg-[#2b2b2b] hover:bg-[#333333] text-white">
+              <Button className="h-10 w-10 rounded-full p-2 bg-[#2b2b2b] hover:bg-[#333333]">
                 <Bell className="w-5 h-5" />
               </Button>
 
               <div className="relative inline-block text-left z-50">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button className="h-10 w-10 rounded-full p-2 bg-[#2b2b2b] hover:bg-[#333333] text-white">
+                    <Button className="h-10 w-10 rounded-full p-2 bg-[#2b2b2b] hover:bg-[#333333]">
                       <CircleUser className="h-5 w-5" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent
-                    className="w-56 p-1 rounded-lg border border-gray-300 bg-[#f5f5f5] hover:bg-[#e5e5e5] text-white"
+                    className="w-56 p-1 rounded-lg border bg-[#0a0a0a] border-[#414141]"
                     align="end"
                     sideOffset={8}
                   >
@@ -91,7 +92,7 @@ const Navbar = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="justify-start gap-2 px-3 py-2 h-8 text-sm font-normal text-red-500 hover:bg-red-200 hover:text-red-400"
+                        className="justify-start gap-2 px-3 py-2 h-8 text-sm font-normal text-red-500 hover:bg-[#2a0e0e] hover:text-red-400"
                         onClick={handleLogout}
                       >
                         <LogOut className="h-3.5 w-3.5 text-red-500" />
