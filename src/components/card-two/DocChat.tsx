@@ -59,12 +59,18 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
     }
 
     try {
-      console.log("the endpoint being called is", `${process.env.NEXT_PUBLIC_API_URL}/generate-audio`);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-audio/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
+      console.log(
+        "the endpoint being called is",
+        `${process.env.NEXT_PUBLIC_API_URL}/generate-audio`
+      );
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/generate-audio/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        }
+      );
 
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
@@ -124,10 +130,13 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
           formData.append("audio", audioBlob, "recording.webm");
 
           try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/transcribe`, {
-              method: "POST",
-              body: formData,
-            });
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/transcribe`,
+              {
+                method: "POST",
+                body: formData,
+              }
+            );
 
             const data = await response.json();
             setInput(data.transcription);
@@ -191,31 +200,34 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
       const payload = {
         question: userInput,
         timestamp: new Date().toISOString(),
-        session_id: sessionId,
+        session_id: "5e8e8e1e-428c-48d9-826b-709efda170d7",
         conversation: conversationHistory,
       };
       const filterpayload = {
         question: payload.question,
         timestamp: payload.timestamp,
         conversation: payload.conversation,
-        session_id: sessionId,
+        session_id: "5e8e8e1e-428c-48d9-826b-709efda170d7",
         selectedDocs: selectedDocs,
       };
 
       let response;
       if (!selectedDocs || selectedDocs.length === 0) {
-        response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ask`, {
+        response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/ask`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
       } else {
         console.log("Selected Docs being sent:", selectedDocs);
-        response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/query_with_filter`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(filterpayload),
-        });
+        response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/query_with_filter`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(filterpayload),
+          }
+        );
       }
 
       const data = await response.json();
@@ -366,6 +378,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
         <Input
           type="text"
           value={input}
+          className="flex-grow px-2 py-1 text-sm ml-2"
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {

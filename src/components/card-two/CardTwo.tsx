@@ -22,7 +22,7 @@ const CardTwo = ({ onPinNote, selectedDocs }: CardTwoProps) => {
   };
 
   return (
-    <div className="h-[85vh] md:border md:rounded-lg border-gray-200">
+    <div className="h-[84vh] md:border md:rounded-lg border-gray-200">
       <div className="flex justify-between items-center font-semibold border-b-[1.5px] border-slate-200 m-0 rounded-t-[10px] text-[#222222] h-[60px] bg-[#f8fafc]">
         <span>AI Chat</span>
         <div

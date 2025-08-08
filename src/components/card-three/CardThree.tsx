@@ -256,7 +256,7 @@ const CardThree = ({
 
   return (
     <div
-      className={`h-[85vh] md:border md:rounded-lg border-gray-200 transition-all duration-300 ease-in-out overflow-hidden ml-auto ${
+      className={`h-[84vh] md:border md:rounded-lg border-gray-200 transition-all duration-300 ease-in-out overflow-hidden ml-auto ${
         isCollapsed ? "w-15" : "w-full"
       }`}
     >

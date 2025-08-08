@@ -1,15 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Bell,
-  CircleUser,
-  Languages,
-  LogOut,
-  Menu,
-  User,
-  X,
-} from "lucide-react";
+import { Bell, CircleUser, Languages, LogOut, Menu, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
@@ -46,27 +38,17 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white text-black shadow-sm relative z-50">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+    <nav className="bg-white/5 backdrop-blur-md text-white px-4 py-3 shadow">
+      <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
         <div className="flex items-center space-x-6">
           <span className="text-2xl font-bold tracking-wide">myUstad.ai</span>
-
-          {!isMobile && (
-            <div className="flex-grow mx-6">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="What do you want to learn?"
-                className="w-[20vw] max-w-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 text-sm"
-              />
-            </div>
-          )}
         </div>
 
         {!isMobile && (
-          <div className="flex space-x-6 text-sm font-medium text-gray-500">
-            <a href="#" className="hover:text-gray-800 transition-colors">
+          <div className="flex space-x-6 text-sm font-medium text-gray-200">
+            <a href="#" className="hover:text-white
+            
+            transition-colors">
               Home
             </a>
             <a href="#" className="hover:text-gray-800 transition-colors">
@@ -84,19 +66,19 @@ const Navbar = () => {
         <div className="flex items-center space-x-4">
           {!isMobile && (
             <>
-              <Button className="bg-transparent hover:bg-[#e5e5e5] flex items-center space-x-2 text-gray-900 hover:text-gray-700 transition-colors duration-200">
+              <Button className="bg-transparent hover:bg-[#333333] flex items-center space-x-2 text-white transition-colors duration-200">
                 <Languages className="w-5 h-5" />
                 <span className="text-sm font-medium">English</span>
               </Button>
 
-              <Button className="h-10 w-10 rounded-full p-2 bg-[#f5f5f5] hover:bg-[#e5e5e5] text-gray-800 border border-gray-300">
+              <Button className="h-10 w-10 rounded-full p-2 bg-[#2b2b2b] hover:bg-[#333333] text-white">
                 <Bell className="w-5 h-5" />
               </Button>
 
               <div className="relative inline-block text-left z-50">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button className="h-10 w-10 rounded-full p-2 bg-[#f5f5f5] hover:bg-[#e5e5e5] text-gray-800 border border-gray-300">
+                    <Button className="h-10 w-10 rounded-full p-2 bg-[#2b2b2b] hover:bg-[#333333] text-white">
                       <CircleUser className="h-5 w-5" />
                     </Button>
                   </PopoverTrigger>
@@ -183,7 +165,7 @@ const Navbar = () => {
                 <Bell className="w-4 h-4" />
               </button>
               <div className="p-2">
-                <User className="w-4 h-4" />
+                <CircleUser className="w-4 h-4" />
               </div>
             </div>
           </div>
