@@ -5,6 +5,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const isValidEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -14,6 +15,7 @@ export default function LoginForm() {
   const [errors, setErrors] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -50,8 +52,7 @@ export default function LoginForm() {
         if (data?.user_role === "branch") {
           localStorage.setItem("branches", data?.branch);
         }
-        // You can use Next.js router here if needed
-        // router.push("/app");
+        router.push("/coursera");
       } else {
         console.error("Login error:", data?.message || "Unknown error");
       }
