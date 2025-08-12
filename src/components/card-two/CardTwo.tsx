@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import { RefreshCcw, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Trash2 } from "lucide-react";
 import DocChat from "./DocChat";
 
 interface CardTwoProps {
+  // eslint-disable-next-line
   onPinNote: any;
   selectedDocs: {
     id: number;

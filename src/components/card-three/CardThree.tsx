@@ -2,7 +2,6 @@
 
 import type React from "react";
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import {
   ChevronLeft,
   ChevronRight,
@@ -51,11 +50,12 @@ const CardThree = ({
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [currentViewNote, setCurrentViewNote] = useState(null);
   const [playingIndex, setPlayingIndex] = useState(null);
-  const audioRef = useRef(null);
   const [clickedIndex, setClickedIndex] = useState(null);
   const [mindmapOpen, setMindmapOpen] = useState(false);
   const [mindmapMarkdown, setMindmapMarkdown] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const audioRef = useRef(null);
   const menuRef = useRef(null);
 
   const noteTypes = [
@@ -65,26 +65,51 @@ const CardThree = ({
     { label: "Mind Map", icon: Network },
   ];
 
+  const fetchNotes = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/get-notes`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      const data = await res.json();
+      setNotes(data?.data);
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    }
+  };
+
   const fetchMindmap = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(
+      const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/generate-mindmap`,
         {
-          selectedDocs: selectedDocs,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ selectedDocs }),
         }
       );
-      console.log("Mindmap response:", response.data);
+
       const markdownContent = response.data.markdown || "No mindmap available.";
+
       const newMindmapNote = {
-        title: "Mind Map",
-        content: markdownContent,
+        Title: "Mind Map",
+        Response: markdownContent,
         editable: false,
         type: "mindmap",
       };
-      setNotes((prevNotes: any) => [...prevNotes, newMindmapNote]);
+
+      setNotes((prevNotes: any) => [newMindmapNote, ...prevNotes]);
       setMindmapMarkdown(markdownContent);
       setMindmapOpen(true);
+      await fetchNotes();
     } catch (error) {
       console.error("Error generating mindmap:", error);
     } finally {
@@ -263,7 +288,7 @@ const CardThree = ({
       {isCollapsed ? (
         <div className="flex justify-center p-3 border-b border-gray-200">
           <button
-            className="cursor-pointer p-2 rounded-lg hover:bg-gray-200 text-[#64748b]"
+            className="cursor-pointer p-2 rounded-lg hover:bg-gray-20w0 text-[#64748b]"
             onClick={toggleCollapse}
           >
             <ChevronLeft />
@@ -272,7 +297,6 @@ const CardThree = ({
       ) : (
         <>
           <div className="flex justify-between items-center font-semibold border-b border-neutral-500  p-2 bg-white/5">
-            {/* Check the padding */}
             <span className="p-1 text-base">Library</span>
             <button
               className="cursor-pointer p-2 m-2 rounded-lg hover:bg-gray-200 text-[#64748b]"
@@ -283,7 +307,6 @@ const CardThree = ({
           </div>
           <div className="p-3">
             <AudioOverview selectedDocs={selectedDocs} />
-            {/* <div className="border-t border-[#7a7a7a]"> */}
             <div className="border-t border-neutral-500">
               <span className="text-center p-2 block text-sm font-bold">
                 Notes

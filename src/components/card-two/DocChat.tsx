@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Pin,
   Headphones,
@@ -10,10 +10,11 @@ import {
   User,
   Bot,
 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
 import { Input } from "../ui/input";
+import ReactMarkdown from "react-markdown";
 
 interface DocChatProps {
+  // eslint-disable-next-line
   selectedDocs: any;
   refreshTrigger: number;
   onPinNote: (question: string, answer: string) => void;
@@ -46,7 +47,6 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
 
   // eslint-disable-next-line
   const playNoteAudioFromAPI = async (text: string, index: any) => {
-    console.log("in the audio method");
     setClickedIndex(index);
     if (playingIndex === index) {
       if (audioRef.current) {
@@ -59,10 +59,6 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
     }
 
     try {
-      console.log(
-        "the endpoint being called is",
-        `${process.env.NEXT_PUBLIC_API_URL}/generate-audio`
-      );
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/generate-audio/`,
         {
@@ -153,7 +149,8 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
     }
   };
 
-  const sendMessage = async (customInput: any) => {
+  // eslint-disable-next-line
+  const sendMessage = async (customInput?: any) => {
     const userInput = customInput || input;
     if (!userInput.trim()) return;
 
@@ -219,7 +216,6 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
           body: JSON.stringify(payload),
         });
       } else {
-        console.log("Selected Docs being sent:", selectedDocs);
         response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/query_with_filter`,
           {
@@ -235,9 +231,6 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
       if (data.session_id) {
         sessionStorage.setItem("session_id", data.session_id);
       }
-
-      console.log("Session Id:", data.session_id);
-      console.log("Response from API:", data);
 
       const botReply =
         data?.reply || "Thanks for your message! I am working on it.";
@@ -273,8 +266,8 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
   };
 
   return (
-    <div className="chat-window">
-      <div className="messages">
+    <div className="flex m-0 flex-col h-[98%] w-full">
+      <div className="flex flex-col flex-grow overflow-y-auto mb-4 p-2 text-black">
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -340,7 +333,6 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
                     <Pin
                       size={12}
                       className="ml-4 cursor-pointer"
-                      title="Pin this response"
                       onClick={() => {
                         const userQuestion =
                           messages[index - 1]?.from === "user"
@@ -354,7 +346,6 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
                     <Headphones
                       size={12}
                       className="ml-3 cursor-pointer"
-                      title="Listen to this response"
                       onClick={() => playNoteAudioFromAPI(msg.text, index)}
                       style={{
                         color:
