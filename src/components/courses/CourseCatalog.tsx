@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import { Search, BookOpen, Clock, Users } from "lucide-react";
-// import { Card, CardContent, CardFooter } from "./ui/card";
-// import { Input } from "./ui/input";
 import { useRouter } from "next/navigation";
-// import Navbar from "./Navbar";
-import Image from "next/image";
-import Navbar from "../Navbar";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardFooter } from "../ui/card";
+import { Button } from "../ui/button";
+import Image from "next/image";
+import Navbar from "../Navbar";
 
 const courses = [
   {
@@ -19,7 +17,6 @@ const courses = [
 ];
 
 const CourseCatalog = () => {
-  const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
@@ -117,9 +114,9 @@ const CourseCatalog = () => {
 
               <CardFooter className="p-8 pt-0">
                 <div className="w-full">
-                  <button className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform group-hover:scale-105 shadow-lg hover:shadow-indigo-500/25">
+                  <Button className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform group-hover:scale-105 shadow-lg hover:shadow-indigo-500/25">
                     Start Learning
-                  </button>
+                  </Button>
                 </div>
               </CardFooter>
             </Card>
@@ -135,8 +132,8 @@ const CourseCatalog = () => {
                 More Courses Coming Soon
               </h3>
               <p className="text-slate-300">
-                We're constantly adding new courses to help you learn and grow.
-                Check back soon for more exciting content!
+                We&apos;re constantly adding new courses to help you learn and
+                grow. Check back soon for more exciting content!
               </p>
             </div>
           </div>

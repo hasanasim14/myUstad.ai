@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Libre_Baskerville, Roboto } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,6 +43,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${libreBaskerville.variable} ${roboto.variable} font-roboto antialiased`}
       >
         {children}
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );

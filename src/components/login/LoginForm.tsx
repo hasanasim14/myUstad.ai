@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import Image from "next/image";
 import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import Image from "next/image";
 
 const LoginForm = () => {
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -63,10 +64,6 @@ const LoginForm = () => {
     const endpoint = isLoginMode ? "/login" : "/register";
 
     try {
-      console.log(
-        "dil dil pakistan",
-        `${process.env.NEXT_PUBLIC_BASE_URL}${endpoint}`
-      );
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}${endpoint}`,
         {
@@ -120,14 +117,14 @@ const LoginForm = () => {
       />
       <div className="flex flex-col lg:flex-row w-[90vw] h-[90vh] max-w-4xl rounded-xl overflow-hidden shadow-xl">
         {/* Left */}
-        <div className="hidden lg:flex w-1/2 bg-transparent/10 backdrop-blur-md text-white p-10 flex-col justify-center rounded-l-xl libre-baskerville-regular">
+        <div className="hidden lg:flex w-1/2 bg-transparent/10 backdrop-blur-md text-[#023b58] p-10 flex-col justify-center rounded-l-xl libre-baskerville-regular">
           <div className="max-w-md mx-auto">
             <h2 className="text-4xl font-bold leading-tight mb-4">
               Study Smarter,
               <br />
               Not Harder
             </h2>
-            <p className="text-sm text-black font-light">
+            <p className="text-sm font-light">
               &quot;Success doesn’t come from what you do occasionally, it comes
               from what you do consistently. Focus, learn, revise — and believe
               in your potential.&quot;
@@ -192,7 +189,7 @@ const LoginForm = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-2 flex items-center text-gray-500"
+                  className="absolute inset-y-0 right-2 flex items-center text-gray-500 cursor-pointer"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -203,7 +200,7 @@ const LoginForm = () => {
             </div>
 
             {/* Submit */}
-            <button
+            <Button
               type="button"
               onClick={handleSubmit}
               disabled={
@@ -213,7 +210,7 @@ const LoginForm = () => {
                 !!errors.password ||
                 isLoading
               }
-              className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-900 transition cursor-pointer"
+              className="w-full bg-[#023b58] text-white py-2 rounded-md hover:bg-[#023b58]/90 transition cursor-pointer"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -225,7 +222,7 @@ const LoginForm = () => {
               ) : (
                 "Register"
               )}
-            </button>
+            </Button>
 
             {/* Toggle Form Button */}
             <p className="text-sm text-center mt-2">
