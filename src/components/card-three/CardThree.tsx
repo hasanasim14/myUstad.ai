@@ -1,6 +1,4 @@
 "use client";
-
-import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import {
   ChevronLeft,
@@ -12,16 +10,17 @@ import {
   Network,
   Plus,
 } from "lucide-react";
-import { Button } from "../ui/button";
+// import { Button } from "./ui/button";
 import ReactMarkdown from "react-markdown";
 import MindmapModal from "./MindmapModal";
 import AudioOverview from "./AudioOverview";
 import NoteViewModal from "./NoteViewModal";
 import NoteEditModal from "./NoteEditModal";
+import { Button } from "../ui/button";
 
 interface CardThreeProps {
   notes: Array<{
-    title: string;
+    Title: string;
     content: string;
     editable?: boolean;
     type?: string;
@@ -31,32 +30,29 @@ interface CardThreeProps {
   onCollapseChange?: (collapsed: boolean) => void;
 }
 
-type MarkdownComponentProps = {
-  children?: React.ReactNode;
-};
-
 const CardThree = ({
-  notes,
+  notes = [],
   setNotes,
-  selectedDocs,
+  selectedDocs = [],
   onCollapseChange,
 }: CardThreeProps) => {
-  const [menuOpenIndex, setMenuOpenIndex] = useState(null);
+  const [menuOpenIndex, setMenuOpenIndex] = useState<number | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [currentEditNoteIndex, setCurrentEditNoteIndex] = useState(null);
+  const [currentEditNoteIndex, setCurrentEditNoteIndex] = useState<
+    number | null
+  >(null);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [currentViewNote, setCurrentViewNote] = useState(null);
-  const [playingIndex, setPlayingIndex] = useState(null);
-  const [clickedIndex, setClickedIndex] = useState(null);
+  const [currentViewNote, setCurrentViewNote] = useState<any>(null);
+  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const [clickedIndex, setClickedIndex] = useState<number | null>(null);
   const [mindmapOpen, setMindmapOpen] = useState(false);
   const [mindmapMarkdown, setMindmapMarkdown] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
-
-  const audioRef = useRef(null);
-  const menuRef = useRef(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   const noteTypes = [
     { label: "Study Guide", icon: GraduationCap },
@@ -65,18 +61,29 @@ const CardThree = ({
     { label: "Mind Map", icon: Network },
   ];
 
+  console.log("the notes are", notes);
+
+  useEffect(() => {
+    // Only fetch notes if we have API endpoints configured
+    if (process.env.NEXT_PUBLIC_BASE_URL) {
+      fetchNotes();
+    }
+  }, []);
+
   const fetchNotes = async () => {
+    console.log("inside the get notes api");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/get-notes`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/get-notes`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `bearer ${localStorage.getItem("token")}`,
         },
       });
-
       const data = await res.json();
-      setNotes(data?.data);
+      if (data?.data && Array.isArray(data.data)) {
+        setNotes(data.data);
+      }
     } catch (error) {
       console.error("Error fetching notes:", error);
     }
@@ -85,6 +92,21 @@ const CardThree = ({
   const fetchMindmap = async () => {
     setLoading(true);
     try {
+      if (!process.env.NEXT_PUBLIC_API_URL) {
+        // Demo mindmap for when API is not configured
+        const demoMindmap = `# Mind Map\n\n## Main Topic\n- Subtopic 1\n  - Detail A\n  - Detail B\n- Subtopic 2\n  - Detail C\n  - Detail D`;
+        const newMindmapNote = {
+          title: "Mind Map",
+          content: demoMindmap,
+          editable: false,
+          type: "mindmap",
+        };
+        setNotes((prevNotes: any) => [newMindmapNote, ...prevNotes]);
+        setMindmapMarkdown(demoMindmap);
+        setMindmapOpen(true);
+        return;
+      }
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/generate-mindmap`,
         {
@@ -96,20 +118,17 @@ const CardThree = ({
           body: JSON.stringify({ selectedDocs }),
         }
       );
-
-      const markdownContent = response.data.markdown || "No mindmap available.";
-
+      const data = await response.json();
+      const markdownContent = data?.markdown || "No mindmap available.";
       const newMindmapNote = {
-        Title: "Mind Map",
-        Response: markdownContent,
+        title: "Mind Map",
+        content: markdownContent,
         editable: false,
         type: "mindmap",
       };
-
       setNotes((prevNotes: any) => [newMindmapNote, ...prevNotes]);
       setMindmapMarkdown(markdownContent);
       setMindmapOpen(true);
-      await fetchNotes();
     } catch (error) {
       console.error("Error generating mindmap:", error);
     } finally {
@@ -117,7 +136,7 @@ const CardThree = ({
     }
   };
 
-  const playNoteAudioFromAPI = async (text: string, index: any) => {
+  const playNoteAudioFromAPI = async (text: string, index: number) => {
     setClickedIndex(index);
     if (playingIndex === index) {
       if (audioRef.current) {
@@ -126,6 +145,17 @@ const CardThree = ({
       }
       setPlayingIndex(null);
       setClickedIndex(null);
+      return;
+    }
+
+    if (!process.env.NEXT_PUBLIC_API_URL) {
+      // Demo behavior when API is not configured
+      console.log("Audio would play:", text.slice(0, 50) + "...");
+      setPlayingIndex(index);
+      setClickedIndex(null);
+      setTimeout(() => {
+        setPlayingIndex(null);
+      }, 3000);
       return;
     }
 
@@ -142,17 +172,14 @@ const CardThree = ({
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
       audioRef.current = audio;
-
       audio.onplay = () => {
         setPlayingIndex(index);
         setClickedIndex(null);
       };
-
       audio.onended = () => {
         setPlayingIndex(null);
         setClickedIndex(null);
       };
-
       await audio.play();
     } catch (error) {
       console.error("Audio playback failed:", error);
@@ -170,11 +197,11 @@ const CardThree = ({
     setNotes([...notes, newNote]);
   };
 
-  const handleToggleMenu = (index: any) => {
+  const handleToggleMenu = (index: number) => {
     setMenuOpenIndex(menuOpenIndex === index ? null : index);
   };
 
-  const handleDeleteNote = (indexToDelete: any) => {
+  const handleDeleteNote = (indexToDelete: number) => {
     const updatedNotes = notes.filter((_, i) => i !== indexToDelete);
     setNotes(updatedNotes);
     setMenuOpenIndex(null);
@@ -192,7 +219,7 @@ const CardThree = ({
     };
   }, []);
 
-  const handleNoteClick = (index: any) => {
+  const handleNoteClick = (index: number) => {
     const note = notes[index];
     if (note.type === "mindmap") {
       setMindmapMarkdown(note.content);
@@ -211,17 +238,39 @@ const CardThree = ({
   };
 
   const handleSaveEdit = () => {
-    const updatedNotes = [...notes];
-    updatedNotes[currentEditNoteIndex] = {
-      ...updatedNotes[currentEditNoteIndex],
-      title: editTitle,
-      content: editContent,
-    };
-    setNotes(updatedNotes);
+    if (currentEditNoteIndex !== null) {
+      const updatedNotes = [...notes];
+      updatedNotes[currentEditNoteIndex] = {
+        ...updatedNotes[currentEditNoteIndex],
+        title: editTitle,
+        content: editContent,
+      };
+      setNotes(updatedNotes);
+    }
     setIsEditModalOpen(false);
   };
 
-  const handleFetchAndAddNote = async (type: any) => {
+  const handleFetchAndAddNote = async (type: string) => {
+    if (!process.env.NEXT_PUBLIC_API_URL) {
+      // Demo content when API is not configured
+      const demoContent = {
+        "Study Guide":
+          "# Study Guide\n\n## Key Concepts\n- Important topic 1\n- Important topic 2\n- Important topic 3",
+        "Briefing Doc":
+          "# Briefing Document\n\n## Overview\nThis is a comprehensive briefing document covering the main points.",
+        FAQ: "# Frequently Asked Questions\n\n**Q: What is this?**\nA: This is a demo FAQ document.",
+      };
+
+      const newNote = {
+        title: `${type} - Demo`,
+        content:
+          demoContent[type as keyof typeof demoContent] || "Demo content",
+        editable: false,
+      };
+      setNotes((prev: any) => [...prev, newNote]);
+      return;
+    }
+
     let contentEndpoint = "";
     if (type === "Study Guide")
       contentEndpoint = `${process.env.NEXT_PUBLIC_API_URL}/study-guide`;
@@ -282,47 +331,51 @@ const CardThree = ({
   return (
     <div
       className={`h-[83vh] md:border md:rounded-lg border-neutral-500 transition-all duration-300 ease-in-out overflow-hidden ml-auto text-white ${
-        isCollapsed ? "w-15" : "w-full"
+        isCollapsed ? "w-15" : "w-full max-w-sm lg:max-w-md xl:max-w-lg"
       }`}
     >
       {isCollapsed ? (
         <div className="flex justify-center p-3 border-b border-gray-200">
           <button
-            className="cursor-pointer p-2 rounded-lg hover:bg-gray-20w0 text-[#64748b]"
+            className="cursor-pointer p-2 rounded-lg hover:bg-gray-200 text-[#64748b]"
             onClick={toggleCollapse}
           >
             <ChevronLeft />
           </button>
         </div>
       ) : (
-        <>
-          <div className="flex justify-between items-center font-semibold border-b border-neutral-500  p-2 bg-white/5">
-            <span className="p-1 text-base">Library</span>
+        <div className="flex flex-col h-full">
+          <div className="flex justify-between items-center font-semibold border-b border-neutral-500 p-2 bg-white/5 flex-shrink-0">
+            <span className="p-1 text-sm">Library</span>
             <button
-              className="cursor-pointer p-2 m-2 rounded-lg hover:bg-gray-200 text-[#64748b]"
+              className="cursor-pointer p-2 rounded-lg hover:bg-gray-200 text-[#64748b]"
               onClick={toggleCollapse}
             >
-              <ChevronRight />
+              <ChevronRight className="h-5 w-5" />
             </button>
           </div>
-          <div className="p-3">
+
+          <div className="flex-shrink-0 p-3">
             <AudioOverview selectedDocs={selectedDocs} />
-            <div className="border-t border-neutral-500">
-              <span className="text-center p-2 block text-sm font-bold">
+
+            <div className="border-t border-neutral-500 pt-4">
+              {/* <span className="text-center block text-sm font-bold mb-3">
                 Notes
-              </span>
+              </span> */}
+
               <Button
-                className={`w-full mb-2 ${librarybtn}`}
+                className={`w-full mb-3 ${librarybtn}`}
                 onClick={handleAddNote}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add note
               </Button>
-              <div className="flex flex-wrap gap-2 justify-center max-w-md mx-auto">
+
+              <div className="grid grid-cols-2 gap-2 mb-4">
                 {noteTypes.map(({ label, icon: Icon }) => (
                   <Button
                     key={label}
-                    className={`w-[calc(50%-4px)] ${librarybtn}`}
+                    className={`${librarybtn} text-xs sm:text-xs`}
                     onClick={() => {
                       if (label === "Mind Map") {
                         fetchMindmap();
@@ -331,101 +384,118 @@ const CardThree = ({
                       }
                     }}
                   >
-                    <Icon className="mr-2 h-4 w-4" />
-                    {label}
+                    <Icon className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">{label}</span>
+                    <span className="sm:hidden">{label.split(" ")[0]}</span>
                   </Button>
                 ))}
               </div>
+
               {loading && (
-                <div className="flex items-center justify-center gap-2 mt-4 text-sm text-[#555]">
+                <div className="flex items-center justify-center gap-2 mb-4 text-sm text-[#555]">
                   <div className="w-4 h-4 border-2 border-gray-300 border-t-[#555] rounded-full animate-spin [animation-duration:0.6s]" />
                   Generating...
                 </div>
               )}
-              <div className="bg-white max-h-[410px] overflow-y-auto border-t border-gray-200 mt-3 px-1 pr-2 py-4">
-                {notes.map((note, index) => (
-                  <div
-                    key={index}
-                    className="relative cursor-pointer min-h-[40px] max-h-[55px] overflow-hidden pb-[10px] px-[10px] border border-gray-100 rounded-lg mb-3"
-                    onClick={() => handleNoteClick(index)}
-                  >
-                    <div className="flex justify-between items-center pb-2 font-semibold">
-                      <span className="whitespace-nowrap overflow-hidden text-ellipsis max-w-[210px] inline-block align-middle">
-                        {note.title}
-                      </span>
-                      <div className="flex items-center gap-3">
-                        <button
-                          className={`bg-transparent cursor-pointer outline-none ${
-                            clickedIndex === index
-                              ? "text-red-500"
-                              : playingIndex === index
-                              ? "text-green-500"
-                              : "text-black"
-                          }`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            playNoteAudioFromAPI(note.content, index);
-                          }}
-                        >
-                          <Headphones />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleToggleMenu(index);
-                          }}
-                          className="bg-transparent border-none cursor-pointer text-[18px] outline-none text-black leading-none"
-                        >
-                          ⋮
-                        </button>
-                        {menuOpenIndex === index && (
-                          <div
-                            ref={menuRef}
-                            className="absolute top-full right-0 bg-white z-10 min-w-[120px] shadow-lg rounded-md p-1"
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-hidden px-3 pb-3">
+            <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-600 scrollbar-track-transparent">
+              <div className="space-y-3">
+                {notes && notes.length > 0 ? (
+                  notes.map((note, index) => (
+                    <div
+                      key={index}
+                      className="relative cursor-pointer bg-white/5 hover:bg-white/10 transition-colors duration-200 p-3 border border-gray-100/20 rounded-lg"
+                      onClick={() => handleNoteClick(index)}
+                    >
+                      <div className="flex justify-between items-start gap-2 mb-2">
+                        <h3 className="text-xs sm:text-xs line-clamp-2 min-w-0 text-white text-ellipsis">
+                          {note.Title}
+                        </h3>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <button
+                            className={`bg-transparent cursor-pointer outline-none transition-colors ${
+                              clickedIndex === index
+                                ? "text-red-500"
+                                : playingIndex === index
+                                ? "text-green-500"
+                                : "text-white/70 hover:text-white"
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              playNoteAudioFromAPI(note.Response, index);
+                            }}
                           >
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteNote(index);
-                              }}
+                            <Headphones className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleMenu(index);
+                            }}
+                            className="bg-transparent border-none cursor-pointer text-lg outline-none text-white/70 hover:text-white leading-none"
+                          >
+                            ⋮
+                          </button>
+                          {menuOpenIndex === index && (
+                            <div
+                              ref={menuRef}
+                              className="absolute top-full right-0 bg-white z-10 min-w-[120px] shadow-lg rounded-md p-1"
                             >
-                              Delete
-                            </Button>
-                          </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteNote(index);
+                                }}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-[#555] text-xs sm:text-sm">
+                        {note.editable ? (
+                          <ReactMarkdown
+                            components={{
+                              p: ({ node, ...props }) => (
+                                <p
+                                  className="text-xs sm:text-sm text-white/60 leading-relaxed m-0 line-clamp-2"
+                                  {...props}
+                                />
+                              ),
+                            }}
+                          >
+                            {note.content.slice(0, 100)}...
+                          </ReactMarkdown>
+                        ) : (
+                          <></>
+                          // <div className="text-white/60 line-clamp-2">
+                          //   {note.content
+                          //     .replace(/\\n/g, " ")
+                          //     .replace(/^"(.*)"$/, "$1")
+                          //     .replace(/^["']|["']$/g, "")
+                          //     .replace(/^#+\s*/gm, "")
+                          //     .slice(0, 100)}
+                          //   {note.content.length > 100 && "..."}
+                          // </div>
                         )}
                       </div>
                     </div>
-                    <div className="mt-0 text-[#555] text-sm">
-                      {note.editable ? (
-                        <ReactMarkdown
-                          components={{
-                            p: ({ node, ...props }) => (
-                              <p
-                                className="text-sm text-[#334] leading-relaxed m-0"
-                                {...props}
-                              />
-                            ),
-                          }}
-                        >
-                          {note.content}
-                        </ReactMarkdown>
-                      ) : (
-                        <div>
-                          {note.content
-                            .replace(/\\n/g, "\n")
-                            .replace(/^"(.*)"$/, "$1")
-                            .replace(/^["']|["']$/g, "")
-                            .replace(/^#+\s*/gm, "")
-                            .slice(0, 50)}
-                          ...
-                        </div>
-                      )}
-                    </div>
+                  ))
+                ) : (
+                  <div className="text-center text-white/60 py-8">
+                    <p>
+                      No notes yet. Click "Add note" to create your first note!
+                    </p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
@@ -439,21 +509,19 @@ const CardThree = ({
             setEditTitle={setEditTitle}
             editContent={editContent}
             setEditContent={setEditContent}
-            isEditable={notes[currentEditNoteIndex]?.editable || false}
+            isEditable={notes[currentEditNoteIndex || 0]?.editable || false}
           />
-
           <NoteViewModal
             isOpen={isViewModalOpen}
             onClose={() => setIsViewModalOpen(false)}
             note={currentViewNote}
           />
-
           <MindmapModal
             open={mindmapOpen}
             onClose={() => setMindmapOpen(false)}
             markdown={mindmapMarkdown}
           />
-        </>
+        </div>
       )}
     </div>
   );
