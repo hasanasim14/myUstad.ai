@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Info } from "lucide-react";
+import {  Languages } from "lucide-react";
+import { Button } from "../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 // eslint-disable-next-line
 const AudioOverview = ({ selectedDocs }: any) => {
@@ -118,59 +120,65 @@ const AudioOverview = ({ selectedDocs }: any) => {
   }, []);
 
   return (
-    <div className="border border-[#e0e0e0] rounded-lg p-3 mb-4">
+    <div className="border border-[#e0e0e0] rounded-lg p-3 mb-3">
       <div className="flex justify-between items-center font-semibold mb-[10px] relative">
-        <span>Audio Overview</span>
-        <Info
-          className="cursor-pointer"
-          onClick={() => setShowLanguageMenu(!showLanguageMenu)}
-        />
-        {showLanguageMenu && (
-          <div className="absolute top-full right-0 bg-white border border-[#ccc] p-2 z-[100] rounded shadow-[#00000026]">
-            <div className="mb-1 font-normal text-[10px]">Select Language:</div>
+        <span className="text-sm">Audio Overview</span>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="hover:bg-gray-200 rounded-full"
+            >
+              <Languages className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            side="left"
+            align="start"
+            className="p-2 w-32 bg-[#1f1f1f] text-white border-gray-800"
+          >
+            <div className="mb-1 text-[10px] font-normal">Select Language:</div>
             {languages.map((lang) => (
               <div
                 key={lang}
                 onClick={() => handleLanguageSelect(lang)}
-                className={`cursor-pointer py-1 text-[9px] ${
+                className={`cursor-pointer text-[9px] py-[2px] ${
                   lang === selectedLanguage
-                    ? "font-bold text-[#007bff]"
-                    : "font-normal"
+                    ? "font-bold text-blue-500"
+                    : "font-normal text-gray-700"
                 }`}
               >
                 {lang}
-
-                {lang}
               </div>
             ))}
-          </div>
-        )}
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="flex flex-row flex-nowrap items-center justify-between gap-3 mt-3 w-full">
-        <span className="flex-grow flex-shrink text-[clamp(13px,2vw,14px)] whitespace-nowrap overflow-hidden text-ellipsis m-0">
-          Click to generate the podcast.
-        </span>
-        <button
-          className="flex items-center justify-center bg-[#4259ff] text-white rounded-xl p-2 text-sm font-semibold cursor-pointer hover:bg-[#3a4bda] w-full"
+        <Button
+          className="bg-[#4259ff] text-white rounded-lg font-semibold hover:bg-[#3a4bda] w-full"
           onClick={handleGenerateClick}
           disabled={loading || selectedDocs.length === 0}
         >
           {loading ? (
-            <div className="flex items-center justify-center">
+            <div className="flex items-center">
               <div className="border-[4px] border-[#f3f3f3] border-t-[#7d868c] rounded-full w-[clamp(14px,2vw,18px)] h-[clamp(14px,2vw,18px)] animate-spin" />
+              <span className="ml-2">Generating</span>
             </div>
           ) : (
             "Generate"
           )}
-        </button>
+        </Button>
       </div>
 
       {error && <div className="color-red-500 mt-2">{error}</div>}
 
       {audioUrl && (
-        <div style={{ marginTop: "16px" }}>
-          <audio controls src={audioUrl} style={{ width: "100%" }}>
+        <div className="mt-4">
+          <audio controls src={audioUrl} className="w-full">
             Your browser does not support the audio element.
           </audio>
         </div>

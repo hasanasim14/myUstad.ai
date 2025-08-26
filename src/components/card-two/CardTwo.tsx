@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, MessageSquare } from "lucide-react";
 import DocChat from "./DocChat";
 
 interface CardTwoProps {
@@ -23,18 +23,24 @@ const CardTwo = ({ onPinNote, selectedDocs }: CardTwoProps) => {
   };
 
   return (
-    <div className="h-[83vh] md:border md:rounded-lg border-neutral-500  text-white">
-      <div className="flex justify-between items-center font-semibold p-2 pb-3 bg-white/5 border-b border-neutral-500 ">
-        <span>AI Chat</span>
-        <div
-          className="flex items-center gap-1 text-[13px] cursor-pointer hover:bg-red-200 hover:text-red-500 rounded-lg p-2 mr-2"
+    <div className="h-[83vh] shadow-2xl md:border md:rounded-xl border-gray-700 overflow-hidden">
+      {/* Header */}
+      <div className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-slate-800 to-slate-700 text-white border-b border-gray-600">
+        <div className="flex items-center gap-3">
+          <MessageSquare className="w-5 h-5 text-blue-400" />
+          <span className="font-semibold text-lg">AI Chat</span>
+        </div>
+        <button
+          className="flex items-center gap-2 text-sm px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors duration-200 border border-white/20 hover:border-white/30"
           onClick={handleClear}
         >
-          <Trash2 className="mr-2" />
-          <span className="text-base">Clear</span>
-        </div>
+          <Trash2 className="w-4 h-4" />
+          <span>Clear</span>
+        </button>
       </div>
-      <div className="p-3 h-[calc(100%-60px)] overflow-y-auto">
+
+      {/* Chat Content */}
+      <div className="h-[calc(100%-80px)]">
         <DocChat
           refreshTrigger={refreshTrigger}
           onPinNote={onPinNote}

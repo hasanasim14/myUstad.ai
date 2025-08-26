@@ -43,22 +43,23 @@ const Navbar = () => {
         </div>
 
         {!isMobile && (
-          <div className="flex space-x-6 text-sm font-medium text-gray-200">
+          <div className="flex space-x-6 text-sm font-medium text-white">
             <a
-              href="#"
-              className="hover:text-white
-            
-            transition-colors"
+              href="/courses"
+              className="hover:text-white/90 transition-colors"
             >
               Home
             </a>
-            <a href="#" className="hover:text-gray-800 transition-colors">
+            <a
+              href="/courses"
+              className="hover:text-white/90 transition-colors"
+            >
               Courses
             </a>
-            <a href="#" className="hover:text-gray-800 transition-colors">
-              About
-            </a>
-            <a href="#" className="hover:text-gray-800 transition-colors">
+            <a
+              href="mailto:info@aisystems.com"
+              className="hover:text-white/90 transition-colors"
+            >
               Contact
             </a>
           </div>
@@ -67,24 +68,19 @@ const Navbar = () => {
         <div className="flex items-center space-x-4">
           {!isMobile && (
             <>
-              <Button className="bg-transparent hover:bg-[#333333] flex items-center space-x-2 transition-colors duration-200">
-                <Languages className="w-5 h-5" />
-                <span className="text-sm font-medium">English</span>
-              </Button>
-
-              <Button className="h-10 w-10 rounded-full p-2 bg-[#2b2b2b] hover:bg-[#333333]">
+              <Button className="h-10 w-10 rounded-full p-2 bg-[#141A29] hover:bg-[#0F1420]">
                 <Bell className="w-5 h-5" />
               </Button>
 
               <div className="relative inline-block text-left z-50">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button className="h-10 w-10 rounded-full p-2 bg-[#2b2b2b] hover:bg-[#333333]">
+                    <Button className="h-10 w-10 rounded-full p-2 bg-[#141A29] hover:bg-[#0F1420]">
                       <CircleUser className="h-5 w-5" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent
-                    className="w-56 p-1 rounded-lg border bg-[#0a0a0a] border-[#414141]"
+                    className="w-56 p-1 rounded-lg border bg-[#0F1420] border-[#414141]"
                     align="end"
                     sideOffset={8}
                   >
@@ -144,7 +140,7 @@ const Navbar = () => {
             </div>
 
             <nav className="px-6 space-y-4 mt-4 text-sm">
-              {["Home", "Courses", "About", "Contact"].map((item) => (
+              {["Home", "Courses", "Contact"].map((item) => (
                 <a
                   key={item}
                   href="#"
@@ -157,11 +153,6 @@ const Navbar = () => {
             </nav>
 
             <div className="px-6 mt-6 space-y-4 text-sm">
-              <button className="flex items-center space-x-2 hover:text-blue-600">
-                <Languages className="w-5 h-5" />
-                <span>English</span>
-              </button>
-
               <button className="p-2">
                 <Bell className="w-4 h-4" />
               </button>

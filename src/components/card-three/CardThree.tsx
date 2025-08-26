@@ -10,18 +10,18 @@ import {
   Network,
   Plus,
 } from "lucide-react";
-// import { Button } from "./ui/button";
+import { ScrollArea } from "../ui/scroll-area";
+import { Button } from "../ui/button";
 import ReactMarkdown from "react-markdown";
 import MindmapModal from "./MindmapModal";
 import AudioOverview from "./AudioOverview";
 import NoteViewModal from "./NoteViewModal";
 import NoteEditModal from "./NoteEditModal";
-import { Button } from "../ui/button";
 
 interface CardThreeProps {
   notes: Array<{
     Title: string;
-    content: string;
+    Response: string;
     editable?: boolean;
     type?: string;
   }>;
@@ -60,8 +60,6 @@ const CardThree = ({
     { label: "FAQ", icon: MessageSquareText },
     { label: "Mind Map", icon: Network },
   ];
-
-  console.log("the notes are", notes);
 
   useEffect(() => {
     // Only fetch notes if we have API endpoints configured
@@ -222,14 +220,14 @@ const CardThree = ({
   const handleNoteClick = (index: number) => {
     const note = notes[index];
     if (note.type === "mindmap") {
-      setMindmapMarkdown(note.content);
+      setMindmapMarkdown(note.Response);
       setMindmapOpen(true);
       return;
     }
     if (note.editable) {
       setCurrentEditNoteIndex(index);
-      setEditTitle(note.title);
-      setEditContent(note.content);
+      setEditTitle(note.Title);
+      setEditContent(note.Response);
       setIsEditModalOpen(true);
     } else {
       setCurrentViewNote(note);
@@ -242,8 +240,8 @@ const CardThree = ({
       const updatedNotes = [...notes];
       updatedNotes[currentEditNoteIndex] = {
         ...updatedNotes[currentEditNoteIndex],
-        title: editTitle,
-        content: editContent,
+        Title: editTitle,
+        Response: editContent,
       };
       setNotes(updatedNotes);
     }
@@ -330,7 +328,7 @@ const CardThree = ({
 
   return (
     <div
-      className={`h-[83vh] md:border md:rounded-lg border-neutral-500 transition-all duration-300 ease-in-out overflow-hidden ml-auto text-white ${
+      className={`h-[85vh] md:border md:rounded-lg border-neutral-500 transition-all duration-300 ease-in-out overflow-hidden ml-auto text-white ${
         isCollapsed ? "w-15" : "w-full max-w-sm lg:max-w-md xl:max-w-lg"
       }`}
     >
@@ -346,7 +344,7 @@ const CardThree = ({
       ) : (
         <div className="flex flex-col h-full">
           <div className="flex justify-between items-center font-semibold border-b border-neutral-500 p-2 bg-white/5 flex-shrink-0">
-            <span className="p-1 text-sm">Library</span>
+            <span className="p-1 text-sm font-poppins">Library</span>
             <button
               className="cursor-pointer p-2 rounded-lg hover:bg-gray-200 text-[#64748b]"
               onClick={toggleCollapse}
@@ -355,14 +353,10 @@ const CardThree = ({
             </button>
           </div>
 
-          <div className="flex-shrink-0 p-3">
+          <div className="flex-shrink-0 p-3 pb-0">
             <AudioOverview selectedDocs={selectedDocs} />
 
-            <div className="border-t border-neutral-500 pt-4">
-              {/* <span className="text-center block text-sm font-bold mb-3">
-                Notes
-              </span> */}
-
+            <div className="border-y border-neutral-500 pt-3 p">
               <Button
                 className={`w-full mb-3 ${librarybtn}`}
                 onClick={handleAddNote}
@@ -371,11 +365,11 @@ const CardThree = ({
                 Add note
               </Button>
 
-              <div className="grid grid-cols-2 gap-2 mb-4">
+              <div className="grid grid-cols-2 gap-2 mb-3">
                 {noteTypes.map(({ label, icon: Icon }) => (
                   <Button
                     key={label}
-                    className={`${librarybtn} text-xs sm:text-xs`}
+                    className={`${librarybtn} text-sm sm:text-sm`}
                     onClick={() => {
                       if (label === "Mind Map") {
                         fetchMindmap();
@@ -400,9 +394,10 @@ const CardThree = ({
             </div>
           </div>
 
-          <div className="flex-1 overflow-hidden px-3 pb-3">
-            <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-600 scrollbar-track-transparent">
-              <div className="space-y-3">
+          <div className="flex-1 overflow-hidden pl-3 py-3">
+            <ScrollArea className="h-full">
+
+              <div className="space-y-3 pr-4">
                 {notes && notes.length > 0 ? (
                   notes.map((note, index) => (
                     <div
@@ -411,7 +406,7 @@ const CardThree = ({
                       onClick={() => handleNoteClick(index)}
                     >
                       <div className="flex justify-between items-start gap-2 mb-2">
-                        <h3 className="text-xs sm:text-xs line-clamp-2 min-w-0 text-white text-ellipsis">
+                        <h3 className="text-sm sm:text-sm line-clamp-1 min-w-0 text-white text-ellipsis">
                           {note.Title}
                         </h3>
                         <div className="flex items-center gap-2 flex-shrink-0">
@@ -472,19 +467,17 @@ const CardThree = ({
                               ),
                             }}
                           >
-                            {note.content.slice(0, 100)}...
+                            {note.Response}
                           </ReactMarkdown>
                         ) : (
-                          <></>
-                          // <div className="text-white/60 line-clamp-2">
-                          //   {note.content
-                          //     .replace(/\\n/g, " ")
-                          //     .replace(/^"(.*)"$/, "$1")
-                          //     .replace(/^["']|["']$/g, "")
-                          //     .replace(/^#+\s*/gm, "")
-                          //     .slice(0, 100)}
-                          //   {note.content.length > 100 && "..."}
-                          // </div>
+                          <div className="text-white/60 line-clamp-1 text-xs">
+                            {note.Response.replace(/\\n/g, " ")
+                              .replace(/^"(.*)"$/, "$1")
+                              .replace(/^["']|["']$/g, "")
+                              .replace(/^#+\s*/gm, "")
+                              .slice(0, 100)}
+                            {note.Response.length > 100 && "..."}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -497,7 +490,7 @@ const CardThree = ({
                   </div>
                 )}
               </div>
-            </div>
+            </ScrollArea>
           </div>
 
           {/* Modal Components */}

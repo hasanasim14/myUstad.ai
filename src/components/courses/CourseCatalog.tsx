@@ -25,7 +25,7 @@ const CourseCatalog = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-[#0A0C15]">
       {/* Header */}
       <Navbar />
 

@@ -9,6 +9,8 @@ import {
   Copy,
   User,
   Bot,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { Input } from "../ui/input";
 import ReactMarkdown from "react-markdown";
@@ -162,10 +164,19 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
     const loadingMessage = {
       from: "bot",
       text: (
-        <div className="typing-dots">
-          <div className="typing-dot"></div>
-          <div className="typing-dot"></div>
-          <div className="typing-dot"></div>
+        <div className="flex items-center gap-1">
+          <div className="flex gap-1">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+            <div
+              className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+              style={{ animationDelay: "0.1s" }}
+            ></div>
+            <div
+              className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+              style={{ animationDelay: "0.2s" }}
+            ></div>
+          </div>
+          <span className="text-gray-500 text-sm ml-2">Thinking...</span>
         </div>
       ),
       time: "",
@@ -266,50 +277,57 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
   };
 
   return (
-    <div className="flex m-0 flex-col h-[98%] w-full">
-      <div className="flex flex-col flex-grow overflow-y-auto mb-4 p-2 text-black">
+    <div className="flex flex-col h-full">
+      {/* Messages Container */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-6s">
         {messages.map((msg, index) => (
           <div
             key={index}
-            className={`flex items-start gap-2 mb-2 ${
+            className={`flex items-start gap-4 ${
               msg.from === "user" ? "flex-row-reverse" : ""
             }`}
           >
-            {/* Icon */}
+            {/* Avatar */}
             <div className="flex-shrink-0">
               {msg.from === "user" ? (
-                <User
-                  size={25}
-                  className="text-white bg-[#bbdefb] rounded-full p-1"
-                />
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg ring-2 ring-blue-400/20">
+                  <User size={20} className="text-white" />
+                </div>
               ) : (
-                <Bot
-                  size={25}
-                  className="text-white bg-[#c8e6c9] rounded-full p-1"
-                />
+                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg ring-2 ring-emerald-400/20">
+                  <Bot size={20} className="text-white" />
+                </div>
               )}
             </div>
 
-            {/* Message + timestamp */}
-            <div className="flex flex-col items-start max-w-[75%] sm:max-w-[80%]">
+            {/* Message Content */}
+            <div
+              className={`flex flex-col max-w-[75%] ${
+                msg.from === "user" ? "items-end" : "items-start"
+              }`}
+            >
+              {/* Message Bubble */}
               <div
-                className={`px-3 py-2 rounded-xl whitespace-pre-wrap break-words text-sm ${
+                className={`px-4 py-3 rounded-2xl shadow-lg ${
                   msg.from === "user"
-                    ? "bg-blue-100 text-black self-end"
-                    : "bg-green-100 text-black self-start"
+                    ? "bg-blue-600 text-white rounded-br-md shadow-blue-600/20"
+                    : "bg-gray-700 text-gray-100 border border-gray-600 rounded-bl-md shadow-gray-900/50"
                 }`}
-                style={{ minWidth: "50px" }}
               >
                 {typeof msg.text === "string" ? (
                   <ReactMarkdown
+                    // className="prose prose-sm max-w-none prose-invert"
                     components={{
                       a: ({ node, ...props }) => (
                         <a
                           {...props}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 underline"
+                          className="text-blue-400 underline hover:text-blue-300"
                         />
+                      ),
+                      p: ({ node, ...props }) => (
+                        <p {...props} className="mb-2 last:mb-0" />
                       ),
                     }}
                   >
@@ -320,19 +338,18 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
                 )}
               </div>
 
-              {/* Timestamp + Actions */}
+              {/* Timestamp and Actions */}
               <div
-                className={`mt-1 text-xs text-gray-500 flex items-center ${
-                  msg.from === "user" ? "justify-end" : "justify-start"
-                } w-full`}
+                className={`mt-2 flex items-center gap-3 ${
+                  msg.from === "user" ? "flex-row-reverse" : ""
+                }`}
               >
-                {msg.time}
+                <span className="text-xs text-gray-400">{msg.time}</span>
 
                 {msg.from === "bot" && msg.text !== initialBotMessage.text && (
-                  <>
-                    <Pin
-                      size={12}
-                      className="ml-4 cursor-pointer"
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="p-1.5 rounded-full hover:bg-gray-600 transition-colors duration-200 group"
                       onClick={() => {
                         const userQuestion =
                           messages[index - 1]?.from === "user"
@@ -342,22 +359,48 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
                           typeof msg.text === "string" ? msg.text : "";
                         onPinNote(userQuestion, botAnswer);
                       }}
-                    />
-                    <Headphones
-                      size={12}
-                      className="ml-3 cursor-pointer"
+                      title="Pin this message"
+                    >
+                      <Pin
+                        size={14}
+                        className="text-gray-400 group-hover:text-blue-400 transition-colors"
+                      />
+                    </button>
+
+                    <button
+                      className="p-1.5 rounded-full hover:bg-gray-600 transition-colors duration-200 group"
                       onClick={() => playNoteAudioFromAPI(msg.text, index)}
-                      style={{
-                        color:
-                          clickedIndex === index
-                            ? "red"
-                            : playingIndex === index
-                            ? "green"
-                            : "black",
-                      }}
-                    />
-                    <Copy size={12} className="ml-3 cursor-pointer" />
-                  </>
+                      title={
+                        playingIndex === index ? "Stop audio" : "Play audio"
+                      }
+                    >
+                      {playingIndex === index ? (
+                        <VolumeX size={14} className="text-emerald-400" />
+                      ) : clickedIndex === index ? (
+                        <Volume2 size={14} className="text-red-400" />
+                      ) : (
+                        <Headphones
+                          size={14}
+                          className="text-gray-400 group-hover:text-emerald-400 transition-colors"
+                        />
+                      )}
+                    </button>
+
+                    <button
+                      className="p-1.5 rounded-full hover:bg-gray-600 transition-colors duration-200 group"
+                      onClick={() =>
+                        navigator.clipboard.writeText(
+                          typeof msg.text === "string" ? msg.text : ""
+                        )
+                      }
+                      title="Copy message"
+                    >
+                      <Copy
+                        size={14}
+                        className="text-gray-400 group-hover:text-blue-400 transition-colors"
+                      />
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -365,35 +408,50 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
         ))}
       </div>
 
-      <div className="flex pr-4">
-        <Input
-          type="text"
-          value={input}
-          className="flex-grow px-2 py-1 text-sm ml-2"
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              sendMessage();
-            }
-          }}
-          placeholder="Start Typing..."
-        />
-        <div
-          className="p-2 hover:bg-gray-100 rounded-full"
-          onClick={toggleRecording}
-          style={{ color: isRecording ? "green" : "black", cursor: "pointer" }}
-          title={isRecording ? "Stop Recording" : "Start Recording"}
-        >
-          <Mic className="w-6 h-6" />
+      {/* Input Area */}
+      {/* <div className="border-t border-gray-600 p-4"> */}
+        <div className="flex items-center gap-3 max-w-4xl mx-auto">
+          <div className="flex-1 relative">
+            <Input
+              type="text"
+              value={input}
+              className="w-full p-2 pr-12 border-gray-600 focus:border-blue-500 focus:ring-blue-500/20 text-gray-100 placeholder-gray-400 shadow-inner"
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  sendMessage();
+                }
+              }}
+              placeholder="Type your message..."
+            />
+          </div>
+
+          <button
+            className={`p-2 rounded-xl transition-all duration-200 ${
+              isRecording
+                ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/25"
+                : "bg-gray-700 hover:bg-gray-600 text-gray-300 border border-gray-600"
+            }`}
+            onClick={toggleRecording}
+            title={isRecording ? "Stop Recording" : "Start Recording"}
+          >
+            <Mic className="w-5 h-5" />
+          </button>
+
+          <button
+            className={`p-2 rounded-xl transition-all duration-200 ${
+              input.trim()
+                ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/25"
+                : "bg-gray-700 text-gray-500 cursor-not-allowed border border-gray-600"
+            }`}
+            onClick={() => sendMessage()}
+            disabled={!input.trim()}
+            title="Send message"
+          >
+            <SendHorizonal className="w-5 h-5" />
+          </button>
         </div>
-        <button
-          className="p-2 bg-[#3b4dd1] text-white rounded-full cursor-pointer"
-          onClick={() => sendMessage()}
-          disabled={!input.trim()}
-        >
-          <SendHorizonal className="w-6 h-6" />
-        </button>
-      </div>
+      {/* </div>ss */}
     </div>
   );
 };

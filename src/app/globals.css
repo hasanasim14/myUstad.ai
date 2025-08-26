@@ -44,10 +44,6 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-body {
-  font-family: "Libre Baskerville", serif;
-}
-
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -125,5 +121,3 @@ body {
     @apply bg-background text-foreground;
   }
 }
-
-
