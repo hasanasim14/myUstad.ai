@@ -1,16 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Bell, CircleUser, Languages, LogOut, Menu, X } from "lucide-react";
+import { Bell, CircleUser, LogOut, Menu, Moon, Sun, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 
 const Navbar = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
+
+  console.log("the theme is now ", theme);
 
   useEffect(() => {
     const handleResize = () => {
@@ -68,8 +72,15 @@ const Navbar = () => {
         <div className="flex items-center space-x-4">
           {!isMobile && (
             <>
-              <Button className="h-10 w-10 rounded-full p-2 bg-[#141A29] hover:bg-[#0F1420]">
-                <Bell className="w-5 h-5" />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                className="relative h-9 w-9 rounded-full"
+              >
+                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span className="sr-only">Toggle theme</span>
               </Button>
 
               <div className="relative inline-block text-left z-50">

@@ -17,6 +17,7 @@ const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   // validate email
   const isValidEmail = (email: string) =>
@@ -71,7 +72,7 @@ const LoginForm = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({ ...formData, googleLogin: false }),
         }
       );
 
@@ -79,7 +80,7 @@ const LoginForm = () => {
 
       if (res.ok) {
         if (isLoginMode) {
-          localStorage.setItem("token", data?.access_token);
+          localStorage.setItem("d_tok", data?.access_token);
           toast.success("Login Successful");
           setTimeout(() => router.push("/courses"), 1000);
         } else {
@@ -103,24 +104,11 @@ const LoginForm = () => {
     try {
       setGoogleLoading(true);
 
-      const width = 500;
-      const height = 600;
-      const left = window.screen.width / 2 - width / 2;
-      const top = window.screen.height / 2 - height / 2;
-
-      // This goes straight to the Google OAuth page (skips NextAuth sign-in page)
-      const popup = window.open(
-        `/api/auth/signin/google?redirect=false&callbackUrl=${encodeURIComponent(
-          "/login?fromGoogle=1"
-        )}`,
-        "googleLogin",
-        `width=${width},height=${height},top=${top},left=${left}`
-      );
-
-      if (!popup) {
-        // Fallback to normal redirect if popup blocked
-        await signIn("google", { callbackUrl: "/login?fromGoogle=1" });
-      }
+      // This will go directly to Google's OAuth account selection
+      await signIn("google", {
+        callbackUrl: "/login?fromGoogle=1",
+        prompt: "select_account", // forces the Google account picker
+      });
     } catch (error) {
       console.error("Error during Google sign-in:", error);
       toast.error("Google sign in failed. Please try again.");
@@ -128,6 +116,50 @@ const LoginForm = () => {
       setGoogleLoading(false);
     }
   };
+
+  useEffect(() => {
+    const checkSessionAndCallAPI = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const fromGoogle = urlParams.get("fromGoogle");
+
+      if (fromGoogle !== "1") return;
+
+      if (status === "authenticated" && session?.user) {
+        try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: session?.user?.email,
+              googleLogin: true,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            if (data?.data?.token) {
+              sessionStorage.setItem("authToken", data.data.token);
+              sessionStorage.setItem(
+                "user",
+                JSON.stringify(data?.data?.token_payload || {})
+              );
+            }
+
+            toast.success("Login Successful! Redirecting...");
+            router.push("/");
+          } else {
+            throw new Error(data.message || "API request failed");
+          }
+        } catch (error) {
+          console.error("Error calling login_auth_user:", error);
+          toast.error("Failed to complete authentication");
+        }
+      }
+    };
+
+    checkSessionAndCallAPI();
+  }, [status, session, router]);
 
   // eslint-disable-next-line
   const handleKeyDown = (e: any) => {
