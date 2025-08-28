@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, BookOpen, Clock, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Input } from "../ui/input";
@@ -9,18 +9,43 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import Navbar from "../Navbar";
 
-const courses = [
-  {
-    id: 1,
-    title: "Test Development and Evaluation",
-  },
-];
+interface CourseProps {
+  CourseName: string;
+  value: string;
+}
 
 const CourseCatalog = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [courseData, setCourseData] = useState<CourseProps[]>([]);
+
   const router = useRouter();
 
-  const handleCourseClick = () => {
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/get-courses`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        const data = await response.json();
+        console.log("the data for the ", data?.data);
+        setCourseData(data?.data);
+      } catch (error) {
+        console.error("the error while fetching data", error);
+      }
+    };
+    fetchCourses();
+  }, []);
+
+  // eslint-disable-next-line
+  const handleCourseClick = (course: string) => {
+    localStorage.setItem("course", course);
     router.push("/");
   };
 
@@ -68,32 +93,26 @@ const CourseCatalog = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {courses.map((course) => (
+          {courseData.map((course) => (
             <Card
-              key={course.id}
+              key={course?.value}
               className="group cursor-pointer hover:shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 hover:-translate-y-2 border border-slate-700 shadow-lg bg-slate-800 overflow-hidden"
-              onClick={handleCourseClick}
+              onClick={() => handleCourseClick(course?.value)}
             >
               <div className="relative overflow-hidden">
                 <Image
                   width="400"
                   height="240"
                   src="/course.jpeg"
-                  alt={course.title}
+                  alt={course.CourseName}
                   className="w-full h-60 object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
 
               <CardContent className="p-8">
-                <div className="mb-4">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-900 text-indigo-300 border border-indigo-700">
-                    Professional Development
-                  </span>
-                </div>
-
                 <h3 className="font-bold text-xl mb-4 text-white group-hover:text-indigo-400 transition-colors duration-200 leading-tight">
-                  {course.title}
+                  {course.CourseName}
                 </h3>
 
                 <div className="space-y-3 text-slate-300">
@@ -124,7 +143,7 @@ const CourseCatalog = () => {
         </div>
 
         {/* Empty State Enhancement */}
-        {courses.length === 1 && (
+        {courseData.length === 1 && (
           <div className="text-center mt-16 py-12">
             <div className="max-w-md mx-auto">
               <BookOpen className="w-16 h-16 mx-auto mb-4 text-slate-600" />
