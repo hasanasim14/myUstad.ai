@@ -1,33 +1,37 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import {  Languages } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Languages } from "lucide-react";
 import { Button } from "../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
-// eslint-disable-next-line
-const AudioOverview = ({ selectedDocs }: any) => {
+const AudioOverview = ({ selectedDocs, onLoadingChange }) => {
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("English");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   const [sessionId, setSessionId] = useState("");
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [audioUrl, setAudioUrl] = useState(null);
+  const pollingIntervalRef = useRef(null);
+
   const languages = ["English", "Urdu", "Punjabi", "Sindhi", "Pashto"];
 
-  // store the session ID if found
   useEffect(() => {
-    const id = sessionStorage.getItem("session_id");
-    if (id) {
-      setSessionId(id);
+    if (typeof window !== "undefined") {
+      const storedSessionId = sessionStorage.getItem("session_id") || "";
+      setSessionId(storedSessionId);
     }
   }, []);
 
-  const handleLanguageSelect = (lang: string) => {
+  // this function handles the selection of a language from the dropdown menu
+  // it updates the selectedLanguage state and closes the menu
+  const handleLanguageSelect = (lang) => {
     setSelectedLanguage(lang);
     setShowLanguageMenu(false);
   };
+
+  // this function handles the click event for generating the podcast
+  // it sends a POST request to the backend with the selected language and documents
 
   const clearPolling = () => {
     if (pollingIntervalRef.current) {
@@ -36,15 +40,16 @@ const AudioOverview = ({ selectedDocs }: any) => {
     }
   };
 
-  const pollForPodcast = (key: string) => {
+  const pollForPodcast = (key) => {
     pollingIntervalRef.current = setInterval(async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/fetch/podcast/${key}`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}/fetch/podcast/${key}`,
           {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `bearer ${localStorage.getItem("token")}`,
             },
           }
         );
@@ -56,44 +61,45 @@ const AudioOverview = ({ selectedDocs }: any) => {
         if (contentType && contentType.includes("audio")) {
           const blob = await response.blob();
           const audioObjectUrl = URL.createObjectURL(blob);
-          setAudioUrl(audioObjectUrl);
+          onPodcastGenerated?.(audioObjectUrl);
           setLoading(false);
+          onLoadingChange?.(false);
           clearPolling();
           localStorage.removeItem("Key");
         } else {
           console.log("Audio not ready yet. Will retry...");
         }
-      } catch (error) {
-        console.error("Polling error:", error);
-        setError("Failed to fetch podcast audio.");
+      } catch (err) {
+        console.error("Polling error:", err);
+        // setError("Failed to fetch podcast audio.");
         clearPolling();
         setLoading(false);
+        onLoadingChange?.(false); // Notify parent that podcast generation failed
       }
-    }, 30000);
+    }, 30000); // every 30 seconds
   };
 
   const handleGenerateClick = async () => {
-    localStorage.removeItem("Key");
+    localStorage.removeItem("Key"); // remove previous session key
     setLoading(true);
-    setError("");
+    onLoadingChange?.(true); // Notify parent that podcast generation started
+    setError(null);
     setAudioUrl(null);
-    clearPolling();
+    clearPolling(); // just in case
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/v1/podcast`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            session_id: sessionId,
-            language: selectedLanguage,
-            selectedDocs,
-          }),
-        }
-      );
+      const response = await fetch(`${endpoint}/v1/podcast`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+          language: selectedLanguage,
+          selectedDocs,
+        }),
+      });
 
       if (!response.ok) throw new Error(`API error: ${response.statusText}`);
 
@@ -103,9 +109,11 @@ const AudioOverview = ({ selectedDocs }: any) => {
 
       localStorage.setItem("Key", key);
       pollForPodcast(key);
-    } catch (error) {
-      console.error("Failed to generate podcast:", error);
+    } catch (err) {
+      // console.error("Failed to generate podcast:", err);
+      // setError(err.message || "Failed to generate podcast");
       setLoading(false);
+      onLoadingChange?.(false); // Notify parent that podcast generation failed
     }
   };
 
@@ -120,69 +128,22 @@ const AudioOverview = ({ selectedDocs }: any) => {
   }, []);
 
   return (
-    <div className="border border-[#e0e0e0] rounded-lg p-3 mb-3">
-      <div className="flex justify-between items-center font-semibold mb-[10px] relative">
-        <span className="text-sm">Audio Overview</span>
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="hover:bg-gray-200 rounded-full"
-            >
-              <Languages className="h-4 w-4" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            side="left"
-            align="start"
-            className="p-2 w-32 bg-[#1f1f1f] text-white border-gray-800"
-          >
-            <div className="mb-1 text-[10px] font-normal">Select Language:</div>
-            {languages.map((lang) => (
-              <div
-                key={lang}
-                onClick={() => handleLanguageSelect(lang)}
-                className={`cursor-pointer text-[9px] py-[2px] ${
-                  lang === selectedLanguage
-                    ? "font-bold text-blue-500"
-                    : "font-normal text-gray-700"
-                }`}
-              >
-                {lang}
-              </div>
-            ))}
-          </PopoverContent>
-        </Popover>
+    <div className="border border-[#3a3a3a] rounded-lg p-3 mb-3">
+      <div className="flex justify-between items-center font-semibold mb-1 relative">
+        <span className="text-white text-sm">Audio Overview</span>
       </div>
 
-      <div className="flex flex-row flex-nowrap items-center justify-between gap-3 mt-3 w-full">
+      <div className="load-box">
         <Button
-          className="bg-[#4259ff] text-white rounded-lg font-semibold hover:bg-[#3a4bda] w-full"
+          className="flex items-center justify-center bg-[#3b82f6] text-white rounded-md p-2 text-sm font-semibold cursor-pointer hover:bg-[#2563eb] w-full"
           onClick={handleGenerateClick}
-          disabled={loading || selectedDocs.length === 0}
+          disabled={selectedDocs.length === 0}
         >
-          {loading ? (
-            <div className="flex items-center">
-              <div className="border-[4px] border-[#f3f3f3] border-t-[#7d868c] rounded-full w-[clamp(14px,2vw,18px)] h-[clamp(14px,2vw,18px)] animate-spin" />
-              <span className="ml-2">Generating</span>
-            </div>
-          ) : (
-            "Generate"
-          )}
+          Generate
         </Button>
       </div>
 
-      {error && <div className="color-red-500 mt-2">{error}</div>}
-
-      {audioUrl && (
-        <div className="mt-4">
-          <audio controls src={audioUrl} className="w-full">
-            Your browser does not support the audio element.
-          </audio>
-        </div>
-      )}
+      {error && <div style={{ color: "red", marginTop: "8px" }}>{error}</div>}
     </div>
   );
 };

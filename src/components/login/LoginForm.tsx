@@ -138,12 +138,8 @@ const LoginForm = () => {
           const data = await res.json();
 
           if (res.ok) {
-            if (data?.data?.token) {
-              sessionStorage.setItem("authToken", data.data.token);
-              sessionStorage.setItem(
-                "user",
-                JSON.stringify(data?.data?.token_payload || {})
-              );
+            if (data?.access_token) {
+              localStorage.setItem("d_tok", data.access_token);
             }
 
             toast.success("Login Successful! Redirecting...");

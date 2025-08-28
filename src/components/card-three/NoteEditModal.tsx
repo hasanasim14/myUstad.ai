@@ -45,7 +45,7 @@ const NoteEditModal = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto py-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-2 space-y-6">
           <div className="space-y-3">
             <Label
               htmlFor="note-title"

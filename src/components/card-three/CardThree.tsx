@@ -1,58 +1,69 @@
 "use client";
+
 import { useState, useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import AudioOverview from "./AudioOverview";
+import MindmapModal from "./MindmapModal";
 import {
   ChevronLeft,
   ChevronRight,
+  EllipsisVertical,
   FileText,
   GraduationCap,
   Headphones,
+  Loader2,
   MessageSquareText,
   Network,
   Plus,
+  Trash,
 } from "lucide-react";
-import { ScrollArea } from "../ui/scroll-area";
-import { Button } from "../ui/button";
-import ReactMarkdown from "react-markdown";
-import MindmapModal from "./MindmapModal";
-import AudioOverview from "./AudioOverview";
-import NoteViewModal from "./NoteViewModal";
+import { PopoverClose } from "@radix-ui/react-popover";
 import NoteEditModal from "./NoteEditModal";
+import NoteViewModal from "./NoteViewModal";
+import { Button } from "../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
-interface CardThreeProps {
-  notes: Array<{
-    Title: string;
-    Response: string;
-    editable?: boolean;
-    type?: string;
-  }>;
-  setNotes: any;
-  selectedDocs: any;
-  onCollapseChange?: (collapsed: boolean) => void;
-}
-
-const CardThree = ({
-  notes = [],
-  setNotes,
-  selectedDocs = [],
-  onCollapseChange,
-}: CardThreeProps) => {
-  const [menuOpenIndex, setMenuOpenIndex] = useState<number | null>(null);
+const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
+  const [menuOpenIndex, setMenuOpenIndex] = useState(null);
+  const menuRef = useRef(null);
+  const modalRef = useRef(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [currentEditNoteIndex, setCurrentEditNoteIndex] = useState<
-    number | null
-  >(null);
+  const [currentEditNoteIndex, setCurrentEditNoteIndex] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loadingStates, setLoadingStates] = useState(new Set());
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [currentViewNote, setCurrentViewNote] = useState<any>(null);
-  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
-  const [clickedIndex, setClickedIndex] = useState<number | null>(null);
+  const [currentViewNote, setCurrentViewNote] = useState(null);
+  const [playingIndex, setPlayingIndex] = useState(null);
+  const [clickedIndex, setClickedIndex] = useState(null);
   const [mindmapOpen, setMindmapOpen] = useState(false);
   const [mindmapMarkdown, setMindmapMarkdown] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [podcastCache, setPodcastCache] = useState({});
+  const audioRef = useRef(null);
+  const abortControllers = useRef({});
+
+  const addLoadingState = (type) => {
+    setLoadingStates((prev) => new Set([...prev, type]));
+  };
+
+  const removeLoadingState = (type) => {
+    setLoadingStates((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(type);
+      return newSet;
+    });
+  };
+
+  const renderers = {
+    h4: ({ children }) => (
+      <h4 style={{ fontWeight: "bold", marginTop: "1.5rem" }}>{children}</h4>
+    ),
+    p: ({ children }) => (
+      <p style={{ marginBottom: "1rem", lineHeight: 1.6 }}>{children}</p>
+    ),
+  };
 
   const noteTypes = [
     { label: "Study Guide", icon: GraduationCap },
@@ -62,80 +73,82 @@ const CardThree = ({
   ];
 
   useEffect(() => {
-    // Only fetch notes if we have API endpoints configured
-    if (process.env.NEXT_PUBLIC_BASE_URL) {
-      fetchNotes();
-    }
+    fetchNotes();
   }, []);
 
   const fetchNotes = async () => {
-    console.log("inside the get notes api");
+    const course = localStorage.getItem("course");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/get-notes`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/get-notes/${course}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `bearer ${localStorage.getItem("d_tok")}`,
+          },
+        }
+      );
+
       const data = await res.json();
-      if (data?.data && Array.isArray(data.data)) {
-        setNotes(data.data);
-      }
+      setNotes(data?.data);
     } catch (error) {
       console.error("Error fetching notes:", error);
     }
   };
 
   const fetchMindmap = async () => {
-    setLoading(true);
-    try {
-      if (!process.env.NEXT_PUBLIC_API_URL) {
-        // Demo mindmap for when API is not configured
-        const demoMindmap = `# Mind Map\n\n## Main Topic\n- Subtopic 1\n  - Detail A\n  - Detail B\n- Subtopic 2\n  - Detail C\n  - Detail D`;
-        const newMindmapNote = {
-          title: "Mind Map",
-          content: demoMindmap,
-          editable: false,
-          type: "mindmap",
-        };
-        setNotes((prevNotes: any) => [newMindmapNote, ...prevNotes]);
-        setMindmapMarkdown(demoMindmap);
-        setMindmapOpen(true);
-        return;
-      }
+    const loadingKey = `Mind Map-${Date.now()}`;
+    addLoadingState(loadingKey);
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/generate-mindmap`,
+    const payload = {
+      selectedDocs: selectedDocs,
+      course: localStorage.getItem("course"),
+    };
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/generate-mindmap`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `bearer ${localStorage.getItem("token")}`,
+            Authorization: `bearer ${localStorage.getItem("d_tok")}`,
           },
-          body: JSON.stringify({ selectedDocs }),
+          body: JSON.stringify(payload),
         }
       );
-      const data = await response.json();
-      const markdownContent = data?.markdown || "No mindmap available.";
+
+      if (!res.ok) throw new Error(`Mindmap API failed: ${res.status}`);
+
+      const data = await res.json();
+      const markdownContent = data.markdown || "No mindmap available.";
+
       const newMindmapNote = {
-        title: "Mind Map",
-        content: markdownContent,
+        Title: `Mind Map - ${new Date().toLocaleString()}`,
+        Response: markdownContent,
         editable: false,
         type: "mindmap",
       };
-      setNotes((prevNotes: any) => [newMindmapNote, ...prevNotes]);
-      setMindmapMarkdown(markdownContent);
-      setMindmapOpen(true);
+
+      setTimeout(fetchNotes, 500);
     } catch (error) {
       console.error("Error generating mindmap:", error);
     } finally {
-      setLoading(false);
+      removeLoadingState(loadingKey);
     }
   };
 
-  const playNoteAudioFromAPI = async (text: string, index: number) => {
-    setClickedIndex(index);
+  const playNoteAudioFromAPI = async (text, index) => {
+    if (clickedIndex === index && !playingIndex) {
+      const controller = abortControllers.current[index];
+      if (controller) {
+        controller.abort();
+        delete abortControllers.current[index];
+      }
+      setClickedIndex(null);
+      return;
+    }
+
     if (playingIndex === index) {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -146,84 +159,127 @@ const CardThree = ({
       return;
     }
 
-    if (!process.env.NEXT_PUBLIC_API_URL) {
-      // Demo behavior when API is not configured
-      console.log("Audio would play:", text.slice(0, 50) + "...");
-      setPlayingIndex(index);
-      setClickedIndex(null);
-      setTimeout(() => {
-        setPlayingIndex(null);
-      }, 3000);
-      return;
-    }
+    const controller = new AbortController();
+    abortControllers.current[index] = controller;
+    setClickedIndex(index);
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/generate-audio/`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/generate-audio/`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("d_tok")}`,
+          },
           body: JSON.stringify({ text }),
+          signal: controller.signal,
         }
       );
+
+      if (!response.ok) {
+        throw new Error(`API call failed with status ${response.status}`);
+      }
+
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
       audioRef.current = audio;
+
       audio.onplay = () => {
         setPlayingIndex(index);
         setClickedIndex(null);
       };
+
       audio.onended = () => {
         setPlayingIndex(null);
         setClickedIndex(null);
       };
+
       await audio.play();
     } catch (error) {
-      console.error("Audio playback failed:", error);
+      if (error.name === "AbortError") {
+        console.log("Fetch aborted");
+      } else {
+        console.error("Audio playback failed:", error);
+      }
       setPlayingIndex(null);
       setClickedIndex(null);
+    } finally {
+      delete abortControllers.current[index];
     }
   };
 
   const handleAddNote = () => {
     const newNote = {
-      title: `Note ${notes.length + 1}`,
-      content: "New note content...",
+      Title: `New Note - ${new Date().toLocaleString()}`,
+      Response: "New note content...",
       editable: true,
     };
-    setNotes([...notes, newNote]);
+    setNotes([newNote, ...notes]);
   };
 
-  const handleToggleMenu = (index: number) => {
-    setMenuOpenIndex(menuOpenIndex === index ? null : index);
-  };
-
-  const handleDeleteNote = (indexToDelete: number) => {
+  const handleDeleteNote = async (docKey, indexToDelete) => {
     const updatedNotes = notes.filter((_, i) => i !== indexToDelete);
-    setNotes(updatedNotes);
-    setMenuOpenIndex(null);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/remove-note`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `bearer ${localStorage.getItem("d_tok")}`,
+          },
+          body: JSON.stringify({ docKey }),
+        }
+      );
+      if (response.ok) {
+        // cleanup cached blob
+        if (podcastCache[docKey]) {
+          URL.revokeObjectURL(podcastCache[docKey]);
+          const newCache = { ...podcastCache };
+          delete newCache[docKey];
+          setPodcastCache(newCache);
+        }
+        setNotes(updatedNotes);
+        toast.success("Note Deleted!");
+      }
+    } catch (error) {
+      console.error("error deleting the note", error);
+      toast.error("Error deleting the note. Please try again later");
+    }
   };
 
   useEffect(() => {
-    const handleClickOutside = (event: any) => {
+    const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setMenuOpenIndex(null);
       }
+
+      if (
+        isViewModalOpen &&
+        modalRef.current &&
+        !modalRef.current.contains(event.target)
+      ) {
+        setIsViewModalOpen(false);
+      }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [isViewModalOpen]);
 
-  const handleNoteClick = (index: number) => {
+  const handleNoteClick = (index) => {
     const note = notes[index];
-    if (note.type === "mindmap") {
+
+    if (note.docType === "mindmap") {
       setMindmapMarkdown(note.Response);
       setMindmapOpen(true);
       return;
     }
+
     if (note.editable) {
       setCurrentEditNoteIndex(index);
       setEditTitle(note.Title);
@@ -235,81 +291,90 @@ const CardThree = ({
     }
   };
 
-  const handleSaveEdit = () => {
-    if (currentEditNoteIndex !== null) {
-      const updatedNotes = [...notes];
-      updatedNotes[currentEditNoteIndex] = {
-        ...updatedNotes[currentEditNoteIndex],
+  const handleSaveEdit = async () => {
+    const updatedNote = {
+      title: editTitle,
+      note: editContent,
+    };
+
+    try {
+      const authToken = localStorage.getItem("d_tok");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/save-note`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          ...updatedNote,
+          course: localStorage.getItem("course"),
+        }),
+      });
+
+      if (!res.ok) throw new Error("Save failed");
+
+      const newNotes = [...notes];
+      newNotes[currentEditNoteIndex] = {
+        ...newNotes[currentEditNoteIndex],
         Title: editTitle,
         Response: editContent,
-      };
-      setNotes(updatedNotes);
-    }
-    setIsEditModalOpen(false);
-  };
-
-  const handleFetchAndAddNote = async (type: string) => {
-    if (!process.env.NEXT_PUBLIC_API_URL) {
-      // Demo content when API is not configured
-      const demoContent = {
-        "Study Guide":
-          "# Study Guide\n\n## Key Concepts\n- Important topic 1\n- Important topic 2\n- Important topic 3",
-        "Briefing Doc":
-          "# Briefing Document\n\n## Overview\nThis is a comprehensive briefing document covering the main points.",
-        FAQ: "# Frequently Asked Questions\n\n**Q: What is this?**\nA: This is a demo FAQ document.",
-      };
-
-      const newNote = {
-        title: `${type} - Demo`,
-        content:
-          demoContent[type as keyof typeof demoContent] || "Demo content",
         editable: false,
       };
-      setNotes((prev: any) => [...prev, newNote]);
-      return;
-    }
+      setNotes(newNotes);
 
+      await fetchNotes();
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error("Failed to save note:", error);
+    }
+  };
+
+  const handleFetchAndAddNote = async (type) => {
     let contentEndpoint = "";
+
     if (type === "Study Guide")
-      contentEndpoint = `${process.env.NEXT_PUBLIC_API_URL}/study-guide`;
+      contentEndpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/study-guide`;
     else if (type === "Briefing Doc")
-      contentEndpoint = `${process.env.NEXT_PUBLIC_API_URL}/briefing-doc`;
+      contentEndpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/briefing-doc`;
     else if (type === "FAQ")
-      contentEndpoint = `${process.env.NEXT_PUBLIC_API_URL}/faq`;
+      contentEndpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/faq`;
     else return;
 
-    const titleEndpoint = `${process.env.NEXT_PUBLIC_API_URL}/get-note-title`;
-    setLoading(true);
+    const loadingKey = `${type}-${Date.now()}`;
+    addLoadingState(loadingKey);
+
     try {
+      const authToken = localStorage.getItem("d_tok");
+      const wrappedDocs = {
+        selectedDocs: selectedDocs,
+        course: localStorage.getItem("course"),
+      };
+
       const contentResponse = await fetch(contentEndpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ selectedDocs }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `bearer ${authToken}`,
+        },
+        body: JSON.stringify(wrappedDocs),
       });
+
       if (!contentResponse.ok)
         throw new Error(`Content API error: ${contentResponse.status}`);
+
       const content = await contentResponse.text();
 
-      const titleResponse = await fetch(titleEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, selectedDocs }),
-      });
-      if (!titleResponse.ok)
-        throw new Error(`Title API error: ${titleResponse.status}`);
-      const rawTitle = await titleResponse.text();
-      const titleData = rawTitle.replace(/^"(.*)"$/, "$1");
-
       const newNote = {
-        title: titleData,
+        Title: `${type} - ${new Date().toLocaleString()}`,
         content: content || "No content available.",
         editable: false,
       };
-      setNotes((prev: any) => [...prev, newNote]);
+
+      await fetchNotes();
     } catch (error) {
       console.error(`Failed to fetch ${type}:`, error);
     } finally {
-      setLoading(false);
+      removeLoadingState(loadingKey);
     }
   };
 
@@ -323,19 +388,76 @@ const CardThree = ({
     });
   };
 
-  const librarybtn =
-    "flex items-center justify-center bg-white/5 p-2 text-sm font-semibold border border-neutral-500 hover:bg-[#333333]";
+  const handlePodcastLoadingChange = (isLoading) => {
+    const loadingKey = `Podcast-${Date.now()}`;
+    if (isLoading) {
+      addLoadingState(loadingKey);
+      window.currentPodcastLoadingKey = loadingKey;
+    } else {
+      if (window.currentPodcastLoadingKey) {
+        removeLoadingState(window.currentPodcastLoadingKey);
+        delete window.currentPodcastLoadingKey;
+      }
+    }
+  };
+
+  // fetch podcast audio
+  const PodcastAudio = ({ docKey }) => {
+    const [audioUrl, setAudioUrl] = useState(null);
+
+    useEffect(() => {
+      const fetchAudio = async () => {
+        if (isViewModalOpen && currentViewNote?.docType === "Podcast") {
+          const docKey = currentViewNote.docKey;
+          if (podcastCache[docKey]) return; // already cached
+
+          try {
+            const res = await fetch(
+              `${process.env.NEXT_PUBLIC_BASE_URL}/fetch/podcast/${docKey}`,
+              {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            );
+            if (!res.ok) throw new Error("Failed to fetch podcast");
+
+            const blob = await res.blob();
+            const audioUrl = URL.createObjectURL(blob);
+            setPodcastCache((prev) => ({ ...prev, [docKey]: audioUrl }));
+          } catch (err) {
+            console.error("Error fetching podcast:", err);
+          }
+        }
+      };
+
+      fetchAudio();
+    }, [isViewModalOpen, currentViewNote, podcastCache]);
+
+    //
+    if (!audioUrl) {
+      return (
+        <div className="flex items-center gap-2 text-gray-500 text-xs">
+          <Loader2 className="h-3 w-3 animate-spin" /> Loading podcast...
+        </div>
+      );
+    }
+
+    return <audio controls src={audioUrl} className="w-full mt-2" />;
+  };
 
   return (
     <div
-      className={`h-[85vh] md:border md:rounded-lg border-neutral-500 transition-all duration-300 ease-in-out overflow-hidden ml-auto text-white ${
+      className={`h-[85vh] md:border md:rounded-lg border-[#3a3a3a] transition-all duration-300 ease-in-out overflow-hidden ml-auto text-black ${
         isCollapsed ? "w-15" : "w-full max-w-sm lg:max-w-md xl:max-w-lg"
       }`}
     >
       {isCollapsed ? (
-        <div className="flex justify-center p-3 border-b border-gray-200">
+        <div className="flex justify-center p-3">
           <button
-            className="cursor-pointer p-2 rounded-lg hover:bg-gray-200 text-[#64748b]"
+            className="cursor-pointer p-2 rounded-lg hover:bg-[#2a2a2a] text-white"
             onClick={toggleCollapse}
           >
             <ChevronLeft />
@@ -343,33 +465,46 @@ const CardThree = ({
         </div>
       ) : (
         <div className="flex flex-col h-full">
-          <div className="flex justify-between items-center font-semibold border-b border-neutral-500 p-2 bg-white/5 flex-shrink-0">
-            <span className="p-1 text-sm font-poppins">Library</span>
+          <div className="flex justify-between items-center font-semibold border-b border-[#3a3a3a] p-2 flex-shrink-0">
+            <span className="p-2 text-white">Library</span>
             <button
-              className="cursor-pointer p-2 rounded-lg hover:bg-gray-200 text-[#64748b]"
+              className="cursor-pointer p-2 rounded-lg hover:bg-[#2a2a2a] text-white"
               onClick={toggleCollapse}
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight />
             </button>
           </div>
 
-          <div className="flex-shrink-0 p-3 pb-0">
-            <AudioOverview selectedDocs={selectedDocs} />
+          <div className="flex-shrink-0 p-3">
+            <AudioOverview
+              selectedDocs={selectedDocs}
+              onLoadingChange={handlePodcastLoadingChange}
+              onPodcastGenerated={(audioUrl) => {
+                const newNote = {
+                  Title: `Podcast - ${new Date().toLocaleString()}`,
+                  Response: audioUrl,
+                  editable: false,
+                  docType: "Podcast",
+                };
+                setNotes((prev) => [newNote, ...prev]);
+              }}
+            />
 
-            <div className="border-y border-neutral-500 pt-3 p">
+            <div className="border-y border-[#3a3a3a] pt-3 pb-3">
               <Button
-                className={`w-full mb-3 ${librarybtn}`}
+                className="w-full mb-3 border border-[#3a3a3a] text-white bg-slate-700/40 hover:bg-slate-700/50 hover:border-slate-500"
                 onClick={handleAddNote}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add note
               </Button>
 
-              <div className="grid grid-cols-2 gap-2 mb-3">
+              <div className="flex flex-wrap gap-2 justify-center max-w-md mx-auto">
                 {noteTypes.map(({ label, icon: Icon }) => (
                   <Button
+                    disabled={!selectedDocs.length}
                     key={label}
-                    className={`${librarybtn} text-sm sm:text-sm`}
+                    className="border border-[#3a3a3a] text-white bg-slate-700/40 hover:bg-slate-700/50 hover:border-slate-500 w-[calc(50%-4px)] p-2"
                     onClick={() => {
                       if (label === "Mind Map") {
                         fetchMindmap();
@@ -384,84 +519,111 @@ const CardThree = ({
                   </Button>
                 ))}
               </div>
-
-              {loading && (
-                <div className="flex items-center justify-center gap-2 mb-4 text-sm text-[#555]">
-                  <div className="w-4 h-4 border-2 border-gray-300 border-t-[#555] rounded-full animate-spin [animation-duration:0.6s]" />
-                  Generating...
-                </div>
-              )}
             </div>
           </div>
 
-          <div className="flex-1 overflow-hidden pl-3 py-3">
-            <ScrollArea className="h-full">
+          <div className="flex-1 overflow-hidden pl-3 py-0 pb-2">
+            <ScrollArea className="h-full pr-2">
+              <div className="space-y-3">
+                {/* Loading placeholders at the top */}
+                {Array.from(loadingStates).map((loadingKey) => (
+                  <div
+                    key={loadingKey}
+                    className="border border-[#3a3a3a] rounded-lg p-4 flex items-center gap-2"
+                  >
+                    <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
+                    <span className="text-sm text-gray-700 animate-pulse">
+                      Generating {loadingKey.split("-")[0]}...
+                    </span>
+                  </div>
+                ))}
 
-              <div className="space-y-3 pr-4">
+                {/* Notes list */}
                 {notes && notes.length > 0 ? (
                   notes.map((note, index) => (
                     <div
-                      key={index}
-                      className="relative cursor-pointer bg-white/5 hover:bg-white/10 transition-colors duration-200 p-3 border border-gray-100/20 rounded-lg"
+                      key={note.docKey || index}
                       onClick={() => handleNoteClick(index)}
+                      className={`group relative cursor-pointer rounded-xl border transition-all duration-300 p-3
+    ${
+      clickedIndex === index
+        ? "bg-slate-800/90 border-slate-600 shadow-lg" // clicked (active)
+        : "bg-transparent border-[#3a3a3a] hover:bg-slate-700/40 hover:border-slate-500"
+    }`}
                     >
-                      <div className="flex justify-between items-start gap-2 mb-2">
-                        <h3 className="text-sm sm:text-sm line-clamp-1 min-w-0 text-white text-ellipsis">
+                      {/* Header */}
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-semibold text-white truncate max-w-[210px]">
                           {note.Title}
-                        </h3>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <button
-                            className={`bg-transparent cursor-pointer outline-none transition-colors ${
-                              clickedIndex === index
-                                ? "text-red-500"
-                                : playingIndex === index
-                                ? "text-green-500"
-                                : "text-white/70 hover:text-white"
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              playNoteAudioFromAPI(note.Response, index);
-                            }}
-                          >
-                            <Headphones className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleToggleMenu(index);
-                            }}
-                            className="bg-transparent border-none cursor-pointer text-lg outline-none text-white/70 hover:text-white leading-none"
-                          >
-                            ⋮
-                          </button>
-                          {menuOpenIndex === index && (
-                            <div
-                              ref={menuRef}
-                              className="absolute top-full right-0 bg-white z-10 min-w-[120px] shadow-lg rounded-md p-1"
+                        </span>
+
+                        <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition">
+                          {note.docType !== "Podcast" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                playNoteAudioFromAPI(note.Response, index);
+                              }}
+                              className={`p-1 rounded-lg transition ${
+                                clickedIndex === index
+                                  ? "bg-red-500/20 text-red-400"
+                                  : playingIndex === index
+                                  ? "bg-green-500/20 text-green-400"
+                                  : "hover:bg-slate-600/50 text-slate-300"
+                              }`}
                             >
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteNote(index);
-                                }}
-                              >
-                                Delete
-                              </Button>
-                            </div>
+                              <Headphones className="w-4 h-4" />
+                            </button>
                           )}
+
+                          {/* Popover Menu */}
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                className="p-0 bg-transparent text-slate-300 hover:text-white hover:bg-slate-600/50 rounded-lg"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <EllipsisVertical className="w-4 h-4" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-36 p-1 rounded-md border border-slate-600 shadow-xl"
+                              align="end"
+                              sideOffset={8}
+                            >
+                              <div className="grid gap-0.5">
+                                <PopoverClose asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="justify-start gap-2 px-3 py-2 h-8 text-sm text-red-400"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteNote(note.docKey, index);
+                                    }}
+                                  >
+                                    <Trash className="h-3.5 w-3.5" />
+                                    <span>Delete</span>
+                                  </Button>
+                                </PopoverClose>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
                         </div>
                       </div>
 
-                      <div className="text-[#555] text-xs sm:text-sm">
-                        {note.editable ? (
+                      {/* Content */}
+                      <div className="mt-2 text-xs text-slate-300 leading-relaxed">
+                        {note.docType === "Podcast" ? (
+                          <div className="italic text-slate-400">
+                            🎙 Podcast note. Open to play.
+                          </div>
+                        ) : note.editable ? (
                           <ReactMarkdown
                             components={{
                               p: ({ node, ...props }) => (
                                 <p
-                                  className="text-xs sm:text-sm text-white/60 leading-relaxed m-0 line-clamp-2"
+                                  className="line-clamp-1 m-0 text-xs sm:text-sm text-slate-300"
                                   {...props}
                                 />
                               ),
@@ -470,26 +632,29 @@ const CardThree = ({
                             {note.Response}
                           </ReactMarkdown>
                         ) : (
-                          <div className="text-white/60 line-clamp-1 text-xs">
-                            {note.Response.replace(/\\n/g, " ")
+                          <div className="line-clamp-1">
+                            {note?.Response?.replace(/\\n/g, " ")
                               .replace(/^"(.*)"$/, "$1")
                               .replace(/^["']|["']$/g, "")
                               .replace(/^#+\s*/gm, "")
-                              .slice(0, 100)}
-                            {note.Response.length > 100 && "..."}
+                              .slice(0, 120)}
+                            {note?.Response?.length > 120 && "..."}
                           </div>
                         )}
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="text-center text-white/60 py-8">
+                  <div className="text-center py-8">
                     <p>
-                      No notes yet. Click "Add note" to create your first note!
+                      No notes yet. Click &quot;Add note&quot; to create your
+                      first note!
                     </p>
                   </div>
                 )}
               </div>
+
+              <ScrollBar orientation="vertical" />
             </ScrollArea>
           </div>
 

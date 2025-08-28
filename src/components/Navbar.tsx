@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import {
   Bell,
   CircleUser,
+  Languages,
   LogOut,
   Menu,
   Moon,
@@ -21,6 +22,10 @@ const Navbar = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("English");
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+
+  const languages = ["English", "Urdu", "Punjabi", "Sindhi", "Pashto"];
   const router = useRouter();
   const { theme, setTheme } = useTheme();
 
@@ -50,6 +55,11 @@ const Navbar = () => {
     setTimeout(() => {
       router.push("/login");
     }, 500);
+  };
+
+  const handleLanguageSelect = (lang: string) => {
+    setSelectedLanguage(lang);
+    setShowLanguageMenu(false);
   };
 
   const toggleTheme = () => {
@@ -105,6 +115,7 @@ const Navbar = () => {
                 <span className="sr-only">Toggle theme</span>
               </Button>
 
+              {/* Feedback */}
               <button
                 // onClick={() => setOpenDialog(true)}
                 className="cursor-pointer bg-[#2A2D37] hover:bg-[#3A3F4B] text-white p-2.5 rounded-full shadow-sm transition duration-200"
@@ -112,11 +123,46 @@ const Navbar = () => {
                 <PenSquare className="w-4 h-4" />
               </button>
 
+              {/* Language select */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    // size="icon"
+                    variant="ghost"
+                    className="bg-[#2A2D37] hover:bg-[#3A3F4B] rounded-full"
+                  >
+                    <Languages className="h-5 w-5 text-white" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  side="bottom"
+                  className="p-2 w-32 bg-white border-gray-200"
+                >
+                  <div className="mb-1 text-[10px] font-normal">
+                    Select Language:
+                  </div>
+                  {languages.map((lang) => (
+                    <div
+                      key={lang}
+                      onClick={() => handleLanguageSelect(lang)}
+                      className={`cursor-pointer text-[9px] py-[2px] ${
+                        lang === selectedLanguage
+                          ? "font-bold text-blue-500"
+                          : "font-normal text-gray-700"
+                      }`}
+                    >
+                      {lang}
+                    </div>
+                  ))}
+                </PopoverContent>
+              </Popover>
+
+              {/* Logout */}
               <div className="relative inline-block text-left z-50">
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button className="h-10 w-10 rounded-full p-2 bg-[#2A2D37] hover:bg-[#3A3F4B]">
-                      <CircleUser className="h-5 w-5" />
+                      <CircleUser className="h-5 w-5 text-white" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent
