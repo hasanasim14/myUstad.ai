@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Bell, CircleUser, LogOut, Menu, Moon, Sun, X } from "lucide-react";
+import {
+  Bell,
+  CircleUser,
+  LogOut,
+  Menu,
+  Moon,
+  PenSquare,
+  Sun,
+  X,
+} from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
@@ -11,10 +20,14 @@ import { useTheme } from "next-themes";
 const Navbar = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { theme, setTheme } = useTheme();
 
-  console.log("the theme is now ", theme);
+  // Ensure we're rendering for the correct theme after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -38,6 +51,15 @@ const Navbar = () => {
       router.push("/login");
     }, 500);
   };
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
+
+  // Avoid hydration mismatch by not rendering theme icons until mounted
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <nav className="bg-white/5 backdrop-blur-md text-white px-4 py-2 shadow">
@@ -75,18 +97,25 @@ const Navbar = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-                className="relative h-9 w-9 rounded-full"
+                onClick={toggleTheme}
+                className="relative h-9 w-9 rounded-full bg-[#2A2D37] hover:bg-[#3A3F4B]"
               >
                 <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                 <span className="sr-only">Toggle theme</span>
               </Button>
 
+              <button
+                // onClick={() => setOpenDialog(true)}
+                className="cursor-pointer bg-[#2A2D37] hover:bg-[#3A3F4B] text-white p-2.5 rounded-full shadow-sm transition duration-200"
+              >
+                <PenSquare className="w-4 h-4" />
+              </button>
+
               <div className="relative inline-block text-left z-50">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button className="h-10 w-10 rounded-full p-2 bg-[#141A29] hover:bg-[#0F1420]">
+                    <Button className="h-10 w-10 rounded-full p-2 bg-[#2A2D37] hover:bg-[#3A3F4B]">
                       <CircleUser className="h-5 w-5" />
                     </Button>
                   </PopoverTrigger>
@@ -164,12 +193,21 @@ const Navbar = () => {
             </nav>
 
             <div className="px-6 mt-6 space-y-4 text-sm">
-              <button className="p-2">
-                <Bell className="w-4 h-4" />
+              <button
+                onClick={toggleTheme}
+                className="flex items-center gap-2 p-2 hover:text-blue-600"
+              >
+                {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
+                <span>Toggle Theme</span>
               </button>
-              <div className="p-2">
+              <button className="flex items-center gap-2 p-2 hover:text-blue-600">
+                <Bell className="w-4 h-4" />
+                <span>Notifications</span>
+              </button>
+              <button className="flex items-center gap-2 p-2 hover:text-blue-600">
                 <CircleUser className="w-4 h-4" />
-              </div>
+                <span>Profile</span>
+              </button>
             </div>
           </div>
         </>

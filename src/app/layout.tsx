@@ -38,7 +38,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} font-poppins antialiased`}
       >
         <SessionWrapper>
-          <ThemeProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}
             <Toaster richColors position="top-right" />
           </ThemeProvider>
