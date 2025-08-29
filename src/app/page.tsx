@@ -7,6 +7,7 @@ import CardTwo from "@/components/card-two/CardTwo";
 import LoginForm from "@/components/login/LoginForm";
 import Navbar from "@/components/Navbar";
 import { Note } from "@/lib/types";
+import { useTheme } from "next-themes";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -20,6 +21,7 @@ export default function Home() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [isThirdCardCollapsed, setIsThirdCardCollapsed] = useState(false);
   const [isFirstCardCollapsed, setIsFirstCardCollapsed] = useState(false);
+  const { theme } = useTheme();
 
   const handleRightCardCollapse = (collapsed: any) => {
     setIsThirdCardCollapsed(collapsed);
@@ -70,39 +72,13 @@ export default function Home() {
   };
 
   const { cardOne, cardTwo, cardThree } = getCardWidths();
-  // return <LoginForm />;
-  // return (
-  //   <div className="hidden md:flex md:flex-1 md:flex-col p-4">
-  //     <div className="flex gap-4 w-full">
-  //       <div className={`${cardOne} transition-all duration-300 ease-in-out`}>
-  //         <CardOne
-  //           selectedDocs={selectedDocs}
-  //           setSelectedDocs={setSelectedDocs}
-  //           onCollapseChange={handleLeftCardCollapse}
-  //         />
-  //       </div>
-
-  //       <div className={`${cardTwo} transition-all duration-300 ease-in-out`}>
-  //         <CardTwo
-  //           onPinNote={handleAddPinnedNote}
-  //           selectedDocs={selectedDocs}
-  //         />
-  //       </div>
-
-  //       <div className={`${cardThree} transition-all duration-300 ease-in-out`}>
-  //         <CardThree
-  //           selectedDocs={selectedDocs}
-  //           notes={notes}
-  //           setNotes={setNotes}
-  //           onCollapseChange={handleRightCardCollapse}
-  //         />
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#131313]">
+    <div
+      className={`flex flex-col min-h-screen ${
+        theme === "light" ? "bg-white" : "bg-[#131313]"
+      }`}
+    >
       <Navbar />
 
       {/* Mobile layout */}

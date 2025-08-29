@@ -24,7 +24,7 @@ const LoginForm = () => {
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   useEffect(() => {
-    const isToken = localStorage.getItem("token");
+    const isToken = localStorage.getItem("d_tok");
     if (isToken) {
       router.push("/courses");
     }

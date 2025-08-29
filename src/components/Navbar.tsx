@@ -75,11 +75,21 @@ const Navbar = () => {
     <nav className="bg-white/5 backdrop-blur-md text-white px-4 py-2 shadow">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-6">
-          <span className="text-2xl font-bold tracking-wide">myUstad.ai</span>
+          <span
+            className={`text-2xl font-bold tracking-wide ${
+              theme === "light" ? "text-[#1F2937]" : "text-slate-300"
+            }`}
+          >
+            myUstad.ai
+          </span>
         </div>
 
         {!isMobile && (
-          <div className="flex space-x-6 text-sm font-medium text-white">
+          <div
+            className={`flex space-x-6 text-sm font-medium ${
+              theme === "light" ? "text-[#1F2937]" : "text-slate-300"
+            }`}
+          >
             <a
               href="/courses"
               className="hover:text-white/90 transition-colors"
@@ -108,7 +118,7 @@ const Navbar = () => {
                 variant="ghost"
                 size="icon"
                 onClick={toggleTheme}
-                className="relative h-9 w-9 rounded-full bg-[#2A2D37] hover:bg-[#3A3F4B]"
+                className="h-10 w-10 rounded-full bg-[#2A2D37] hover:bg-[#3A3F4B] flex items-center justify-center"
               >
                 <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -116,20 +126,20 @@ const Navbar = () => {
               </Button>
 
               {/* Feedback */}
-              <button
+              <Button
                 // onClick={() => setOpenDialog(true)}
-                className="cursor-pointer bg-[#2A2D37] hover:bg-[#3A3F4B] text-white p-2.5 rounded-full shadow-sm transition duration-200"
+                variant="ghost"
+                className="h-10 w-10 rounded-full bg-[#2A2D37] hover:bg-[#3A3F4B] flex items-center justify-center"
               >
-                <PenSquare className="w-4 h-4" />
-              </button>
+                <PenSquare className="h-5 w-5" />
+              </Button>
 
               {/* Language select */}
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    // size="icon"
                     variant="ghost"
-                    className="bg-[#2A2D37] hover:bg-[#3A3F4B] rounded-full"
+                    className="h-10 w-10 rounded-full bg-[#2A2D37] hover:bg-[#3A3F4B] flex items-center justify-center"
                   >
                     <Languages className="h-5 w-5 text-white" />
                   </Button>
@@ -158,32 +168,30 @@ const Navbar = () => {
               </Popover>
 
               {/* Logout */}
-              <div className="relative inline-block text-left z-50">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button className="h-10 w-10 rounded-full p-2 bg-[#2A2D37] hover:bg-[#3A3F4B]">
-                      <CircleUser className="h-5 w-5 text-white" />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button className="h-10 w-10 rounded-full bg-[#2A2D37] hover:bg-[#3A3F4B] flex items-center justify-center">
+                    <CircleUser className="h-5 w-5 text-white" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-56 p-1 rounded-lg border bg-[#0F1420] border-[#414141]"
+                  align="end"
+                  sideOffset={8}
+                >
+                  <div className="grid gap-0.5 font-mono">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="justify-start gap-2 px-3 py-2 h-8 text-sm font-normal text-red-500 hover:bg-[#2a0e0e] hover:text-red-400"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="h-3.5 w-3.5 text-red-500" />
+                      <span>Logout</span>
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-56 p-1 rounded-lg border bg-[#0F1420] border-[#414141]"
-                    align="end"
-                    sideOffset={8}
-                  >
-                    <div className="grid gap-0.5 font-mono">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="justify-start gap-2 px-3 py-2 h-8 text-sm font-normal text-red-500 hover:bg-[#2a0e0e] hover:text-red-400"
-                        onClick={handleLogout}
-                      >
-                        <LogOut className="h-3.5 w-3.5 text-red-500" />
-                        <span>Logout</span>
-                      </Button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </>
           )}
 

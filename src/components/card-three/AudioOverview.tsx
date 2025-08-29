@@ -49,7 +49,7 @@ const AudioOverview = ({ selectedDocs, onLoadingChange }) => {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `bearer ${localStorage.getItem("token")}`,
+              Authorization: `bearer ${localStorage.getItem("d_tok")}`,
             },
           }
         );
@@ -92,7 +92,7 @@ const AudioOverview = ({ selectedDocs, onLoadingChange }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `bearer ${localStorage.getItem("token")}`,
+          Authorization: `bearer ${localStorage.getItem("d_tok")}`,
         },
         body: JSON.stringify({
           session_id: sessionId,

@@ -1,14 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
 import {
   ChevronDown,
   ChevronLeft,
@@ -16,11 +8,20 @@ import {
   FileText,
   X,
 } from "lucide-react";
+import { useTheme } from "next-themes";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface CardOneProps {
   selectedDocs: any;
   setSelectedDocs: any;
   onCollapseChange: (collapsed: boolean) => void;
+}
+
+interface CardData {
+  course: string;
+  name: string;
+  title: string;
 }
 
 const CardOne = ({
@@ -32,7 +33,8 @@ const CardOne = ({
   const [openModules, setOpenModules] = useState({});
   // this state variable has been added to store the document that is currently opened
   const [openedDoc, setOpenedDoc] = useState(null);
-  const [cardData, setCardData] = useState();
+  const [cardData, setCardData] = useState<CardData[]>([]);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchCardData = async () => {
@@ -44,20 +46,21 @@ const CardOne = ({
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `bearer ${localStorage.getItem("token")}`,
+              Authorization: `bearer ${localStorage.getItem("d_tok")}`,
             },
           }
         );
 
         const data = await response.json();
         setCardData(data?.data);
+        console.log("the cata data", data?.data);
       } catch (error) {}
     };
     fetchCardData();
   }, []);
 
   // this function has been added to toggle the open state of a module
-  const toggleModule = (moduleName) => {
+  const toggleModule = (moduleName: string) => {
     setOpenModules((prev) => ({
       ...prev,
       [moduleName]: !prev[moduleName],
@@ -66,27 +69,26 @@ const CardOne = ({
   // maintaining the state for card
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const handleCheckboxChange = (doc) => {
+  // eslint-disable-next-line
+  const handleCheckboxChange = (doc: any) => {
     setSelectedDocs((prevSelected) => {
-      const exists = prevSelected.some((d) => d.uniqueId === doc.uniqueId);
+      // eslint-disable-next-line
+      const exists = prevSelected.some((d: any) => {
+        d.uniqueId === doc.uniqueId;
+        console.log("the tpye of", typeof d);
+      });
       if (exists) {
-        return prevSelected.filter((d) => d.uniqueId !== doc.uniqueId);
+        // eslint-disable-next-line
+        return prevSelected.filter((d: any) => d.uniqueId !== doc.uniqueId);
       } else {
         return [...prevSelected, doc];
       }
     });
   };
 
-  // this function has been added to display the contents of a document when the user clicks on it
-  const openDocument = async (doc) => {
+  // eslint-disable-next-line
+  const openDocument = async (doc: any) => {
     try {
-      const fileType = doc.viewpath.split(".").pop();
-
-      if (fileType === "mp4") {
-        setOpenedDoc({ name: doc.name, content: null, video: doc.viewpath });
-        return;
-      }
-
       const course = localStorage.getItem("course");
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/get-document/${course}/${doc?.mapping}`,
@@ -109,7 +111,7 @@ const CardOne = ({
       console.error("Error loading document", error);
       setOpenedDoc({
         name: doc.name,
-        content: "⚠️ Unable to load document.",
+        content: "Unable to load document.",
         video: null,
       });
     }
@@ -127,9 +129,14 @@ const CardOne = ({
 
   return (
     <div
-      className={`h-[85vh] md:border md:rounded-lg border-[#3a3a3a] transition-all duration-300 overflow-hidden ${
-        isCollapsed ? "w-15" : "w-full"
-      }`}
+      className={`h-[85vh] md:border md:rounded-lg transition-all duration-300 overflow-hidden
+    ${isCollapsed ? "w-15" : "w-full"}
+    ${
+      theme === "light"
+        ? "bg-[#FDFDFD] border-gray-200"
+        : "bg-transparent border-[#3a3a3a]"
+    }
+  `}
     >
       {isCollapsed ? (
         // When collapsed: center the button in the entire card
@@ -157,10 +164,10 @@ const CardOne = ({
           </div>
 
           {/* Content */}
-          <div className="card-content">
-            <div className={`scroll-area ${!openedDoc ? "scrollable" : ""}`}>
+          <div className="flex flex-col h-[calc(85vh-60px)]">
+            <div className="flex-1 overflow-y-auto p-2">
               {openedDoc ? (
-                <div className="opened-doc-full p-4">
+                <div className="p-4">
                   <div className="flex justify-between items-center pl-6">
                     <h3 className="uppercase">{openedDoc.name}</h3>
                     <button
@@ -171,11 +178,11 @@ const CardOne = ({
                     </button>
                   </div>
 
-                  <div className="mt-2 doc-content">
+                  <div className="mt-2">
                     {openedDoc.video ? (
                       <video
                         src={openedDoc.video}
-                        className="rounded-lg w-full max-h-64 object-cover"
+                        className="rounded-lg w-full max-h-64"
                         autoPlay
                         loop
                         controls
@@ -190,57 +197,72 @@ const CardOne = ({
                 </div>
               ) : (
                 <>
-                  <h3 className="px-4 font-medium text-gray-700">
+                  <h3
+                    //  className="px-4 font-medium text-gray-700"
+                    className={`px-4 font-medium ${
+                      theme === "light" ? "text-gray-700" : "text-white"
+                    } `}
+                  >
                     {cardData?.title}
                   </h3>
 
-                  {cardData?.modules?.map((module, idx) => {
+                  {/* eslint-disable-next-line */}
+                  {cardData?.modules?.map((module: any, idx: number) => {
                     const isOpen = openModules[module.name];
                     return (
-                      <div key={idx} className="module px-4 py-2">
+                      <div key={idx} className="p-2">
                         <div
-                          className="module-header flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded"
+                          className={`flex items-center gap-2 cursor-pointer p-2 rounded ${
+                            theme === "light"
+                              ? "hover:bg-gray-100"
+                              : "hover:bg-[#3a3a3a]"
+                          }`}
                           onClick={() => toggleModule(module.name)}
                         >
-                          {isOpen ? <ChevronDown /> : <ChevronRight />}
-                          <span className="module-name font-medium">
-                            {module.name}
-                          </span>
+                          {isOpen ? (
+                            <ChevronDown className="shrink-0" />
+                          ) : (
+                            <ChevronRight className="shrink-0" />
+                          )}
+                          <span className="font-medium">{module.name}</span>
                         </div>
 
                         {isOpen && module.documents.length > 0 && (
-                          <div className="module-documents pl-6">
-                            {module.documents.map((doc, docIdx) => (
-                              <div
-                                key={docIdx}
-                                className="document flex items-center gap-2 py-1"
-                              >
-                                <FileText className="doc-icon text-gray-500" />
-                                <span
-                                  className="doc-link cursor-pointer hover:underline"
-                                  onClick={() => {
-                                    // console.log("the document is", doc);
-                                    openDocument(doc);
-                                  }}
-                                >
-                                  {doc.name}
-                                </span>
-                                <input
-                                  type="checkbox"
-                                  className="doc-checkbox ml-auto"
-                                  checked={selectedDocs.some(
-                                    (d) =>
-                                      d.uniqueId === `${module.name}-${doc.id}`
-                                  )}
-                                  onChange={() =>
-                                    handleCheckboxChange({
-                                      ...doc,
-                                      uniqueId: `${module.name}-${doc.id}`,
-                                    })
-                                  }
-                                />
-                              </div>
-                            ))}
+                          <div className="pl-6">
+                            {/* eslint-disable-next-line */}
+                            {module.documents.map(
+                              (doc: any, docIdx: number) => {
+                                return (
+                                  <div
+                                    key={docIdx}
+                                    className="grid grid-cols-[20px_1fr_auto] items-center gap-2 py-1"
+                                  >
+                                    <FileText className="h-5 w-5 text-gray-500 shrink-0" />
+                                    <span
+                                      className="cursor-pointer hover:underline"
+                                      onClick={() => openDocument(doc)}
+                                    >
+                                      {doc.name}
+                                    </span>
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedDocs.some(
+                                        // eslint-disable-next-line
+                                        (d: any) =>
+                                          d.uniqueId ===
+                                          `${module.name}-${doc.id}`
+                                      )}
+                                      onChange={() =>
+                                        handleCheckboxChange({
+                                          ...doc,
+                                          uniqueId: `${module.name}-${doc.id}`,
+                                        })
+                                      }
+                                    />
+                                  </div>
+                                );
+                              }
+                            )}
                           </div>
                         )}
                       </div>

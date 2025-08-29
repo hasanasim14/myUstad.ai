@@ -23,6 +23,7 @@ import NoteViewModal from "./NoteViewModal";
 import { Button } from "../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { useTheme } from "next-themes";
 
 const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   const [menuOpenIndex, setMenuOpenIndex] = useState(null);
@@ -43,6 +44,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   const [podcastCache, setPodcastCache] = useState({});
   const audioRef = useRef(null);
   const abortControllers = useRef({});
+  const { theme } = useTheme();
 
   const addLoadingState = (type) => {
     setLoadingStates((prev) => new Set([...prev, type]));
@@ -452,7 +454,13 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     <div
       className={`h-[85vh] md:border md:rounded-lg border-[#3a3a3a] transition-all duration-300 ease-in-out overflow-hidden ml-auto text-black ${
         isCollapsed ? "w-15" : "w-full max-w-sm lg:max-w-md xl:max-w-lg"
-      }`}
+      } 
+      ${
+        theme === "light"
+          ? "bg-[#FDFDFD] border-gray-200"
+          : "bg-transparent border-[#3a3a3a]"
+      }
+      `}
     >
       {isCollapsed ? (
         <div className="flex justify-center p-3">

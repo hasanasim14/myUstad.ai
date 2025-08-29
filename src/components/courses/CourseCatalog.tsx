@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
+import { useTheme } from "next-themes";
 import Image from "next/image";
 import Navbar from "../Navbar";
 
@@ -17,7 +18,7 @@ interface CourseProps {
 const CourseCatalog = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [courseData, setCourseData] = useState<CourseProps[]>([]);
-
+  const { theme } = useTheme();
   const router = useRouter();
 
   useEffect(() => {
@@ -29,12 +30,12 @@ const CourseCatalog = () => {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `bearer ${localStorage.getItem("token")}`,
+              Authorization: `bearer ${localStorage.getItem("d_tok")}`,
             },
           }
         );
         const data = await response.json();
-        console.log("the data for the ", data?.data);
+        // console.log("the data for the ", data?.data);
         setCourseData(data?.data);
       } catch (error) {
         console.error("the error while fetching data", error);
@@ -50,7 +51,12 @@ const CourseCatalog = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0C15]">
+    // <div className="min-h-screen bg-[#0A0C15]">
+    <div
+      className={`min-h-screen ${
+        theme === "light" ? "bg-[#FAFAFA]" : "bg-[#0A0C15]"
+      }`}
+    >
       {/* Header */}
       <Navbar />
 
@@ -83,10 +89,18 @@ const CourseCatalog = () => {
       {/* Course Grid */}
       <main className="max-w-6xl mx-auto px-6 py-16">
         <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
+          <h2
+            className={`text-3xl font-bold mb-4 ${
+              theme === "light" ? "text-[#1F2937]" : "text-slate-300"
+            }`}
+          >
             Featured Courses
           </h2>
-          <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+          <p
+            className={`text-lg max-w-2xl mx-auto ${
+              theme === "light" ? "text-[#1F2937]" : "text-slate-300"
+            }`}
+          >
             Discover high-quality courses designed to help you master new skills
             and advance your career.
           </p>
@@ -147,10 +161,18 @@ const CourseCatalog = () => {
           <div className="text-center mt-16 py-12">
             <div className="max-w-md mx-auto">
               <BookOpen className="w-16 h-16 mx-auto mb-4 text-slate-600" />
-              <h3 className="text-xl font-semibold text-white mb-2">
+              <h3
+                className={`text-xl font-semibold mb-2 ${
+                  theme === "light" ? "text-[#111827]" : "text-white"
+                }`}
+              >
                 More Courses Coming Soon
               </h3>
-              <p className="text-slate-300">
+              <p
+                className={`${
+                  theme === "light" ? "text-[#1F2937]" : "text-slate-300"
+                }`}
+              >
                 We&apos;re constantly adding new courses to help you learn and
                 grow. Check back soon for more exciting content!
               </p>

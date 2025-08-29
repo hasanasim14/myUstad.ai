@@ -49,7 +49,7 @@ export const FeedbackModal = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `bearer ${localStorage.getItem("token")}`,
+          Authorization: `bearer ${localStorage.getItem("d_tok")}`,
         },
         body: JSON.stringify({
           title: titleInput.trim(),

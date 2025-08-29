@@ -176,7 +176,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
               style={{ animationDelay: "0.2s" }}
             ></div>
           </div>
-          <span className="text-gray-500 text-sm ml-2">Thinking...</span>
+          {/* <span className="text-gray-500 text-sm ml-2">Thinking...</span> */}
         </div>
       ),
       time: "",
@@ -223,8 +223,14 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
       if (!selectedDocs || selectedDocs.length === 0) {
         response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/ask`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `bearer ${localStorage.getItem("d_tok")}`,
+          },
+          body: JSON.stringify({
+            ...payload,
+            course: localStorage.getItem("course"),
+          }),
         });
       } else {
         response = await fetch(
@@ -409,49 +415,48 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
       </div>
 
       {/* Input Area */}
-      {/* <div className="border-t border-gray-600 p-4"> */}
-        <div className="flex items-center gap-3 max-w-4xl mx-auto">
-          <div className="flex-1 relative">
-            <Input
-              type="text"
-              value={input}
-              className="w-full p-2 pr-12 border-gray-600 focus:border-blue-500 focus:ring-blue-500/20 text-gray-100 placeholder-gray-400 shadow-inner"
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  sendMessage();
-                }
-              }}
-              placeholder="Type your message..."
-            />
-          </div>
+      <div className="flex items-center gap-3 max-w-4xl mx-auto w-full px-4 py-2">
+        <Input
+          type="text"
+          value={input}
+          className="flex-1 p-2 border-[#3a3a3a] focus:border-blue-500 
+               focus:ring-blue-500/20 text-gray-100 placeholder-gray-400 shadow-inner"
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              sendMessage();
+            }
+          }}
+          placeholder="Type your message..."
+        />
 
-          <button
-            className={`p-2 rounded-xl transition-all duration-200 ${
-              isRecording
-                ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/25"
-                : "bg-gray-700 hover:bg-gray-600 text-gray-300 border border-gray-600"
-            }`}
-            onClick={toggleRecording}
-            title={isRecording ? "Stop Recording" : "Start Recording"}
-          >
-            <Mic className="w-5 h-5" />
-          </button>
+        {/* Mic Button */}
+        <button
+          className={`p-2 cursor-pointer transition-all duration-200 ${
+            isRecording
+              ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/25 rounded-full"
+              : "text-gray-300"
+          }`}
+          onClick={toggleRecording}
+          title={isRecording ? "Stop Recording" : "Start Recording"}
+        >
+          <Mic className="w-6 h-6" />
+        </button>
 
-          <button
-            className={`p-2 rounded-xl transition-all duration-200 ${
-              input.trim()
-                ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/25"
-                : "bg-gray-700 text-gray-500 cursor-not-allowed border border-gray-600"
-            }`}
-            onClick={() => sendMessage()}
-            disabled={!input.trim()}
-            title="Send message"
-          >
-            <SendHorizonal className="w-5 h-5" />
-          </button>
-        </div>
-      {/* </div>ss */}
+        {/* Send Button */}
+        <button
+          className={`p-2 rounded-xl transition-all duration-200 ${
+            input.trim()
+              ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/25"
+              : "bg-gray-700 text-gray-500 cursor-not-allowed border border-gray-900"
+          }`}
+          onClick={() => sendMessage()}
+          disabled={!input.trim()}
+          title="Send message"
+        >
+          <SendHorizonal className="w-5 h-5" />
+        </button>
+      </div>
     </div>
   );
 };
