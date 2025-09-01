@@ -43,7 +43,6 @@ const CourseCatalog = () => {
     fetchCourses();
   }, []);
 
-  // eslint-disable-next-line
   const handleCourseClick = (course: string) => {
     localStorage.setItem("course", course);
     router.push("/");
