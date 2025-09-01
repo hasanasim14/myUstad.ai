@@ -9,19 +9,20 @@ import {
   X,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { CardData, SelectedDocs } from "@/lib/types";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 interface CardOneProps {
-  selectedDocs: any;
-  setSelectedDocs: any;
+  selectedDocs: SelectedDocs;
+  setSelectedDocs: React.Dispatch<React.SetStateAction<SelectedDocs>>;
   onCollapseChange: (collapsed: boolean) => void;
 }
 
-interface CardData {
-  course: string;
+interface OpenedDoc {
+  content: string;
   name: string;
-  title: string;
+  video?: string | null;
 }
 
 const CardOne = ({
@@ -29,11 +30,11 @@ const CardOne = ({
   setSelectedDocs,
   onCollapseChange,
 }: CardOneProps) => {
-  // this state variable has been added to keep track of which modules are open
-  const [openModules, setOpenModules] = useState({});
-  // this state variable has been added to store the document that is currently opened
-  const [openedDoc, setOpenedDoc] = useState(null);
-  const [cardData, setCardData] = useState<CardData[]>([]);
+  const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
+  const [openedDoc, setOpenedDoc] = useState<OpenedDoc | null>(null);
+  const [cardData, setCardData] = useState<CardData | null>(null);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -53,8 +54,9 @@ const CardOne = ({
 
         const data = await response.json();
         setCardData(data?.data);
-        console.log("the cata data", data?.data);
-      } catch (error) {}
+      } catch (error) {
+        console.error("Error fetching cards data ", error);
+      }
     };
     fetchCardData();
   }, []);
@@ -66,17 +68,12 @@ const CardOne = ({
       [moduleName]: !prev[moduleName],
     }));
   };
-  // maintaining the state for card
-  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // eslint-disable-next-line
   const handleCheckboxChange = (doc: any) => {
     setSelectedDocs((prevSelected) => {
       // eslint-disable-next-line
-      const exists = prevSelected.some((d: any) => {
-        d.uniqueId === doc.uniqueId;
-        console.log("the tpye of", typeof d);
-      });
+      const exists = prevSelected.some((d: any) => d.uniqueId === doc.uniqueId);
       if (exists) {
         // eslint-disable-next-line
         return prevSelected.filter((d: any) => d.uniqueId !== doc.uniqueId);
@@ -126,6 +123,8 @@ const CardOne = ({
       return newCollapsed;
     });
   };
+
+  console.log("the card data=>", cardData);
 
   return (
     <div
@@ -183,7 +182,7 @@ const CardOne = ({
           <div className="flex flex-col h-[calc(85vh-60px)]">
             <div className="flex-1 overflow-y-auto p-2">
               {openedDoc ? (
-                <div className="p-4">
+                <div className="p-4 w-full max-w-none">
                   <div className="flex justify-between items-center pl-6">
                     <h3
                       className={`uppercase ${
@@ -205,7 +204,7 @@ const CardOne = ({
                   </div>
 
                   <div
-                    className={`mt-2 ${
+                    className={`mt-2 w-full ${
                       theme === "light"
                         ? "prose prose-gray max-w-none"
                         : "prose prose-invert max-w-none"
@@ -221,9 +220,11 @@ const CardOne = ({
                         playsInline
                       />
                     ) : (
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {openedDoc.content}
-                      </ReactMarkdown>
+                      <div className="w-full">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {openedDoc.content}
+                        </ReactMarkdown>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -274,6 +275,7 @@ const CardOne = ({
                           <div className="pl-6">
                             {/* eslint-disable-next-line */}
                             {module.documents.map(
+                              // eslint-disable-next-line
                               (doc: any, docIdx: number) => {
                                 return (
                                   <div
