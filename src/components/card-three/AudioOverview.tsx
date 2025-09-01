@@ -2,15 +2,26 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
+import { useTheme } from "next-themes";
+import { SelectedDocs } from "@/lib/types";
 
-const AudioOverview = ({ selectedDocs, onLoadingChange }) => {
-  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState("English");
-  const [loading, setLoading] = useState(false);
+interface AudioOverviewProps {
+  selectedDocs: SelectedDocs;
+  onLoadingChange: (loading: boolean) => void;
+  onPodcastGenerated?: (url: string) => void;
+}
+
+const AudioOverview = ({
+  selectedDocs,
+  onLoadingChange,
+  onPodcastGenerated,
+}: AudioOverviewProps) => {
   const [error, setError] = useState(null);
   const [sessionId, setSessionId] = useState("");
-  const [audioUrl, setAudioUrl] = useState(null);
-  const pollingIntervalRef = useRef(null);
+  const { theme } = useTheme();
+  const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null
+  );
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -19,12 +30,7 @@ const AudioOverview = ({ selectedDocs, onLoadingChange }) => {
     }
   }, []);
 
-  // this function handles the selection of a language from the dropdown menu
-  // it updates the selectedLanguage state and closes the menu
-
-  // this function handles the click event for generating the podcast
-  // it sends a POST request to the backend with the selected language and documents
-
+  // Polling method
   const clearPolling = () => {
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
@@ -32,7 +38,7 @@ const AudioOverview = ({ selectedDocs, onLoadingChange }) => {
     }
   };
 
-  const pollForPodcast = (key) => {
+  const pollForPodcast = (key: string) => {
     pollingIntervalRef.current = setInterval(async () => {
       try {
         const response = await fetch(
@@ -54,7 +60,6 @@ const AudioOverview = ({ selectedDocs, onLoadingChange }) => {
           const blob = await response.blob();
           const audioObjectUrl = URL.createObjectURL(blob);
           onPodcastGenerated?.(audioObjectUrl);
-          setLoading(false);
           onLoadingChange?.(false);
           clearPolling();
           localStorage.removeItem("Key");
@@ -63,25 +68,22 @@ const AudioOverview = ({ selectedDocs, onLoadingChange }) => {
         }
       } catch (err) {
         console.error("Polling error:", err);
-        // setError("Failed to fetch podcast audio.");
         clearPolling();
-        setLoading(false);
-        onLoadingChange?.(false); // Notify parent that podcast generation failed
+        // Notify parent that podcast generation failed
+        onLoadingChange?.(false);
       }
     }, 30000); // every 30 seconds
   };
 
   const handleGenerateClick = async () => {
-    localStorage.removeItem("Key"); // remove previous session key
-    setLoading(true);
-    onLoadingChange?.(true); // Notify parent that podcast generation started
+    localStorage.removeItem("Key");
+    onLoadingChange?.(true);
     setError(null);
-    setAudioUrl(null);
-    clearPolling(); // just in case
+    clearPolling();
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_UR}/v1/podcast`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/v1/podcast`,
         {
           method: "POST",
           headers: {
@@ -90,7 +92,7 @@ const AudioOverview = ({ selectedDocs, onLoadingChange }) => {
           },
           body: JSON.stringify({
             session_id: sessionId,
-            language: selectedLanguage,
+            language: localStorage.getItem("lang"),
             selectedDocs,
           }),
         }
@@ -105,17 +107,14 @@ const AudioOverview = ({ selectedDocs, onLoadingChange }) => {
       localStorage.setItem("Key", key);
       pollForPodcast(key);
     } catch (err) {
-      // console.error("Failed to generate podcast:", err);
-      // setError(err.message || "Failed to generate podcast");
-      setLoading(false);
-      onLoadingChange?.(false); // Notify parent that podcast generation failed
+      console.error("Error generating podcast ", err);
+      onLoadingChange?.(false);
     }
   };
 
   useEffect(() => {
     const key = localStorage.getItem("Key");
     if (key) {
-      setLoading(true);
       pollForPodcast(key);
     }
 
@@ -123,9 +122,19 @@ const AudioOverview = ({ selectedDocs, onLoadingChange }) => {
   }, []);
 
   return (
-    <div className="border border-[#3a3a3a] rounded-lg p-3 mb-3">
+    <div
+      className={`border rounded-lg p-3 mb-3 ${
+        theme === "light" ? "border-gray-200" : "border-[#3a3a3a]"
+      }`}
+    >
       <div className="flex justify-between items-center font-semibold mb-1 relative">
-        <span className="text-white text-sm">Audio Overview</span>
+        <span
+          className={`text-sm ${
+            theme === "light" ? " text-gray-700" : "text-white"
+          }`}
+        >
+          Audio Overview
+        </span>
       </div>
 
       <div className="load-box">

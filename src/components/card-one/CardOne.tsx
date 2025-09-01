@@ -124,8 +124,6 @@ const CardOne = ({
     });
   };
 
-  console.log("the card data=>", cardData);
-
   return (
     <div
       className={`h-[85vh] md:border md:rounded-lg transition-all duration-300 overflow-hidden
@@ -273,7 +271,6 @@ const CardOne = ({
 
                         {isOpen && module.documents.length > 0 && (
                           <div className="pl-6">
-                            {/* eslint-disable-next-line */}
                             {module.documents.map(
                               // eslint-disable-next-line
                               (doc: any, docIdx: number) => {

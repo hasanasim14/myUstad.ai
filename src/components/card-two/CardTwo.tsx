@@ -5,16 +5,12 @@ import { Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import DocChat from "./DocChat";
 import { useTheme } from "next-themes";
+import { SelectedDocs } from "@/lib/types";
 
 interface CardTwoProps {
   // eslint-disable-next-line
   onPinNote: any;
-  selectedDocs: {
-    id: number;
-    name: string;
-    uniqueId: string;
-    viewpath: string;
-  }[];
+  selectedDocs: SelectedDocs;
 }
 
 const CardTwo = ({ onPinNote, selectedDocs }: CardTwoProps) => {

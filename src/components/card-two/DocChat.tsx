@@ -15,10 +15,10 @@ import {
 import { Input } from "../ui/input";
 import ReactMarkdown from "react-markdown";
 import { useTheme } from "next-themes";
+import { SelectedDocs } from "@/lib/types";
 
 interface DocChatProps {
-  // eslint-disable-next-line
-  selectedDocs: any;
+  selectedDocs: SelectedDocs;
   refreshTrigger: number;
   onPinNote: (question: string, answer: string) => void;
 }
@@ -49,6 +49,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
     setMessages([initialBotMessage]);
   }, [refreshTrigger]);
 
+  // eslint-disable-next-line
   const playNoteAudioFromAPI = async (text: string, index: any) => {
     setClickedIndex(index);
     if (playingIndex === index) {
@@ -152,6 +153,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
     }
   };
 
+  // eslint-disable-next-line
   const sendMessage = async (customInput?: any) => {
     const userInput = customInput || input;
     if (!userInput.trim()) return;
@@ -207,14 +209,14 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
       const payload = {
         question: userInput,
         timestamp: new Date().toISOString(),
-        session_id: "5e8e8e1e-428c-48d9-826b-709efda170d7",
+        session_id: sessionId,
         conversation: conversationHistory,
       };
       const filterpayload = {
         question: payload.question,
         timestamp: payload.timestamp,
         conversation: payload.conversation,
-        session_id: "5e8e8e1e-428c-48d9-826b-709efda170d7",
+        session_id: sessionId,
         selectedDocs: selectedDocs,
       };
 
