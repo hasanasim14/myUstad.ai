@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ChevronDown,
   ChevronLeft,
@@ -142,7 +142,11 @@ const CardOne = ({
         // When collapsed: center the button in the entire card
         <div className="flex justify-center p-3">
           <button
-            className="cursor-pointer p-2 rounded-lg hover:bg-[#2a2a2a] text-white"
+            className={`cursor-pointer p-2 rounded-lg transition-colors ${
+              theme === "light"
+                ? "hover:bg-gray-100 text-gray-700"
+                : "hover:bg-[#2a2a2a] text-white"
+            }`}
             onClick={toggleCollapse}
           >
             <ChevronRight />
@@ -151,12 +155,24 @@ const CardOne = ({
       ) : (
         // When expanded: show header + content
         <>
-          <div className="flex justify-between items-center font-semibold rounded-t-[10px] border-b border-[#3a3a3a]">
-            <span className="text-lg text-white text-sm font-semibold p-4">
+          <div
+            className={`flex justify-between items-center font-semibold rounded-t-[10px] border-b ${
+              theme === "light" ? "border-gray-200" : "border-[#3a3a3a]"
+            }`}
+          >
+            <span
+              className={`text-lg text-sm font-semibold p-4 ${
+                theme === "light" ? "text-gray-900" : "text-white"
+              }`}
+            >
               Course Content
             </span>
             <button
-              className="cursor-pointer p-2 m-2 rounded-lg hover:bg-[#2a2a2a] text-white"
+              className={`cursor-pointer p-2 m-2 rounded-lg transition-colors ${
+                theme === "light"
+                  ? "hover:bg-gray-100 text-gray-700"
+                  : "hover:bg-[#2a2a2a] text-white"
+              }`}
               onClick={toggleCollapse}
             >
               <ChevronLeft />
@@ -169,16 +185,32 @@ const CardOne = ({
               {openedDoc ? (
                 <div className="p-4">
                   <div className="flex justify-between items-center pl-6">
-                    <h3 className="uppercase">{openedDoc.name}</h3>
+                    <h3
+                      className={`uppercase ${
+                        theme === "light" ? "text-gray-900" : "text-white"
+                      }`}
+                    >
+                      {openedDoc.name}
+                    </h3>
                     <button
                       onClick={() => setOpenedDoc(null)}
-                      className="text-red-500 text-xl hover:text-red-700"
+                      className={`text-xl transition-colors ${
+                        theme === "light"
+                          ? "text-red-600 hover:text-red-800"
+                          : "text-red-500 hover:text-red-700"
+                      }`}
                     >
                       <X />
                     </button>
                   </div>
 
-                  <div className="mt-2">
+                  <div
+                    className={`mt-2 ${
+                      theme === "light"
+                        ? "prose prose-gray max-w-none"
+                        : "prose prose-invert max-w-none"
+                    }`}
+                  >
                     {openedDoc.video ? (
                       <video
                         src={openedDoc.video}
@@ -198,7 +230,6 @@ const CardOne = ({
               ) : (
                 <>
                   <h3
-                    //  className="px-4 font-medium text-gray-700"
                     className={`px-4 font-medium ${
                       theme === "light" ? "text-gray-700" : "text-white"
                     } `}
@@ -212,17 +243,29 @@ const CardOne = ({
                     return (
                       <div key={idx} className="p-2">
                         <div
-                          className={`flex items-center gap-2 cursor-pointer p-2 rounded ${
+                          className={`flex items-center gap-2 cursor-pointer p-2 rounded transition-colors ${
                             theme === "light"
-                              ? "hover:bg-gray-100"
-                              : "hover:bg-[#3a3a3a]"
+                              ? "hover:bg-gray-100 text-gray-900"
+                              : "hover:bg-[#3a3a3a] text-white"
                           }`}
                           onClick={() => toggleModule(module.name)}
                         >
                           {isOpen ? (
-                            <ChevronDown className="shrink-0" />
+                            <ChevronDown
+                              className={`shrink-0 ${
+                                theme === "light"
+                                  ? "text-gray-600"
+                                  : "text-gray-300"
+                              }`}
+                            />
                           ) : (
-                            <ChevronRight className="shrink-0" />
+                            <ChevronRight
+                              className={`shrink-0 ${
+                                theme === "light"
+                                  ? "text-gray-600"
+                                  : "text-gray-300"
+                              }`}
+                            />
                           )}
                           <span className="font-medium">{module.name}</span>
                         </div>
@@ -237,15 +280,30 @@ const CardOne = ({
                                     key={docIdx}
                                     className="grid grid-cols-[20px_1fr_auto] items-center gap-2 py-1"
                                   >
-                                    <FileText className="h-5 w-5 text-gray-500 shrink-0" />
+                                    <FileText
+                                      className={`h-5 w-5 shrink-0 ${
+                                        theme === "light"
+                                          ? "text-gray-500"
+                                          : "text-gray-400"
+                                      }`}
+                                    />
                                     <span
-                                      className="cursor-pointer hover:underline"
+                                      className={`cursor-pointer hover:underline transition-colors ${
+                                        theme === "light"
+                                          ? "text-gray-700 hover:text-gray-900"
+                                          : "text-gray-300 hover:text-white"
+                                      }`}
                                       onClick={() => openDocument(doc)}
                                     >
                                       {doc.name}
                                     </span>
                                     <input
                                       type="checkbox"
+                                      className={`rounded transition-colors ${
+                                        theme === "light"
+                                          ? "text-blue-600 focus:ring-blue-500 border-gray-300"
+                                          : "text-blue-400 focus:ring-blue-400 border-gray-600 bg-gray-700"
+                                      }`}
                                       checked={selectedDocs.some(
                                         // eslint-disable-next-line
                                         (d: any) =>

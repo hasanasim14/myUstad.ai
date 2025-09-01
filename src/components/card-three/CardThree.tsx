@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import AudioOverview from "./AudioOverview";
 import MindmapModal from "./MindmapModal";
+// import { toast } from "react-toastify"; // Import toast
 import {
   ChevronLeft,
   ChevronRight,
@@ -24,6 +25,7 @@ import { Button } from "../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { useTheme } from "next-themes";
+import { toast } from "sonner";
 
 const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   const [menuOpenIndex, setMenuOpenIndex] = useState(null);
@@ -244,11 +246,11 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
           setPodcastCache(newCache);
         }
         setNotes(updatedNotes);
-        toast.success("Note Deleted!");
+        toast.success("Note Deleted!"); // Use toast
       }
     } catch (error) {
       console.error("error deleting the note", error);
-      toast.error("Error deleting the note. Please try again later");
+      toast.error("Error deleting the note. Please try again later"); // Use toast
     }
   };
 
@@ -452,20 +454,24 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
 
   return (
     <div
-      className={`h-[85vh] md:border md:rounded-lg border-[#3a3a3a] transition-all duration-300 ease-in-out overflow-hidden ml-auto text-black ${
+      className={`h-[85vh] md:border md:rounded-lg transition-all duration-300 ease-in-out overflow-hidden ml-auto ${
         isCollapsed ? "w-15" : "w-full max-w-sm lg:max-w-md xl:max-w-lg"
       } 
       ${
         theme === "light"
-          ? "bg-[#FDFDFD] border-gray-200"
-          : "bg-transparent border-[#3a3a3a]"
+          ? "bg-white border-gray-200 text-gray-900"
+          : "bg-transparent border-[#3a3a3a] text-white"
       }
       `}
     >
       {isCollapsed ? (
         <div className="flex justify-center p-3">
           <button
-            className="cursor-pointer p-2 rounded-lg hover:bg-[#2a2a2a] text-white"
+            className={`cursor-pointer p-2 rounded-lg transition-colors ${
+              theme === "light"
+                ? "hover:bg-gray-100 text-gray-700"
+                : "hover:bg-[#2a2a2a] text-white"
+            }`}
             onClick={toggleCollapse}
           >
             <ChevronLeft />
@@ -473,10 +479,24 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
         </div>
       ) : (
         <div className="flex flex-col h-full">
-          <div className="flex justify-between items-center font-semibold border-b border-[#3a3a3a] p-2 flex-shrink-0">
-            <span className="p-2 text-white">Library</span>
+          <div
+            className={`flex justify-between items-center font-semibold border-b p-2 flex-shrink-0 ${
+              theme === "light" ? "border-gray-200" : "border-[#3a3a3a]"
+            }`}
+          >
+            <span
+              className={`p-2 ${
+                theme === "light" ? "text-gray-900" : "text-white"
+              }`}
+            >
+              Library
+            </span>
             <button
-              className="cursor-pointer p-2 rounded-lg hover:bg-[#2a2a2a] text-white"
+              className={`cursor-pointer p-2 rounded-lg transition-colors ${
+                theme === "light"
+                  ? "hover:bg-gray-100 text-gray-700"
+                  : "hover:bg-[#2a2a2a] text-white"
+              }`}
               onClick={toggleCollapse}
             >
               <ChevronRight />
@@ -498,9 +518,17 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
               }}
             />
 
-            <div className="border-y border-[#3a3a3a] pt-3 pb-3">
+            <div
+              className={`border-y pt-3 pb-3 ${
+                theme === "light" ? "border-gray-200" : "border-[#3a3a3a]"
+              }`}
+            >
               <Button
-                className="w-full mb-3 border border-[#3a3a3a] text-white bg-slate-700/40 hover:bg-slate-700/50 hover:border-slate-500"
+                className={`w-full mb-3 border transition-colors ${
+                  theme === "light"
+                    ? "border-gray-200 text-gray-700 bg-gray-50 hover:bg-gray-100 hover:border-gray-300"
+                    : "border-[#3a3a3a] text-white bg-slate-700/40 hover:bg-slate-700/50 hover:border-slate-500"
+                }`}
                 onClick={handleAddNote}
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -512,7 +540,11 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                   <Button
                     disabled={!selectedDocs.length}
                     key={label}
-                    className="border border-[#3a3a3a] text-white bg-slate-700/40 hover:bg-slate-700/50 hover:border-slate-500 w-[calc(50%-4px)] p-2"
+                    className={`border transition-colors w-[calc(50%-4px)] p-2 ${
+                      theme === "light"
+                        ? "border-gray-200 text-gray-700 bg-gray-50 hover:bg-gray-100 hover:border-gray-300 disabled:bg-gray-50 disabled:text-gray-400"
+                        : "border-[#3a3a3a] text-white bg-slate-700/40 hover:bg-slate-700/50 hover:border-slate-500"
+                    }`}
                     onClick={() => {
                       if (label === "Mind Map") {
                         fetchMindmap();
@@ -533,20 +565,30 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
           <div className="flex-1 overflow-hidden pl-3 py-0 pb-2">
             <ScrollArea className="h-full pr-2">
               <div className="space-y-3">
-                {/* Loading placeholders at the top */}
                 {Array.from(loadingStates).map((loadingKey) => (
                   <div
                     key={loadingKey}
-                    className="border border-[#3a3a3a] rounded-lg p-4 flex items-center gap-2"
+                    className={`border rounded-lg p-4 flex items-center gap-2 ${
+                      theme === "light"
+                        ? "border-gray-200 bg-gray-50"
+                        : "border-[#3a3a3a]"
+                    }`}
                   >
-                    <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
-                    <span className="text-sm text-gray-700 animate-pulse">
+                    <Loader2
+                      className={`h-4 w-4 animate-spin ${
+                        theme === "light" ? "text-gray-500" : "text-gray-500"
+                      }`}
+                    />
+                    <span
+                      className={`text-sm animate-pulse ${
+                        theme === "light" ? "text-gray-600" : "text-gray-700"
+                      }`}
+                    >
                       Generating {loadingKey.split("-")[0]}...
                     </span>
                   </div>
                 ))}
 
-                {/* Notes list */}
                 {notes && notes.length > 0 ? (
                   notes.map((note, index) => (
                     <div
@@ -555,13 +597,21 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                       className={`group relative cursor-pointer rounded-xl border transition-all duration-300 p-3
     ${
       clickedIndex === index
-        ? "bg-slate-800/90 border-slate-600 shadow-lg" // clicked (active)
+        ? theme === "light"
+          ? "bg-blue-50 border-blue-200 shadow-lg"
+          : "bg-slate-800/90 border-slate-600 shadow-lg"
+        : theme === "light"
+        ? "bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300"
         : "bg-transparent border-[#3a3a3a] hover:bg-slate-700/40 hover:border-slate-500"
     }`}
                     >
                       {/* Header */}
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-semibold text-white truncate max-w-[210px]">
+                        <span
+                          className={`text-sm font-semibold truncate max-w-[210px] ${
+                            theme === "light" ? "text-gray-900" : "text-white"
+                          }`}
+                        >
                           {note.Title}
                         </span>
 
@@ -574,9 +624,15 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                               }}
                               className={`p-1 rounded-lg transition ${
                                 clickedIndex === index
-                                  ? "bg-red-500/20 text-red-400"
+                                  ? theme === "light"
+                                    ? "bg-red-100 text-red-600"
+                                    : "bg-red-500/20 text-red-400"
                                   : playingIndex === index
-                                  ? "bg-green-500/20 text-green-400"
+                                  ? theme === "light"
+                                    ? "bg-green-100 text-green-600"
+                                    : "bg-green-500/20 text-green-400"
+                                  : theme === "light"
+                                  ? "hover:bg-gray-100 text-gray-600"
                                   : "hover:bg-slate-600/50 text-slate-300"
                               }`}
                             >
@@ -588,14 +644,22 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                           <Popover>
                             <PopoverTrigger asChild>
                               <Button
-                                className="p-0 bg-transparent text-slate-300 hover:text-white hover:bg-slate-600/50 rounded-lg"
+                                className={`p-0 bg-transparent rounded-lg transition-colors ${
+                                  theme === "light"
+                                    ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                                    : "text-slate-300 hover:text-white hover:bg-slate-600/50"
+                                }`}
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <EllipsisVertical className="w-4 h-4" />
                               </Button>
                             </PopoverTrigger>
                             <PopoverContent
-                              className="w-36 p-1 rounded-md border border-slate-600 shadow-xl"
+                              className={`w-36 p-1 rounded-md border shadow-xl ${
+                                theme === "light"
+                                  ? "border-gray-200 bg-white"
+                                  : "border-slate-600"
+                              }`}
                               align="end"
                               sideOffset={8}
                             >
@@ -604,7 +668,11 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="justify-start gap-2 px-3 py-2 h-8 text-sm text-red-400"
+                                    className={`justify-start gap-2 px-3 py-2 h-8 text-sm ${
+                                      theme === "light"
+                                        ? "text-red-600 hover:bg-red-50"
+                                        : "text-red-400"
+                                    }`}
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleDeleteNote(note.docKey, index);
@@ -620,10 +688,19 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                         </div>
                       </div>
 
-                      {/* Content */}
-                      <div className="mt-2 text-xs text-slate-300 leading-relaxed">
+                      <div
+                        className={`mt-2 text-xs leading-relaxed ${
+                          theme === "light" ? "text-gray-600" : "text-slate-300"
+                        }`}
+                      >
                         {note.docType === "Podcast" ? (
-                          <div className="italic text-slate-400">
+                          <div
+                            className={`italic ${
+                              theme === "light"
+                                ? "text-gray-500"
+                                : "text-slate-400"
+                            }`}
+                          >
                             🎙 Podcast note. Open to play.
                           </div>
                         ) : note.editable ? (
@@ -631,7 +708,11 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                             components={{
                               p: ({ node, ...props }) => (
                                 <p
-                                  className="line-clamp-1 m-0 text-xs sm:text-sm text-slate-300"
+                                  className={`line-clamp-1 m-0 text-xs sm:text-sm ${
+                                    theme === "light"
+                                      ? "text-gray-600"
+                                      : "text-slate-300"
+                                  }`}
                                   {...props}
                                 />
                               ),
@@ -653,7 +734,11 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-8">
+                  <div
+                    className={`text-center py-8 ${
+                      theme === "light" ? "text-gray-600" : "text-gray-400"
+                    }`}
+                  >
                     <p>
                       No notes yet. Click &quot;Add note&quot; to create your
                       first note!

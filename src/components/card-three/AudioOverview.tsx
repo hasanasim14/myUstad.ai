@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Languages } from "lucide-react";
 import { Button } from "../ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 const AudioOverview = ({ selectedDocs, onLoadingChange }) => {
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
@@ -14,8 +12,6 @@ const AudioOverview = ({ selectedDocs, onLoadingChange }) => {
   const [audioUrl, setAudioUrl] = useState(null);
   const pollingIntervalRef = useRef(null);
 
-  const languages = ["English", "Urdu", "Punjabi", "Sindhi", "Pashto"];
-
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedSessionId = sessionStorage.getItem("session_id") || "";
@@ -25,10 +21,6 @@ const AudioOverview = ({ selectedDocs, onLoadingChange }) => {
 
   // this function handles the selection of a language from the dropdown menu
   // it updates the selectedLanguage state and closes the menu
-  const handleLanguageSelect = (lang) => {
-    setSelectedLanguage(lang);
-    setShowLanguageMenu(false);
-  };
 
   // this function handles the click event for generating the podcast
   // it sends a POST request to the backend with the selected language and documents
@@ -88,18 +80,21 @@ const AudioOverview = ({ selectedDocs, onLoadingChange }) => {
     clearPolling(); // just in case
 
     try {
-      const response = await fetch(`${endpoint}/v1/podcast`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `bearer ${localStorage.getItem("d_tok")}`,
-        },
-        body: JSON.stringify({
-          session_id: sessionId,
-          language: selectedLanguage,
-          selectedDocs,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_UR}/v1/podcast`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `bearer ${localStorage.getItem("d_tok")}`,
+          },
+          body: JSON.stringify({
+            session_id: sessionId,
+            language: selectedLanguage,
+            selectedDocs,
+          }),
+        }
+      );
 
       if (!response.ok) throw new Error(`API error: ${response.statusText}`);
 

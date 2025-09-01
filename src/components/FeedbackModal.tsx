@@ -32,7 +32,9 @@ export const FeedbackModal = () => {
   );
   const [feedbackLoading, setFeedbackLoading] = useState(false);
 
+  // eslint-disable-next-line
   const handleFeedbackClick = (feedback: any) => {
+    console.log("the type of feedbacks is", typeof feedback);
     setSelectedFeedback(feedback);
   };
 

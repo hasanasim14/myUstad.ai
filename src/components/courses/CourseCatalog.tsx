@@ -35,7 +35,6 @@ const CourseCatalog = () => {
           }
         );
         const data = await response.json();
-        // console.log("the data for the ", data?.data);
         setCourseData(data?.data);
       } catch (error) {
         console.error("the error while fetching data", error);
@@ -51,34 +50,55 @@ const CourseCatalog = () => {
   };
 
   return (
-    // <div className="min-h-screen bg-[#0A0C15]">
     <div
       className={`min-h-screen ${
-        theme === "light" ? "bg-[#FAFAFA]" : "bg-[#0A0C15]"
+        theme === "light" ? "bg-gray-50" : "bg-[#0A0C15]"
       }`}
     >
       {/* Header */}
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 text-white py-20">
+      <section
+        className={`py-20 ${
+          theme === "light"
+            ? "bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white"
+            : "bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 text-white"
+        }`}
+      >
         <div className="max-w-6xl mx-auto px-6 text-center">
           <div className="mb-6">
-            <BookOpen className="w-16 h-16 mx-auto mb-4 text-indigo-300" />
+            <BookOpen
+              className={`w-16 h-16 mx-auto mb-4 ${
+                theme === "light" ? "text-blue-200" : "text-indigo-300"
+              }`}
+            />
           </div>
           <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
             Learn Without Limits
           </h1>
-          <p className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto text-indigo-200 leading-relaxed">
+          <p
+            className={`text-xl md:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed ${
+              theme === "light" ? "text-blue-100" : "text-indigo-200"
+            }`}
+          >
             Start, switch, or advance your career with world-class courses from
             top universities and industry experts.
           </p>
           <div className="max-w-lg mx-auto relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <Search
+              className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
+                theme === "light" ? "text-gray-400" : "text-slate-400"
+              }`}
+            />
             <Input
               type="text"
               placeholder="What do you want to learn today?"
-              className="pl-12 py-4 text-lg text-white bg-slate-800 border border-slate-700 shadow-lg rounded-full focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 placeholder:text-slate-400"
+              className={`pl-12 py-4 text-lg shadow-lg rounded-full focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 ${
+                theme === "light"
+                  ? "text-gray-900 bg-white border-gray-200 placeholder:text-gray-500"
+                  : "text-white bg-slate-800 border-slate-700 placeholder:text-slate-400"
+              }`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -91,14 +111,14 @@ const CourseCatalog = () => {
         <div className="mb-12 text-center">
           <h2
             className={`text-3xl font-bold mb-4 ${
-              theme === "light" ? "text-[#1F2937]" : "text-slate-300"
+              theme === "light" ? "text-gray-900" : "text-slate-300"
             }`}
           >
             Featured Courses
           </h2>
           <p
             className={`text-lg max-w-2xl mx-auto ${
-              theme === "light" ? "text-[#1F2937]" : "text-slate-300"
+              theme === "light" ? "text-gray-600" : "text-slate-300"
             }`}
           >
             Discover high-quality courses designed to help you master new skills
@@ -110,7 +130,11 @@ const CourseCatalog = () => {
           {courseData.map((course) => (
             <Card
               key={course?.value}
-              className="group cursor-pointer hover:shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 hover:-translate-y-2 border border-slate-700 shadow-lg bg-slate-800 overflow-hidden"
+              className={`group cursor-pointer hover:shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 hover:-translate-y-2 shadow-lg overflow-hidden ${
+                theme === "light"
+                  ? "bg-white border-gray-200 hover:border-indigo-300"
+                  : "bg-slate-800 border-slate-700"
+              }`}
               onClick={() => handleCourseClick(course?.value)}
             >
               <div className="relative overflow-hidden">
@@ -125,11 +149,19 @@ const CourseCatalog = () => {
               </div>
 
               <CardContent className="p-8">
-                <h3 className="font-bold text-xl mb-4 text-white group-hover:text-indigo-400 transition-colors duration-200 leading-tight">
+                <h3
+                  className={`font-bold text-xl mb-4 group-hover:text-indigo-400 transition-colors duration-200 leading-tight ${
+                    theme === "light" ? "text-gray-900" : "text-white"
+                  }`}
+                >
                   {course.CourseName}
                 </h3>
 
-                <div className="space-y-3 text-slate-300">
+                <div
+                  className={`space-y-3 ${
+                    theme === "light" ? "text-gray-600" : "text-slate-300"
+                  }`}
+                >
                   <div className="flex items-center gap-3">
                     <Clock className="w-4 h-4 text-indigo-400" />
                     <span className="text-sm">Self-paced learning</span>
@@ -160,17 +192,21 @@ const CourseCatalog = () => {
         {courseData.length === 1 && (
           <div className="text-center mt-16 py-12">
             <div className="max-w-md mx-auto">
-              <BookOpen className="w-16 h-16 mx-auto mb-4 text-slate-600" />
+              <BookOpen
+                className={`w-16 h-16 mx-auto mb-4 ${
+                  theme === "light" ? "text-gray-400" : "text-slate-600"
+                }`}
+              />
               <h3
                 className={`text-xl font-semibold mb-2 ${
-                  theme === "light" ? "text-[#111827]" : "text-white"
+                  theme === "light" ? "text-gray-900" : "text-white"
                 }`}
               >
                 More Courses Coming Soon
               </h3>
               <p
                 className={`${
-                  theme === "light" ? "text-[#1F2937]" : "text-slate-300"
+                  theme === "light" ? "text-gray-600" : "text-slate-300"
                 }`}
               >
                 We&apos;re constantly adding new courses to help you learn and
@@ -182,10 +218,20 @@ const CourseCatalog = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-slate-950 text-white py-8 mt-20 border-t border-slate-800">
+      <footer
+        className={`py-8 mt-20 border-t ${
+          theme === "light"
+            ? "bg-gray-100 text-gray-900 border-gray-200"
+            : "bg-slate-950 text-white border-slate-800"
+        }`}
+      >
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center">
-            <p className="text-slate-400">
+            <p
+              className={`${
+                theme === "light" ? "text-gray-600" : "text-slate-400"
+              }`}
+            >
               &copy; 2025 myUstad.ai. All rights reserved.
             </p>
           </div>

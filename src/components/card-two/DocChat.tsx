@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Input } from "../ui/input";
 import ReactMarkdown from "react-markdown";
+import { useTheme } from "next-themes";
 
 interface DocChatProps {
   // eslint-disable-next-line
@@ -42,12 +43,12 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     setMessages([initialBotMessage]);
   }, [refreshTrigger]);
 
-  // eslint-disable-next-line
   const playNoteAudioFromAPI = async (text: string, index: any) => {
     setClickedIndex(index);
     if (playingIndex === index) {
@@ -151,7 +152,6 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
     }
   };
 
-  // eslint-disable-next-line
   const sendMessage = async (customInput?: any) => {
     const userInput = customInput || input;
     if (!userInput.trim()) return;
@@ -176,7 +176,6 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
               style={{ animationDelay: "0.2s" }}
             ></div>
           </div>
-          {/* <span className="text-gray-500 text-sm ml-2">Thinking...</span> */}
         </div>
       ),
       time: "",
@@ -283,9 +282,13 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div
+      className={`flex flex-col h-full ${
+        theme === "dark" ? "bg-gray-900" : "bg-white"
+      }`}
+    >
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6s">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -317,14 +320,15 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
                 className={`px-4 py-3 rounded-2xl shadow-lg ${
                   msg.from === "user"
                     ? "bg-blue-600 text-white rounded-br-md shadow-blue-600/20"
-                    : "bg-gray-700 text-gray-100 border border-gray-600 rounded-bl-md shadow-gray-900/50"
+                    : theme === "dark"
+                    ? "bg-gray-700 text-gray-100 border border-gray-600 rounded-bl-md shadow-gray-900/50"
+                    : "bg-gray-100 text-gray-900 border border-gray-200 rounded-bl-md shadow-gray-200/50"
                 }`}
               >
                 {typeof msg.text === "string" ? (
                   <ReactMarkdown
-                    // className="prose prose-sm max-w-none prose-invert"
                     components={{
-                      a: ({ node, ...props }) => (
+                      a: ({ ...props }) => (
                         <a
                           {...props}
                           target="_blank"
@@ -332,7 +336,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
                           className="text-blue-400 underline hover:text-blue-300"
                         />
                       ),
-                      p: ({ node, ...props }) => (
+                      p: ({ ...props }) => (
                         <p {...props} className="mb-2 last:mb-0" />
                       ),
                     }}
@@ -350,12 +354,22 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
                   msg.from === "user" ? "flex-row-reverse" : ""
                 }`}
               >
-                <span className="text-xs text-gray-400">{msg.time}</span>
+                <span
+                  className={`text-xs ${
+                    theme === "dark" ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  {msg.time}
+                </span>
 
                 {msg.from === "bot" && msg.text !== initialBotMessage.text && (
                   <div className="flex items-center gap-2">
                     <button
-                      className="p-1.5 rounded-full hover:bg-gray-600 transition-colors duration-200 group"
+                      className={`p-1.5 rounded-full transition-colors duration-200 group ${
+                        theme === "dark"
+                          ? "hover:bg-gray-600"
+                          : "hover:bg-gray-200"
+                      }`}
                       onClick={() => {
                         const userQuestion =
                           messages[index - 1]?.from === "user"
@@ -369,12 +383,18 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
                     >
                       <Pin
                         size={14}
-                        className="text-gray-400 group-hover:text-blue-400 transition-colors"
+                        className={`transition-colors group-hover:text-blue-400 ${
+                          theme === "dark" ? "text-gray-400" : "text-gray-500"
+                        }`}
                       />
                     </button>
 
                     <button
-                      className="p-1.5 rounded-full hover:bg-gray-600 transition-colors duration-200 group"
+                      className={`p-1.5 rounded-full transition-colors duration-200 group ${
+                        theme === "dark"
+                          ? "hover:bg-gray-600"
+                          : "hover:bg-gray-200"
+                      }`}
                       onClick={() => playNoteAudioFromAPI(msg.text, index)}
                       title={
                         playingIndex === index ? "Stop audio" : "Play audio"
@@ -387,13 +407,19 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
                       ) : (
                         <Headphones
                           size={14}
-                          className="text-gray-400 group-hover:text-emerald-400 transition-colors"
+                          className={`transition-colors group-hover:text-emerald-400 ${
+                            theme === "dark" ? "text-gray-400" : "text-gray-500"
+                          }`}
                         />
                       )}
                     </button>
 
                     <button
-                      className="p-1.5 rounded-full hover:bg-gray-600 transition-colors duration-200 group"
+                      className={`p-1.5 rounded-full transition-colors duration-200 group ${
+                        theme === "dark"
+                          ? "hover:bg-gray-600"
+                          : "hover:bg-gray-200"
+                      }`}
                       onClick={() =>
                         navigator.clipboard.writeText(
                           typeof msg.text === "string" ? msg.text : ""
@@ -403,7 +429,9 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
                     >
                       <Copy
                         size={14}
-                        className="text-gray-400 group-hover:text-blue-400 transition-colors"
+                        className={`transition-colors group-hover:text-blue-400 ${
+                          theme === "dark" ? "text-gray-400" : "text-gray-500"
+                        }`}
                       />
                     </button>
                   </div>
@@ -415,12 +443,19 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
       </div>
 
       {/* Input Area */}
-      <div className="flex items-center gap-3 max-w-4xl mx-auto w-full px-4 py-2">
+      <div
+        className={`flex items-center gap-3 max-w-4xl mx-auto w-full px-4 py-2 ${
+          theme === "dark" ? "bg-gray-900" : "bg-white"
+        }`}
+      >
         <Input
           type="text"
           value={input}
-          className="flex-1 p-2 border-[#3a3a3a] focus:border-blue-500 
-               focus:ring-blue-500/20 text-gray-100 placeholder-gray-400 shadow-inner"
+          className={`flex-1 p-2 shadow-inner ${
+            theme === "dark"
+              ? "border-[#3a3a3a] focus:border-blue-500 focus:ring-blue-500/20 text-gray-100 placeholder-gray-400 bg-gray-800"
+              : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 text-gray-900 placeholder-gray-500 bg-white"
+          }`}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -435,7 +470,9 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
           className={`p-2 cursor-pointer transition-all duration-200 ${
             isRecording
               ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/25 rounded-full"
-              : "text-gray-300"
+              : theme === "dark"
+              ? "text-gray-300 hover:text-gray-100"
+              : "text-gray-600 hover:text-gray-800"
           }`}
           onClick={toggleRecording}
           title={isRecording ? "Stop Recording" : "Start Recording"}
@@ -448,7 +485,9 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
           className={`p-2 rounded-xl transition-all duration-200 ${
             input.trim()
               ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/25"
-              : "bg-gray-700 text-gray-500 cursor-not-allowed border border-gray-900"
+              : theme === "dark"
+              ? "bg-gray-700 text-gray-500 cursor-not-allowed border border-gray-900"
+              : "bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300"
           }`}
           onClick={() => sendMessage()}
           disabled={!input.trim()}

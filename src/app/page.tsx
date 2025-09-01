@@ -4,13 +4,12 @@ import BottomNav from "@/components/BottomNav";
 import CardOne from "@/components/card-one/CardOne";
 import CardThree from "@/components/card-three/CardThree";
 import CardTwo from "@/components/card-two/CardTwo";
-import LoginForm from "@/components/login/LoginForm";
 import Navbar from "@/components/Navbar";
-import { Note } from "@/lib/types";
+import type { Note } from "@/lib/types";
 import { useTheme } from "next-themes";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Home() {
   const pathname = usePathname();
@@ -31,13 +30,35 @@ export default function Home() {
     setIsFirstCardCollapsed(collapsed);
   };
 
-  const handleAddPinnedNote = (question: string, answer: string) => {
+  const handleAddPinnedNote = async (question: string, answer: string) => {
     const newNote = {
       title: `Pinned: ${question.slice(0, 30)}...`,
       content: answer,
       editable: false,
     };
     setNotes((prev) => [...prev, newNote]);
+
+    try {
+      const authToken = localStorage.getItem("token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/save-note`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          title: newNote?.Title,
+          note: newNote?.Response,
+          course: localStorage.getItem("course"),
+        }),
+      });
+
+      if (res.ok) {
+        toast.success("Note Pinned!");
+      }
+    } catch (error) {
+      console.error("unable to save the pinned note ", error);
+    }
   };
 
   const getCardWidths = () => {
