@@ -4,28 +4,38 @@ import BottomNav from "@/components/BottomNav";
 import CardOne from "@/components/card-one/CardOne";
 import CardThree from "@/components/card-three/CardThree";
 import CardTwo from "@/components/card-two/CardTwo";
+import MarkdownViewer from "@/components/MarkdownView";
 import Navbar from "@/components/Navbar";
-import type { Note } from "@/lib/types";
+import type { Note, SelectedDocs } from "@/lib/types";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 export default function Home() {
   const pathname = usePathname();
-  const isMainApp = pathname === "/" || pathname === "/app";
 
   const [tab, setTab] = useState("content");
-  const [selectedDocs, setSelectedDocs] = useState([]);
+  const [selectedDocs, setSelectedDocs] = useState<SelectedDocs>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [isThirdCardCollapsed, setIsThirdCardCollapsed] = useState(false);
   const [isFirstCardCollapsed, setIsFirstCardCollapsed] = useState(false);
   const { theme } = useTheme();
 
+  // 👇 Automatically open/mount a component when pathname is /highlight
+  useEffect(() => {
+    console.log("the pathname ", pathname);
+    if (pathname === "/highlight") {
+      setTab("highlight"); // or "chat" or "content" depending on which one you want
+    }
+  }, [pathname]);
+
+  // eslint-disable-next-line
   const handleRightCardCollapse = (collapsed: any) => {
     setIsThirdCardCollapsed(collapsed);
   };
 
+  // eslint-disable-next-line
   const handleLeftCardCollapse = (collapsed: any) => {
     setIsFirstCardCollapsed(collapsed);
   };
@@ -47,8 +57,8 @@ export default function Home() {
           Authorization: `bearer ${authToken}`,
         },
         body: JSON.stringify({
-          title: newNote?.Title,
-          note: newNote?.Response,
+          title: newNote?.title,
+          note: newNote?.content,
           course: localStorage.getItem("course"),
         }),
       });
@@ -125,6 +135,7 @@ export default function Home() {
             onCollapseChange={handleRightCardCollapse}
           />
         )}
+        {tab === "highlight" && <MarkdownViewer />}
       </div>
 
       <div className="md:hidden sticky bottom-0 z-10 bg-white">

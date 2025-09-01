@@ -147,7 +147,7 @@ const AudioOverview = ({
         </Button>
       </div>
 
-      {error && <div style={{ color: "red", marginTop: "8px" }}>{error}</div>}
+      {error && <div className="text-red-500 mt-2">{error}</div>}
     </div>
   );
 };

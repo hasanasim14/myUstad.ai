@@ -1,4 +1,6 @@
-import { useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import {
@@ -10,6 +12,7 @@ import {
   DialogFooter,
 } from "./ui/dialog";
 import { toast } from "sonner";
+import { useTheme } from "next-themes";
 
 interface FeedbackType {
   Title: string;
@@ -26,7 +29,6 @@ interface FeedbackModalProps {
 }
 
 export const FeedbackModal = ({ open, onCancel }: FeedbackModalProps) => {
-  const [openDialog, setOpenDialog] = useState(false);
   const [titleInput, setTitleInput] = useState("");
   const [feedbackInput, setFeedbackInput] = useState("");
   const [selectedFeedback, setSelectedFeedback] = useState<FeedbackType | null>(
@@ -36,10 +38,10 @@ export const FeedbackModal = ({ open, onCancel }: FeedbackModalProps) => {
     []
   );
   const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
-  // eslint-disable-next-line
-  const handleFeedbackClick = (feedback: any) => {
-    console.log("the type of feedbacks is", typeof feedback);
+  const handleFeedbackClick = (feedback: FeedbackType) => {
     setSelectedFeedback(feedback);
   };
 
@@ -48,6 +50,29 @@ export const FeedbackModal = ({ open, onCancel }: FeedbackModalProps) => {
     setTitleInput("");
     setFeedbackInput("");
   };
+
+  useEffect(() => {
+    const fetchFeedback = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/feedback`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `bearer ${localStorage.getItem("d_tok")}`,
+            },
+          }
+        );
+
+        const data = await res.json();
+        setPreviousFeedbacks(data?.data || []);
+      } catch (error) {
+        console.error("Error fetching feedbacks = ", error);
+      }
+    };
+    fetchFeedback();
+  }, []);
 
   const handleSendFeedback = async () => {
     try {
@@ -87,13 +112,31 @@ export const FeedbackModal = ({ open, onCancel }: FeedbackModalProps) => {
 
   return (
     <Dialog open={open}>
-      <DialogContent className="w-[95vw] lg:w-[80vw] xl:w-[100vw] mx-auto bg-white border-0 shadow-2xl p-0 flex flex-col max-h-[92vh]">
+      <DialogContent
+        className={`w-[80vw] max-w-[80vw] mx-auto ${
+          isDark ? "bg-[#0a0a0a] border-[#3a3a3a]" : "bg-white border-gray-200"
+        } shadow-2xl p-0 flex flex-col max-h-[92vh] [&>button]:hidden`}
+      >
         {/* Header */}
-        <DialogHeader className="p-5 bg-gradient-to-br from-slate-50 via-gray-50 to-white border-b border-gray-200">
-          <DialogTitle className="text-3xl font-semibold text-gray-900 tracking-tight">
+        <DialogHeader
+          className={`p-5 ${
+            isDark
+              ? "bg-[#0a0a0a] border-[#3a3a3a]"
+              : "bg-gradient-to-br from-slate-50 via-gray-50 to-white border-gray-200"
+          } border-b rounded-t-xl`}
+        >
+          <DialogTitle
+            className={`text-2xl font-semibold ${
+              isDark ? "text-white" : "text-gray-900"
+            } tracking-tight`}
+          >
             {selectedFeedback ? "View Feedback" : "Share Your Feedback"}
           </DialogTitle>
-          <DialogDescription className="text-gray-600 text-sm leading-relaxed max-w-2xl">
+          <DialogDescription
+            className={`${
+              isDark ? "text-gray-300" : "text-gray-600"
+            } text-sm leading-relaxed max-w-2xl`}
+          >
             {selectedFeedback
               ? "Review your previous feedback below."
               : "Help us improve myUstad.ai by sharing your thoughts, suggestions, or reporting any issues you've encountered."}
@@ -103,28 +146,60 @@ export const FeedbackModal = ({ open, onCancel }: FeedbackModalProps) => {
         <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto">
           {/* Left side - Previous Feedbacks */}
           {previousFeedbacks.length > 0 && (
-            <div className="basis-1/2 shrink-0 overflow-y-auto border-r border-gray-100 bg-gradient-to-b from-white to-slate-50/50 p-4 pt-0">
+            <div
+              className={`basis-1/2 shrink-0 overflow-y-auto ${
+                isDark
+                  ? "bg-[#0a0a0a] border-[#3a3a3a]"
+                  : "border-gray-100 bg-gradient-to-b from-white to-slate-50/50"
+              } border-r p-4 pt-0`}
+            >
               <div className="flex items-center gap-3 mb-5">
-                <h4 className="text-m font-semibold text-gray-800">
+                <h4
+                  className={`text-m font-semibold ${
+                    isDark ? "text-gray-200" : "text-gray-800"
+                  }`}
+                >
                   Previous Feedback
                 </h4>
-                <div className="h-px bg-gradient-to-r from-gray-200 to-transparent flex-1"></div>
+                <div
+                  className={`h-px ${
+                    isDark
+                      ? "bg-gradient-to-r from-gray-600 to-transparent"
+                      : "bg-gradient-to-r from-gray-200 to-transparent"
+                  } flex-1`}
+                ></div>
               </div>
               <div className="space-y-4">
                 {previousFeedbacks.map((feedback) => (
                   <div
                     key={feedback.keyy || feedback.id}
                     onClick={() => handleFeedbackClick(feedback)}
-                    className={`group cursor-pointer rounded-xl p-2 border border-gray-300`}
+                    className={`group cursor-pointer rounded-xl p-2 border ${
+                      isDark
+                        ? "border-gray-600 hover:border-gray-500 hover:bg-gray-800/50"
+                        : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
+                    } transition-colors`}
                   >
-                    <h5 className="font-semibold text-sm text-gray-700 mb-2">
+                    <h5
+                      className={`font-semibold text-sm ${
+                        isDark ? "text-gray-200" : "text-gray-700"
+                      } mb-2`}
+                    >
                       {feedback.Title}
                     </h5>
-                    <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
+                    <p
+                      className={`${
+                        isDark ? "text-gray-400" : "text-gray-600"
+                      } text-sm line-clamp-2 leading-relaxed`}
+                    >
                       {feedback.message}
                     </p>
                     {feedback.timestamp && (
-                      <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
+                      <div
+                        className={`flex items-center gap-2 mt-3 text-xs ${
+                          isDark ? "text-gray-500" : "text-gray-500"
+                        }`}
+                      >
                         <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
                         {feedback.timestamp}
                       </div>
@@ -143,7 +218,11 @@ export const FeedbackModal = ({ open, onCancel }: FeedbackModalProps) => {
                   <Button
                     variant="outline"
                     onClick={handleNewFeedback}
-                    className="text-sm rounded-lg bg-slate-50 hover:bg-slate-100"
+                    className={`text-sm rounded-lg ${
+                      isDark
+                        ? "bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200"
+                        : "bg-slate-50 hover:bg-slate-100 border-gray-300 text-gray-700"
+                    }`}
                   >
                     + New Feedback
                   </Button>
@@ -154,26 +233,50 @@ export const FeedbackModal = ({ open, onCancel }: FeedbackModalProps) => {
                 <div className="space-y-6">
                   {/* Title */}
                   <div>
-                    <label className="block text-lg font-semibold text-gray-800 mb-2">
+                    <label
+                      className={`block text-lg font-semibold ${
+                        isDark ? "text-gray-200" : "text-gray-800"
+                      } mb-2`}
+                    >
                       Title
                     </label>
-                    <div className="w-full px-5 py-4 border border-gray-200 rounded-xl bg-slate-50 text-gray-900 text-base">
+                    <div
+                      className={`w-full px-5 py-4 border rounded-xl text-base ${
+                        isDark
+                          ? "border-gray-600 bg-gray-800 text-gray-100"
+                          : "border-gray-200 bg-slate-50 text-gray-900"
+                      }`}
+                    >
                       {selectedFeedback.Title}
                     </div>
                   </div>
 
                   {/* Feedback */}
                   <div>
-                    <label className="block text-lg font-semibold text-gray-800 mb-2">
+                    <label
+                      className={`block text-lg font-semibold ${
+                        isDark ? "text-gray-200" : "text-gray-800"
+                      } mb-2`}
+                    >
                       Feedback
                     </label>
-                    <div className="w-full px-5 py-4 border border-gray-200 rounded-xl bg-slate-50 text-gray-900 text-base leading-relaxed min-h-[140px]">
+                    <div
+                      className={`w-full px-5 py-4 border rounded-xl text-base leading-relaxed min-h-[140px] ${
+                        isDark
+                          ? "border-gray-600 bg-gray-800 text-gray-100"
+                          : "border-gray-200 bg-slate-50 text-gray-900"
+                      }`}
+                    >
                       {selectedFeedback.Message}
                     </div>
                   </div>
 
                   {selectedFeedback.timestamp && (
-                    <p className="flex items-center gap-2 text-sm text-gray-500 pt-2">
+                    <p
+                      className={`flex items-center gap-2 text-sm pt-2 ${
+                        isDark ? "text-gray-400" : "text-gray-500"
+                      }`}
+                    >
                       <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
                       Submitted {selectedFeedback.timestamp}
                     </p>
@@ -185,7 +288,9 @@ export const FeedbackModal = ({ open, onCancel }: FeedbackModalProps) => {
                   <div>
                     <label
                       htmlFor="title"
-                      className="block text-m font-semibold text-gray-800 mb-2"
+                      className={`block text-m font-semibold ${
+                        isDark ? "text-gray-200" : "text-gray-800"
+                      } mb-2`}
                     >
                       Title
                     </label>
@@ -195,7 +300,11 @@ export const FeedbackModal = ({ open, onCancel }: FeedbackModalProps) => {
                       placeholder="Enter a title for your feedback..."
                       value={titleInput}
                       onChange={(e) => setTitleInput(e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition text-gray-900 placeholder-gray-400 bg-white text-base"
+                      className={`w-full p-3 border rounded-xl focus:ring-4 transition text-base ${
+                        isDark
+                          ? "border-gray-600 focus:ring-blue-900/50 focus:border-blue-400 bg-gray-800 text-gray-100 placeholder-gray-500"
+                          : "border-gray-300 focus:ring-blue-100 focus:border-blue-400 bg-white text-gray-900 placeholder-gray-400"
+                      }`}
                     />
                   </div>
 
@@ -203,7 +312,9 @@ export const FeedbackModal = ({ open, onCancel }: FeedbackModalProps) => {
                   <div>
                     <label
                       htmlFor="feedback"
-                      className="block text-m font-semibold text-gray-800 mb-2"
+                      className={`block text-m font-semibold ${
+                        isDark ? "text-gray-200" : "text-gray-800"
+                      } mb-2`}
                     >
                       Your feedback
                     </label>
@@ -214,9 +325,17 @@ export const FeedbackModal = ({ open, onCancel }: FeedbackModalProps) => {
                         placeholder="Tell us what's on your mind..."
                         value={feedbackInput}
                         onChange={(e) => setFeedbackInput(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition resize-none text-gray-900 placeholder-gray-400 bg-white text-base leading-relaxed"
+                        className={`w-full p-3 border rounded-xl focus:ring-4 transition resize-none text-base leading-relaxed ${
+                          isDark
+                            ? "border-gray-600 focus:ring-blue-900/50 focus:border-blue-400 bg-gray-800 text-gray-100 placeholder-gray-500"
+                            : "border-gray-300 focus:ring-blue-100 focus:border-blue-400 bg-white text-gray-900 placeholder-gray-400"
+                        }`}
                       />
-                      <span className="absolute bottom-3 right-4 text-xs text-gray-400">
+                      <span
+                        className={`absolute bottom-3 right-4 text-xs ${
+                          isDark ? "text-gray-500" : "text-gray-400"
+                        }`}
+                      >
                         {feedbackInput.length}/500
                       </span>
                     </div>
@@ -228,18 +347,31 @@ export const FeedbackModal = ({ open, onCancel }: FeedbackModalProps) => {
         </div>
 
         {/* Footer - pinned at bottom */}
-        <DialogFooter className="p-4 bg-gradient-to-r from-slate-50 via-gray-50 to-white border-t border-gray-200 flex gap-4 justify-end shrink-0">
+        <DialogFooter
+          className={`p-4 border-t flex gap-4 justify-end rounded-b-xl shrink-0 ${
+            isDark
+              ? "bg-[#0a0a0a] border-[#3a3a3a]"
+              : "bg-gradient-to-r from-slate-50 via-gray-50 to-white border-gray-200"
+          }`}
+        >
           <Button
             variant="outline"
             onClick={() => onCancel()}
             disabled={feedbackLoading}
+            className={
+              isDark ? "border-gray-600 text-gray-200 hover:bg-gray-700" : ""
+            }
           >
             Cancel
           </Button>
 
           {!selectedFeedback && (
             <Button
-              className="bg-black text-white flex items-center gap-2"
+              className={`flex items-center gap-2 ${
+                isDark
+                  ? "bg-white text-black hover:bg-gray-100"
+                  : "bg-black text-white hover:bg-gray-900"
+              }`}
               onClick={handleSendFeedback}
               disabled={
                 feedbackLoading || !titleInput.trim() || !feedbackInput.trim()

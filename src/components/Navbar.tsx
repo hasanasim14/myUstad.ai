@@ -24,7 +24,6 @@ const Navbar = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("English");
-  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [openFeedbackModal, setOpenFeedbackModal] = useState(false);
 
   const languages = ["English", "Urdu", "Punjabi", "Sindhi", "Pashto"];
@@ -46,6 +45,10 @@ const Navbar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem("lang", selectedLanguage);
+  }, []);
+
   const toggleMenu = () => {
     setShowMenu(!showMenu);
   };
@@ -60,7 +63,7 @@ const Navbar = () => {
 
   const handleLanguageSelect = (lang: string) => {
     setSelectedLanguage(lang);
-    setShowLanguageMenu(false);
+    localStorage.setItem("lang", lang);
   };
 
   const toggleTheme = () => {
@@ -174,7 +177,7 @@ const Navbar = () => {
                   }`}
                 >
                   <div
-                    className={`mb-1 text-[10px] font-normal ${
+                    className={`mb-1 text-sm font-normal ${
                       theme === "light" ? "text-gray-600" : "text-gray-400"
                     }`}
                   >
@@ -184,7 +187,7 @@ const Navbar = () => {
                     <div
                       key={lang}
                       onClick={() => handleLanguageSelect(lang)}
-                      className={`cursor-pointer text-[9px] py-[2px] ${
+                      className={`cursor-pointer text-sm py-[0.125rem] ${
                         lang === selectedLanguage
                           ? "font-bold text-blue-500"
                           : theme === "light"

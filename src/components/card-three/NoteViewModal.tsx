@@ -1,8 +1,7 @@
 "use client";
 
 import type React from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { useTheme } from "next-themes";
 import {
   Dialog,
   DialogContent,
@@ -10,14 +9,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-interface Note {
-  title: string;
-  content: string;
-  editable?: boolean;
-  type?: string;
-  Response?: string;
-}
+import { Note } from "@/lib/types";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface NoteViewModalProps {
   isOpen: boolean;
@@ -30,52 +24,118 @@ type MarkdownComponentProps = {
 };
 
 const NoteViewModal = ({ isOpen, onClose, note }: NoteViewModalProps) => {
+  const { theme } = useTheme();
+
   const renderers = {
     h4: ({ children }: MarkdownComponentProps) => (
-      <h4 className="font-bold mt-6 mb-2 text-lg">{children}</h4>
+      <h4
+        className={`font-bold mt-6 mb-2 text-lg ${
+          theme === "dark" ? "text-white" : "text-gray-900"
+        }`}
+      >
+        {children}
+      </h4>
     ),
     h3: ({ children }: MarkdownComponentProps) => (
-      <h3 className="font-bold mt-6 mb-3 text-xl">{children}</h3>
+      <h3
+        className={`font-bold mt-6 mb-3 text-xl ${
+          theme === "dark" ? "text-white" : "text-gray-900"
+        }`}
+      >
+        {children}
+      </h3>
     ),
     h2: ({ children }: MarkdownComponentProps) => (
-      <h2 className="font-bold mt-8 mb-4 text-2xl">{children}</h2>
+      <h2
+        className={`font-bold mt-8 mb-4 text-2xl ${
+          theme === "dark" ? "text-white" : "text-gray-900"
+        }`}
+      >
+        {children}
+      </h2>
     ),
     h1: ({ children }: MarkdownComponentProps) => (
-      <h1 className="font-bold mt-8 mb-4 text-lg">{children}</h1>
+      <h1
+        className={`font-bold mt-8 mb-4 text-lg ${
+          theme === "dark" ? "text-white" : "text-gray-900"
+        }`}
+      >
+        {children}
+      </h1>
     ),
     p: ({ children }: MarkdownComponentProps) => (
-      <p className="mb-4 leading-relaxed text-gray-400">{children}</p>
+      <p
+        className={`mb-4 leading-relaxed ${
+          theme === "dark" ? "text-gray-400" : "text-gray-600"
+        }`}
+      >
+        {children}
+      </p>
     ),
     ul: ({ children }: MarkdownComponentProps) => (
-      <ul className="mb-4 ml-6 list-disc space-y-1 text-gray-200">
+      <ul
+        className={`mb-4 ml-6 list-disc space-y-1 ${
+          theme === "dark" ? "text-gray-200" : "text-gray-700"
+        }`}
+      >
         {children}
       </ul>
     ),
     ol: ({ children }: MarkdownComponentProps) => (
-      <ol className="mb-4 ml-6 list-decimal space-y-1 text-gray-200">
+      <ol
+        className={`mb-4 ml-6 list-decimal space-y-1 ${
+          theme === "dark" ? "text-gray-200" : "text-gray-700"
+        }`}
+      >
         {children}
       </ol>
     ),
     li: ({ children }: MarkdownComponentProps) => (
-      <li className="text-gray-400">{children}</li>
+      <li className={theme === "dark" ? "text-gray-400" : "text-gray-600"}>
+        {children}
+      </li>
     ),
     blockquote: ({ children }: MarkdownComponentProps) => (
-      <blockquote className="border-l-4 border-gray-300 pl-4 italic my-4 text-gray-600">
+      <blockquote
+        className={`border-l-4 pl-4 italic my-4 ${
+          theme === "dark"
+            ? "border-gray-600 text-gray-400"
+            : "border-gray-300 text-gray-600"
+        }`}
+      >
         {children}
       </blockquote>
     ),
     code: ({ children }: MarkdownComponentProps) => (
-      <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">
+      <code
+        className={`px-1 py-0.5 rounded text-sm font-mono ${
+          theme === "dark"
+            ? "bg-gray-800 text-gray-200"
+            : "bg-gray-100 text-gray-800"
+        }`}
+      >
         {children}
       </code>
     ),
     pre: ({ children }: MarkdownComponentProps) => (
-      <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto mb-4">
+      <pre
+        className={`p-4 rounded-lg overflow-x-auto mb-4 ${
+          theme === "dark"
+            ? "bg-gray-800 text-gray-200"
+            : "bg-gray-100 text-gray-800"
+        }`}
+      >
         {children}
       </pre>
     ),
     strong: ({ children }: MarkdownComponentProps) => (
-      <strong className="text-xl font-bold text-white">{children}</strong>
+      <strong
+        className={`text-xl font-bold ${
+          theme === "dark" ? "text-white" : "text-gray-900"
+        }`}
+      >
+        {children}
+      </strong>
     ),
   };
 
@@ -90,7 +150,7 @@ const NoteViewModal = ({ isOpen, onClose, note }: NoteViewModalProps) => {
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-2xl font-semibold pr-8">
-            {note.title}
+            {note.Title}
           </DialogTitle>
         </DialogHeader>
 

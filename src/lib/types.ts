@@ -1,7 +1,10 @@
 export type Note = {
-  title: string;
-  content: string;
-  editable: boolean;
+  Title?: string;
+  Response?: string;
+  content?: string;
+  editable?: boolean;
+  docType?: string;
+  docKey?: string;
 };
 
 export type SelectedDoc = {

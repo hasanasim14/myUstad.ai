@@ -1,15 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 
-const BottomNav = ({ currentTab, setTab }) => {
+interface BottomNavProps {
+  currentTab: string;
+  // eslint-disable-next-line
+  setTab: any;
+}
+
+const BottomNav = ({ currentTab, setTab }: BottomNavProps) => {
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const containerRef = useRef(null);
+
   const tabs = [
     { id: "content", label: "Content" },
     { id: "chat", label: "Chat" },
     { id: "library", label: "Library" },
   ];
-
-  const containerRef = useRef(null);
-  const tabRefs = useRef({});
-  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
 
   useEffect(() => {
     const currentRef = tabRefs.current[currentTab];
@@ -35,7 +41,9 @@ const BottomNav = ({ currentTab, setTab }) => {
       {tabs.map((tab) => (
         <button
           key={tab.id}
-          ref={(el) => (tabRefs.current[tab.id] = el)}
+          ref={(el) => {
+            tabRefs.current[tab.id] = el;
+          }}
           onClick={() => setTab(tab.id)}
           className={`relative flex flex-col items-center text-sm transition-colors duration-300 ${
             currentTab === tab.id ? "text-[#0a0a0a]" : "text-[#666666]"

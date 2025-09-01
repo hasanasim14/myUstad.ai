@@ -4,69 +4,73 @@ import { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import AudioOverview from "./AudioOverview";
 import MindmapModal from "./MindmapModal";
-// import { toast } from "react-toastify"; // Import toast
 import {
-  ChevronLeft,
-  ChevronRight,
-  EllipsisVertical,
-  FileText,
   GraduationCap,
-  Headphones,
-  Loader2,
+  FileText,
   MessageSquareText,
   Network,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
   Plus,
+  Headphones,
+  EllipsisVertical,
   Trash,
 } from "lucide-react";
+import { useTheme } from "next-themes";
+import { toast } from "sonner";
+import { Note, SelectedDocs } from "@/lib/types";
+import { Button } from "../ui/button";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { PopoverClose } from "@radix-ui/react-popover";
 import NoteEditModal from "./NoteEditModal";
 import NoteViewModal from "./NoteViewModal";
-import { Button } from "../ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { ScrollArea, ScrollBar } from "../ui/scroll-area";
-import { useTheme } from "next-themes";
-import { toast } from "sonner";
 
-const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
-  const [menuOpenIndex, setMenuOpenIndex] = useState(null);
-  const menuRef = useRef(null);
-  const modalRef = useRef(null);
+interface CardThreeProps {
+  notes: Note[];
+  setNotes: React.Dispatch<React.SetStateAction<Note[]>>;
+  selectedDocs: SelectedDocs;
+  onCollapseChange: (collapsed: boolean) => void;
+}
+
+const CardThree = ({
+  notes,
+  setNotes,
+  selectedDocs,
+  onCollapseChange,
+}: CardThreeProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [currentEditNoteIndex, setCurrentEditNoteIndex] = useState(null);
+  const [currentEditNoteIndex, setCurrentEditNoteIndex] = useState<
+    number | null
+  >(null);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
-  const [loadingStates, setLoadingStates] = useState(new Set());
+  const [loadingStates, setLoadingStates] = useState<Set<string>>(new Set());
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [currentViewNote, setCurrentViewNote] = useState(null);
-  const [playingIndex, setPlayingIndex] = useState(null);
-  const [clickedIndex, setClickedIndex] = useState(null);
+  const [currentViewNote, setCurrentViewNote] = useState<Note | null>(null);
+  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const [clickedIndex, setClickedIndex] = useState<number | null>(null);
   const [mindmapOpen, setMindmapOpen] = useState(false);
   const [mindmapMarkdown, setMindmapMarkdown] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [podcastCache, setPodcastCache] = useState({});
-  const audioRef = useRef(null);
-  const abortControllers = useRef({});
-  const { theme } = useTheme();
+  const [podcastCache, setPodcastCache] = useState<Record<string, string>>({});
 
-  const addLoadingState = (type) => {
+  const { theme } = useTheme();
+  const abortControllers = useRef<Record<number, AbortController>>({});
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const modalRef = useRef<HTMLDivElement | null>(null);
+
+  const addLoadingState = (type: string) => {
     setLoadingStates((prev) => new Set([...prev, type]));
   };
 
-  const removeLoadingState = (type) => {
+  const removeLoadingState = (type: string) => {
     setLoadingStates((prev) => {
       const newSet = new Set(prev);
       newSet.delete(type);
       return newSet;
     });
-  };
-
-  const renderers = {
-    h4: ({ children }) => (
-      <h4 style={{ fontWeight: "bold", marginTop: "1.5rem" }}>{children}</h4>
-    ),
-    p: ({ children }) => (
-      <p style={{ marginBottom: "1rem", lineHeight: 1.6 }}>{children}</p>
-    ),
   };
 
   const noteTypes = [
@@ -95,7 +99,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
       );
 
       const data = await res.json();
-      setNotes(data?.data);
+      setNotes(data?.data || []);
     } catch (error) {
       console.error("Error fetching notes:", error);
     }
@@ -106,9 +110,10 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     addLoadingState(loadingKey);
 
     const payload = {
-      selectedDocs: selectedDocs,
+      selectedDocs,
       course: localStorage.getItem("course"),
     };
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/generate-mindmap`,
@@ -123,17 +128,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
       );
 
       if (!res.ok) throw new Error(`Mindmap API failed: ${res.status}`);
-
-      const data = await res.json();
-      const markdownContent = data.markdown || "No mindmap available.";
-
-      const newMindmapNote = {
-        Title: `Mind Map - ${new Date().toLocaleString()}`,
-        Response: markdownContent,
-        editable: false,
-        type: "mindmap",
-      };
-
+      await res.json();
       setTimeout(fetchNotes, 500);
     } catch (error) {
       console.error("Error generating mindmap:", error);
@@ -142,7 +137,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     }
   };
 
-  const playNoteAudioFromAPI = async (text, index) => {
+  const playNoteAudioFromAPI = async (text: string, index: number) => {
     if (clickedIndex === index && !playingIndex) {
       const controller = abortControllers.current[index];
       if (controller) {
@@ -181,9 +176,8 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
         }
       );
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(`API call failed with status ${response.status}`);
-      }
 
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
@@ -202,20 +196,16 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
 
       await audio.play();
     } catch (error) {
-      if (error.name === "AbortError") {
-        console.log("Fetch aborted");
-      } else {
-        console.error("Audio playback failed:", error);
-      }
       setPlayingIndex(null);
       setClickedIndex(null);
+      console.error("Error ", error);
     } finally {
       delete abortControllers.current[index];
     }
   };
 
   const handleAddNote = () => {
-    const newNote = {
+    const newNote: Note = {
       Title: `New Note - ${new Date().toLocaleString()}`,
       Response: "New note content...",
       editable: true,
@@ -223,7 +213,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     setNotes([newNote, ...notes]);
   };
 
-  const handleDeleteNote = async (docKey, indexToDelete) => {
+  const handleDeleteNote = async (docKey: string, indexToDelete: number) => {
     const updatedNotes = notes.filter((_, i) => i !== indexToDelete);
     try {
       const response = await fetch(
@@ -237,8 +227,8 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
           body: JSON.stringify({ docKey }),
         }
       );
+
       if (response.ok) {
-        // cleanup cached blob
         if (podcastCache[docKey]) {
           URL.revokeObjectURL(podcastCache[docKey]);
           const newCache = { ...podcastCache };
@@ -246,24 +236,20 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
           setPodcastCache(newCache);
         }
         setNotes(updatedNotes);
-        toast.success("Note Deleted!"); // Use toast
+        toast.success("Note Deleted!");
       }
     } catch (error) {
       console.error("error deleting the note", error);
-      toast.error("Error deleting the note. Please try again later"); // Use toast
+      toast.error("Error deleting the note. Please try again later");
     }
   };
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setMenuOpenIndex(null);
-      }
-
+    const handleClickOutside = (event: MouseEvent) => {
       if (
         isViewModalOpen &&
         modalRef.current &&
-        !modalRef.current.contains(event.target)
+        !modalRef.current.contains(event.target as Node)
       ) {
         setIsViewModalOpen(false);
       }
@@ -275,19 +261,19 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     };
   }, [isViewModalOpen]);
 
-  const handleNoteClick = (index) => {
+  const handleNoteClick = (index: number) => {
     const note = notes[index];
 
     if (note.docType === "mindmap") {
-      setMindmapMarkdown(note.Response);
+      setMindmapMarkdown(note?.Response ?? "");
       setMindmapOpen(true);
       return;
     }
 
     if (note.editable) {
       setCurrentEditNoteIndex(index);
-      setEditTitle(note.Title);
-      setEditContent(note.Response);
+      setEditTitle(note.Title ?? "");
+      setEditContent(note.Response ?? "");
       setIsEditModalOpen(true);
     } else {
       setCurrentViewNote(note);
@@ -296,10 +282,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   };
 
   const handleSaveEdit = async () => {
-    const updatedNote = {
-      title: editTitle,
-      note: editContent,
-    };
+    if (currentEditNoteIndex === null) return;
 
     try {
       const authToken = localStorage.getItem("d_tok");
@@ -310,7 +293,8 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
           Authorization: `bearer ${authToken}`,
         },
         body: JSON.stringify({
-          ...updatedNote,
+          title: editTitle,
+          note: editContent,
           course: localStorage.getItem("course"),
         }),
       });
@@ -333,7 +317,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     }
   };
 
-  const handleFetchAndAddNote = async (type) => {
+  const handleFetchAndAddNote = async (type: string) => {
     let contentEndpoint = "";
 
     if (type === "Study Guide")
@@ -350,7 +334,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     try {
       const authToken = localStorage.getItem("d_tok");
       const wrappedDocs = {
-        selectedDocs: selectedDocs,
+        selectedDocs,
         course: localStorage.getItem("course"),
       };
 
@@ -366,14 +350,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
       if (!contentResponse.ok)
         throw new Error(`Content API error: ${contentResponse.status}`);
 
-      const content = await contentResponse.text();
-
-      const newNote = {
-        Title: `${type} - ${new Date().toLocaleString()}`,
-        content: content || "No content available.",
-        editable: false,
-      };
-
+      await contentResponse.text();
       await fetchNotes();
     } catch (error) {
       console.error(`Failed to fetch ${type}:`, error);
@@ -385,35 +362,38 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   const toggleCollapse = () => {
     setIsCollapsed((prev) => {
       const newCollapsed = !prev;
-      if (onCollapseChange) {
-        onCollapseChange(newCollapsed);
-      }
+      onCollapseChange(newCollapsed);
       return newCollapsed;
     });
   };
 
-  const handlePodcastLoadingChange = (isLoading) => {
+  const handlePodcastLoadingChange = (isLoading: boolean) => {
     const loadingKey = `Podcast-${Date.now()}`;
     if (isLoading) {
       addLoadingState(loadingKey);
-      window.currentPodcastLoadingKey = loadingKey;
+      // eslint-disable-next-line
+      (window as any).currentPodcastLoadingKey = loadingKey;
     } else {
-      if (window.currentPodcastLoadingKey) {
-        removeLoadingState(window.currentPodcastLoadingKey);
-        delete window.currentPodcastLoadingKey;
+      // eslint-disable-next-line
+      if ((window as any).currentPodcastLoadingKey) {
+        // eslint-disable-next-line
+        removeLoadingState((window as any).currentPodcastLoadingKey);
+        // eslint-disable-next-line
+        delete (window as any).currentPodcastLoadingKey;
       }
     }
   };
 
-  // fetch podcast audio
-  const PodcastAudio = ({ docKey }) => {
-    const [audioUrl, setAudioUrl] = useState(null);
+  const PodcastAudio = ({ docKey }: { docKey: string }) => {
+    const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
     useEffect(() => {
       const fetchAudio = async () => {
         if (isViewModalOpen && currentViewNote?.docType === "Podcast") {
-          const docKey = currentViewNote.docKey;
-          if (podcastCache[docKey]) return; // already cached
+          if (podcastCache[docKey]) {
+            setAudioUrl(podcastCache[docKey]);
+            return;
+          }
 
           try {
             const res = await fetch(
@@ -422,7 +402,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                 method: "GET",
                 headers: {
                   "Content-Type": "application/json",
-                  Authorization: `bearer ${localStorage.getItem("token")}`,
+                  Authorization: `bearer ${localStorage.getItem("d_tok")}`,
                 },
               }
             );
@@ -431,6 +411,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
             const blob = await res.blob();
             const audioUrl = URL.createObjectURL(blob);
             setPodcastCache((prev) => ({ ...prev, [docKey]: audioUrl }));
+            setAudioUrl(audioUrl);
           } catch (err) {
             console.error("Error fetching podcast:", err);
           }
@@ -438,9 +419,8 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
       };
 
       fetchAudio();
-    }, [isViewModalOpen, currentViewNote, podcastCache]);
+    }, [isViewModalOpen, currentViewNote, docKey]);
 
-    //
     if (!audioUrl) {
       return (
         <div className="flex items-center gap-2 text-gray-500 text-xs">
@@ -620,7 +600,10 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                playNoteAudioFromAPI(note.Response, index);
+                                playNoteAudioFromAPI(
+                                  note.Response ?? "",
+                                  index
+                                );
                               }}
                               className={`p-1 rounded-lg transition ${
                                 clickedIndex === index
@@ -675,7 +658,10 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                                     }`}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      handleDeleteNote(note.docKey, index);
+                                      handleDeleteNote(
+                                        note.docKey ?? "",
+                                        index
+                                      );
                                     }}
                                   >
                                     <Trash className="h-3.5 w-3.5" />
@@ -706,7 +692,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                         ) : note.editable ? (
                           <ReactMarkdown
                             components={{
-                              p: ({ node, ...props }) => (
+                              p: ({ ...props }) => (
                                 <p
                                   className={`line-clamp-1 m-0 text-xs sm:text-sm ${
                                     theme === "light"
@@ -718,7 +704,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                               ),
                             }}
                           >
-                            {note.Response}
+                            {note?.Response}
                           </ReactMarkdown>
                         ) : (
                           <div className="line-clamp-1">
@@ -727,7 +713,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                               .replace(/^["']|["']$/g, "")
                               .replace(/^#+\s*/gm, "")
                               .slice(0, 120)}
-                            {note?.Response?.length > 120 && "..."}
+                            {(note?.Response?.length ?? 0) > 120 && "..."}
                           </div>
                         )}
                       </div>
@@ -751,7 +737,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
             </ScrollArea>
           </div>
 
-          {/* Modal Components */}
+          {/* Open Editing Modal */}
           <NoteEditModal
             isOpen={isEditModalOpen}
             onClose={() => setIsEditModalOpen(false)}
@@ -762,11 +748,15 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
             setEditContent={setEditContent}
             isEditable={notes[currentEditNoteIndex || 0]?.editable || false}
           />
+
+          {/* View Note Modal */}
           <NoteViewModal
             isOpen={isViewModalOpen}
             onClose={() => setIsViewModalOpen(false)}
             note={currentViewNote}
           />
+
+          {/* View Mindmap Modal */}
           <MindmapModal
             open={mindmapOpen}
             onClose={() => setMindmapOpen(false)}
