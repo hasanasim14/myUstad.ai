@@ -20,7 +20,12 @@ interface FeedbackType {
   keyy?: string | number;
 }
 
-export const FeedbackModal = () => {
+interface FeedbackModalProps {
+  open: boolean;
+  onCancel: () => void;
+}
+
+export const FeedbackModal = ({ open, onCancel }: FeedbackModalProps) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [titleInput, setTitleInput] = useState("");
   const [feedbackInput, setFeedbackInput] = useState("");
@@ -81,7 +86,7 @@ export const FeedbackModal = () => {
   };
 
   return (
-    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+    <Dialog open={open}>
       <DialogContent className="w-[95vw] lg:w-[80vw] xl:w-[100vw] mx-auto bg-white border-0 shadow-2xl p-0 flex flex-col max-h-[92vh]">
         {/* Header */}
         <DialogHeader className="p-5 bg-gradient-to-br from-slate-50 via-gray-50 to-white border-b border-gray-200">
@@ -95,7 +100,6 @@ export const FeedbackModal = () => {
           </DialogDescription>
         </DialogHeader>
 
-        {/* Body (split 50/50) */}
         <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto">
           {/* Left side - Previous Feedbacks */}
           {previousFeedbacks.length > 0 && (
@@ -131,7 +135,7 @@ export const FeedbackModal = () => {
             </div>
           )}
 
-          {/* Right side - Feedback Form / View */}
+          {/* Right side */}
           <div className="basis-1/2 shrink-0 p-4 pt-0 overflow-y-auto">
             <div className="space-y-6">
               {selectedFeedback && (
@@ -227,10 +231,7 @@ export const FeedbackModal = () => {
         <DialogFooter className="p-4 bg-gradient-to-r from-slate-50 via-gray-50 to-white border-t border-gray-200 flex gap-4 justify-end shrink-0">
           <Button
             variant="outline"
-            onClick={() => {
-              setOpenDialog(false);
-              handleNewFeedback();
-            }}
+            onClick={() => onCancel()}
             disabled={feedbackLoading}
           >
             Cancel

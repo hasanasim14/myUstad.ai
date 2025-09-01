@@ -17,6 +17,7 @@ import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { FeedbackModal } from "./FeedbackModal";
 
 const Navbar = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -24,6 +25,7 @@ const Navbar = () => {
   const [mounted, setMounted] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("English");
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const [openFeedbackModal, setOpenFeedbackModal] = useState(false);
 
   const languages = ["English", "Urdu", "Punjabi", "Sindhi", "Pashto"];
   const router = useRouter();
@@ -63,6 +65,10 @@ const Navbar = () => {
 
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
+  };
+
+  const handleCancelFeedback = () => {
+    setOpenFeedbackModal(false);
   };
 
   return (
@@ -136,6 +142,7 @@ const Navbar = () => {
 
               <Button
                 variant="ghost"
+                onClick={() => setOpenFeedbackModal(true)}
                 className={`h-10 w-10 rounded-full flex items-center justify-center ${
                   theme === "light"
                     ? "bg-gray-100 hover:bg-gray-200 text-gray-700"
@@ -229,6 +236,11 @@ const Navbar = () => {
                   </div>
                 </PopoverContent>
               </Popover>
+
+              <FeedbackModal
+                open={openFeedbackModal}
+                onCancel={handleCancelFeedback}
+              />
             </>
           )}
 
