@@ -45,7 +45,7 @@ const CourseCatalog = () => {
 
   const handleCourseClick = (course: string) => {
     localStorage.setItem("course", course);
-    router.push("/");
+    router.push("/workspace");
   };
 
   return (
