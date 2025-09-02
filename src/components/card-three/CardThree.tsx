@@ -382,54 +382,6 @@ const CardThree = ({
     }
   };
 
-  const PodcastAudio = ({ docKey }: { docKey: string }) => {
-    const [audioUrl, setAudioUrl] = useState<string | null>(null);
-
-    useEffect(() => {
-      const fetchAudio = async () => {
-        if (isViewModalOpen && currentViewNote?.docType === "Podcast") {
-          if (podcastCache[docKey]) {
-            setAudioUrl(podcastCache[docKey]);
-            return;
-          }
-
-          try {
-            const res = await fetch(
-              `${process.env.NEXT_PUBLIC_BASE_URL}/fetch/podcast/${docKey}`,
-              {
-                method: "GET",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `bearer ${localStorage.getItem("d_tok")}`,
-                },
-              }
-            );
-            if (!res.ok) throw new Error("Failed to fetch podcast");
-
-            const blob = await res.blob();
-            const audioUrl = URL.createObjectURL(blob);
-            setPodcastCache((prev) => ({ ...prev, [docKey]: audioUrl }));
-            setAudioUrl(audioUrl);
-          } catch (err) {
-            console.error("Error fetching podcast:", err);
-          }
-        }
-      };
-
-      fetchAudio();
-    }, [isViewModalOpen, currentViewNote, docKey]);
-
-    if (!audioUrl) {
-      return (
-        <div className="flex items-center gap-2 text-gray-500 text-xs">
-          <Loader2 className="h-3 w-3 animate-spin" /> Loading podcast...
-        </div>
-      );
-    }
-
-    return <audio controls src={audioUrl} className="w-full mt-2" />;
-  };
-
   return (
     <div
       className={`h-[85vh] md:border md:rounded-lg transition-all duration-300 ease-in-out overflow-hidden ml-auto ${

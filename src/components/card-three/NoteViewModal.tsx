@@ -3,7 +3,7 @@
 import type React from "react";
 import type { Note } from "@/lib/types";
 import { useTheme } from "next-themes";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -32,24 +32,9 @@ const NoteViewModal = ({ isOpen, onClose, note }: NoteViewModalProps) => {
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(
-    null
-  );
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
-    if (note?.docType === "Podcast" && isOpen) {
-      fetchPodcastAudio();
-    }
-
-    return () => {
-      // Cleanup audio when modal closes
-      if (audioElement) {
-        audioElement.pause();
-        setIsPlaying(false);
-      }
-    };
-  }, [note, isOpen]);
-
+  // Fetch audio blob
   const fetchPodcastAudio = async () => {
     if (!note) return;
 
@@ -62,43 +47,76 @@ const NoteViewModal = ({ isOpen, onClose, note }: NoteViewModalProps) => {
         {
           method: "GET",
           headers: {
-            "Content-Type": "application/json",
-            Authorization: `bearer ${localStorage.getItem("d_tok")}`,
+            Authorization: `Bearer ${localStorage.getItem("d_tok")}`,
           },
         }
       );
 
       if (res.ok) {
-        const data = await res.json();
-        setAudioUrl(data.audioUrl);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        setAudioUrl(url);
       } else {
-        console.error("Failed to fetch podcast audio");
+        setError("Failed to load podcast audio");
       }
-    } catch (error) {
-      console.error("Error fetching podcast audio:", error);
+    } catch (err) {
+      console.error("Error fetching podcast audio:", err);
       setError("Failed to load podcast audio");
     } finally {
       setIsLoadingAudio(false);
     }
   };
 
+  // When modal opens with a podcast, fetch audio
+  useEffect(() => {
+    if (note?.docType === "Podcast" && isOpen) {
+      fetchPodcastAudio();
+    }
+
+    return () => {
+      // Cleanup: pause + revoke blob URL
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+        setAudioUrl(null);
+      }
+      setIsPlaying(false);
+    };
+  }, [note, isOpen]);
+
+  // Attach listeners for play/pause/end
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    const handleEnded = () => setIsPlaying(false);
+
+    audio.addEventListener("play", handlePlay);
+    audio.addEventListener("pause", handlePause);
+    audio.addEventListener("ended", handleEnded);
+
+    return () => {
+      audio.removeEventListener("play", handlePlay);
+      audio.removeEventListener("pause", handlePause);
+      audio.removeEventListener("ended", handleEnded);
+    };
+  }, [audioUrl]);
+
   const togglePlayPause = () => {
-    if (!audioElement || !audioUrl) return;
+    const audio = audioRef.current;
+    if (!audio) return;
 
     if (isPlaying) {
-      audioElement.pause();
-      setIsPlaying(false);
+      audio.pause();
     } else {
-      audioElement.play();
-      setIsPlaying(true);
+      audio.play().catch((err) => {
+        console.error("Playback failed:", err);
+      });
     }
-  };
-
-  const handleAudioLoad = (audio: HTMLAudioElement) => {
-    setAudioElement(audio);
-    audio.addEventListener("ended", () => setIsPlaying(false));
-    audio.addEventListener("pause", () => setIsPlaying(false));
-    audio.addEventListener("play", () => setIsPlaying(true));
   };
 
   const renderers = {
@@ -229,7 +247,6 @@ const NoteViewModal = ({ isOpen, onClose, note }: NoteViewModalProps) => {
           </DialogTitle>
         </DialogHeader>
 
-        {/* Scrollable area */}
         <ScrollArea className="flex-1 overflow-y-auto pr-4">
           {note.docType === "Podcast" ? (
             <div className="flex flex-col items-center justify-center py-8 space-y-6">
@@ -284,7 +301,7 @@ const NoteViewModal = ({ isOpen, onClose, note }: NoteViewModalProps) => {
                   </div>
 
                   <audio
-                    ref={handleAudioLoad}
+                    ref={audioRef}
                     src={audioUrl}
                     controls
                     className="w-full"
