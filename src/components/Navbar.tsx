@@ -76,7 +76,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`backdrop-blur-md px-4 py-2 shadow-sm border-b ${
+      className={`sticky top-0 z-50 backdrop-blur-md px-4 py-2 shadow-sm border-b ${
         theme === "dark"
           ? "bg-gray-900/90 text-white border-gray-800"
           : "bg-white/90 text-gray-900 border-gray-200"
