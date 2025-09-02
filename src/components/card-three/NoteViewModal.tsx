@@ -1,7 +1,9 @@
 "use client";
 
 import type React from "react";
+import type { Note } from "@/lib/types";
 import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Note } from "@/lib/types";
+import { Loader2, Play, Pause } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -25,6 +27,79 @@ type MarkdownComponentProps = {
 
 const NoteViewModal = ({ isOpen, onClose, note }: NoteViewModalProps) => {
   const { theme } = useTheme();
+
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (note?.docType === "Podcast" && isOpen) {
+      fetchPodcastAudio();
+    }
+
+    return () => {
+      // Cleanup audio when modal closes
+      if (audioElement) {
+        audioElement.pause();
+        setIsPlaying(false);
+      }
+    };
+  }, [note, isOpen]);
+
+  const fetchPodcastAudio = async () => {
+    if (!note) return;
+
+    setIsLoadingAudio(true);
+    setError(null);
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/fetch/podcast/${note?.docKey}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `bearer ${localStorage.getItem("d_tok")}`,
+          },
+        }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        setAudioUrl(data.audioUrl);
+      } else {
+        console.error("Failed to fetch podcast audio");
+      }
+    } catch (error) {
+      console.error("Error fetching podcast audio:", error);
+      setError("Failed to load podcast audio");
+    } finally {
+      setIsLoadingAudio(false);
+    }
+  };
+
+  const togglePlayPause = () => {
+    if (!audioElement || !audioUrl) return;
+
+    if (isPlaying) {
+      audioElement.pause();
+      setIsPlaying(false);
+    } else {
+      audioElement.play();
+      setIsPlaying(true);
+    }
+  };
+
+  const handleAudioLoad = (audio: HTMLAudioElement) => {
+    setAudioElement(audio);
+    audio.addEventListener("ended", () => setIsPlaying(false));
+    audio.addEventListener("pause", () => setIsPlaying(false));
+    audio.addEventListener("play", () => setIsPlaying(true));
+  };
 
   const renderers = {
     h4: ({ children }: MarkdownComponentProps) => (
@@ -156,11 +231,83 @@ const NoteViewModal = ({ isOpen, onClose, note }: NoteViewModalProps) => {
 
         {/* Scrollable area */}
         <ScrollArea className="flex-1 overflow-y-auto pr-4">
-          <div className="prose prose-sm max-w-none">
-            <ReactMarkdown remarkPlugins={[remarkGfm]} components={renderers}>
-              {processedContent}
-            </ReactMarkdown>
-          </div>
+          {note.docType === "Podcast" ? (
+            <div className="flex flex-col items-center justify-center py-8 space-y-6">
+              {isLoadingAudio ? (
+                <div className="flex flex-col items-center space-y-4">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                  <p
+                    className={
+                      theme === "dark" ? "text-gray-400" : "text-gray-600"
+                    }
+                  >
+                    Loading podcast audio...
+                  </p>
+                </div>
+              ) : error ? (
+                <div className="text-center space-y-2">
+                  <p
+                    className={
+                      theme === "dark" ? "text-gray-400" : "text-gray-600"
+                    }
+                  >
+                    {error}
+                  </p>
+                  <button
+                    onClick={fetchPodcastAudio}
+                    className={`px-4 py-2 rounded transition-colors ${
+                      theme === "dark"
+                        ? "bg-gray-700 hover:bg-gray-600 text-white"
+                        : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+                    }`}
+                  >
+                    Retry
+                  </button>
+                </div>
+              ) : audioUrl ? (
+                <div className="w-full max-w-md space-y-4">
+                  <div className="flex items-center justify-center">
+                    <button
+                      onClick={togglePlayPause}
+                      className={`p-4 rounded-full transition-colors ${
+                        theme === "dark"
+                          ? "bg-blue-600 hover:bg-blue-700 text-white"
+                          : "bg-blue-500 hover:bg-blue-600 text-white"
+                      }`}
+                    >
+                      {isPlaying ? (
+                        <Pause className="h-6 w-6" />
+                      ) : (
+                        <Play className="h-6 w-6 ml-1" />
+                      )}
+                    </button>
+                  </div>
+
+                  <audio
+                    ref={handleAudioLoad}
+                    src={audioUrl}
+                    controls
+                    className="w-full"
+                    preload="metadata"
+                  />
+
+                  <p
+                    className={`text-center text-sm ${
+                      theme === "dark" ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
+                    {note.Title}
+                  </p>
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <div className="prose prose-sm max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={renderers}>
+                {processedContent}
+              </ReactMarkdown>
+            </div>
+          )}
         </ScrollArea>
       </DialogContent>
     </Dialog>

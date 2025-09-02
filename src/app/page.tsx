@@ -42,23 +42,22 @@ export default function Home() {
 
   const handleAddPinnedNote = async (question: string, answer: string) => {
     const newNote = {
-      title: `Pinned: ${question.slice(0, 30)}...`,
-      content: answer,
+      Title: `Pinned: ${question.slice(0, 30)}...`,
+      Response: answer,
       editable: false,
     };
     setNotes((prev) => [...prev, newNote]);
 
     try {
-      const authToken = localStorage.getItem("token");
       const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/save-note`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `bearer ${authToken}`,
+          Authorization: `bearer ${localStorage.getItem("d_tok")}`,
         },
         body: JSON.stringify({
-          title: newNote?.title,
-          note: newNote?.content,
+          title: newNote?.Title,
+          note: newNote?.Response,
           course: localStorage.getItem("course"),
         }),
       });

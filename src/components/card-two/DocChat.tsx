@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import type { SelectedDocs } from "@/lib/types";
 import {
   Pin,
   Headphones,
@@ -11,11 +12,11 @@ import {
   Bot,
   Volume2,
   VolumeX,
+  Check,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { Input } from "../ui/input";
 import ReactMarkdown from "react-markdown";
-import { useTheme } from "next-themes";
-import { SelectedDocs } from "@/lib/types";
 
 interface DocChatProps {
   selectedDocs: SelectedDocs;
@@ -39,6 +40,9 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
   const [clickedIndex, setClickedIndex] = useState(null);
   const [playingIndex, setPlayingIndex] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [audioAbortController, setAudioAbortController] =
+    useState<AbortController | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -52,6 +56,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
   // eslint-disable-next-line
   const playNoteAudioFromAPI = async (text: string, index: any) => {
     setClickedIndex(index);
+
     if (playingIndex === index) {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -62,15 +67,30 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
       return;
     }
 
+    if (audioAbortController) {
+      audioAbortController.abort();
+      setAudioAbortController(null);
+    }
+
+    const controller = new AbortController();
+    setAudioAbortController(controller);
+
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/generate-audio/`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/generate-audio/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text }),
+          signal: controller.signal,
         }
       );
+
+      if (controller.signal.aborted) {
+        setClickedIndex(null);
+        setAudioAbortController(null);
+        return;
+      }
 
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
@@ -80,6 +100,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
       audio.onplay = () => {
         setPlayingIndex(index);
         setClickedIndex(null);
+        setAudioAbortController(null);
       };
 
       audio.onended = () => {
@@ -89,9 +110,10 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
 
       await audio.play();
     } catch (error) {
-      console.error("Audio playback failed:", error);
       setPlayingIndex(null);
       setClickedIndex(null);
+      setAudioAbortController(null);
+      console.error("the error", error);
     }
   };
 
@@ -283,13 +305,22 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
     }
   };
 
+  const handleCopyMessage = async (text: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(typeof text === "string" ? text : "");
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch (error) {
+      console.error("Failed to copy text:", error);
+    }
+  };
+
   return (
     <div
       className={`flex flex-col h-full ${
         theme === "dark" ? "bg-gray-900" : "bg-white"
       }`}
     >
-      {/* Messages Container */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {messages.map((msg, index) => (
           <div
@@ -298,7 +329,6 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
               msg.from === "user" ? "flex-row-reverse" : ""
             }`}
           >
-            {/* Avatar */}
             <div className="flex-shrink-0">
               {msg.from === "user" ? (
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg ring-2 ring-blue-400/20">
@@ -311,13 +341,11 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
               )}
             </div>
 
-            {/* Message Content */}
             <div
               className={`flex flex-col max-w-[75%] ${
                 msg.from === "user" ? "items-end" : "items-start"
               }`}
             >
-              {/* Message Bubble */}
               <div
                 className={`px-4 py-3 rounded-2xl shadow-lg ${
                   msg.from === "user"
@@ -350,7 +378,6 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
                 )}
               </div>
 
-              {/* Timestamp and Actions */}
               <div
                 className={`mt-2 flex items-center gap-3 ${
                   msg.from === "user" ? "flex-row-reverse" : ""
@@ -364,87 +391,98 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
                   {msg.time}
                 </span>
 
-                {msg.from === "bot" && msg.text !== initialBotMessage.text && (
-                  <div className="flex items-center gap-2">
-                    <button
-                      className={`p-1.5 rounded-full transition-colors duration-200 group ${
-                        theme === "dark"
-                          ? "hover:bg-gray-600"
-                          : "hover:bg-gray-200"
-                      }`}
-                      onClick={() => {
-                        const userQuestion =
-                          messages[index - 1]?.from === "user"
-                            ? messages[index - 1].text
-                            : "Unknown Question";
-                        const botAnswer =
-                          typeof msg.text === "string" ? msg.text : "";
-                        onPinNote(userQuestion, botAnswer);
-                      }}
-                      title="Pin this message"
-                    >
-                      <Pin
-                        size={14}
-                        className={`transition-colors group-hover:text-blue-400 ${
-                          theme === "dark" ? "text-gray-400" : "text-gray-500"
+                {msg.from === "bot" &&
+                  msg.text !== initialBotMessage.text &&
+                  typeof msg.text === "string" && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        className={`p-1.5 rounded-full transition-colors duration-200 group ${
+                          theme === "dark"
+                            ? "hover:bg-gray-600"
+                            : "hover:bg-gray-200"
                         }`}
-                      />
-                    </button>
-
-                    <button
-                      className={`p-1.5 rounded-full transition-colors duration-200 group ${
-                        theme === "dark"
-                          ? "hover:bg-gray-600"
-                          : "hover:bg-gray-200"
-                      }`}
-                      onClick={() => playNoteAudioFromAPI(msg.text, index)}
-                      title={
-                        playingIndex === index ? "Stop audio" : "Play audio"
-                      }
-                    >
-                      {playingIndex === index ? (
-                        <VolumeX size={14} className="text-emerald-400" />
-                      ) : clickedIndex === index ? (
-                        <Volume2 size={14} className="text-red-400" />
-                      ) : (
-                        <Headphones
+                        onClick={() => {
+                          const userQuestion =
+                            messages[index - 1]?.from === "user"
+                              ? messages[index - 1].text
+                              : "Unknown Question";
+                          const botAnswer =
+                            typeof msg.text === "string" ? msg.text : "";
+                          onPinNote(userQuestion, botAnswer);
+                        }}
+                        title="Pin this message"
+                      >
+                        <Pin
                           size={14}
-                          className={`transition-colors group-hover:text-emerald-400 ${
+                          className={`transition-colors group-hover:text-blue-400 ${
                             theme === "dark" ? "text-gray-400" : "text-gray-500"
                           }`}
                         />
-                      )}
-                    </button>
+                      </button>
 
-                    <button
-                      className={`p-1.5 rounded-full transition-colors duration-200 group ${
-                        theme === "dark"
-                          ? "hover:bg-gray-600"
-                          : "hover:bg-gray-200"
-                      }`}
-                      onClick={() =>
-                        navigator.clipboard.writeText(
-                          typeof msg.text === "string" ? msg.text : ""
-                        )
-                      }
-                      title="Copy message"
-                    >
-                      <Copy
-                        size={14}
-                        className={`transition-colors group-hover:text-blue-400 ${
-                          theme === "dark" ? "text-gray-400" : "text-gray-500"
+                      <button
+                        className={`p-1.5 rounded-full transition-colors duration-200 group ${
+                          theme === "dark"
+                            ? "hover:bg-gray-600"
+                            : "hover:bg-gray-200"
                         }`}
-                      />
-                    </button>
-                  </div>
-                )}
+                        onClick={() => playNoteAudioFromAPI(msg.text, index)}
+                        title={
+                          playingIndex === index
+                            ? "Stop audio"
+                            : clickedIndex === index
+                            ? "Stop generating audio"
+                            : "Play audio"
+                        }
+                      >
+                        {playingIndex === index ? (
+                          <VolumeX size={14} className="text-emerald-400" />
+                        ) : clickedIndex === index ? (
+                          <Volume2 size={14} className="text-red-400" />
+                        ) : (
+                          <Headphones
+                            size={14}
+                            className={`transition-colors group-hover:text-emerald-400 ${
+                              theme === "dark"
+                                ? "text-gray-400"
+                                : "text-gray-500"
+                            }`}
+                          />
+                        )}
+                      </button>
+
+                      <button
+                        className={`p-1.5 rounded-full transition-colors duration-200 group ${
+                          theme === "dark"
+                            ? "hover:bg-gray-600"
+                            : "hover:bg-gray-200"
+                        }`}
+                        onClick={() => handleCopyMessage(msg.text, index)}
+                        title={
+                          copiedIndex === index ? "Copied!" : "Copy message"
+                        }
+                      >
+                        {copiedIndex === index ? (
+                          <Check size={14} className="text-green-400" />
+                        ) : (
+                          <Copy
+                            size={14}
+                            className={`transition-colors group-hover:text-blue-400 ${
+                              theme === "dark"
+                                ? "text-gray-400"
+                                : "text-gray-500"
+                            }`}
+                          />
+                        )}
+                      </button>
+                    </div>
+                  )}
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Input Area */}
       <div
         className={`flex items-center gap-3 max-w-4xl mx-auto w-full px-4 py-2 ${
           theme === "dark" ? "bg-gray-900" : "bg-white"
@@ -467,7 +505,6 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
           placeholder="Type your message..."
         />
 
-        {/* Mic Button */}
         <button
           className={`p-2 cursor-pointer transition-all duration-200 ${
             isRecording
@@ -482,7 +519,6 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
           <Mic className="w-6 h-6" />
         </button>
 
-        {/* Send Button */}
         <button
           className={`p-2 rounded-xl transition-all duration-200 ${
             input.trim()

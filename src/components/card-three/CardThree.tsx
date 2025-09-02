@@ -285,12 +285,11 @@ const CardThree = ({
     if (currentEditNoteIndex === null) return;
 
     try {
-      const authToken = localStorage.getItem("d_tok");
       const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/save-note`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `bearer ${authToken}`,
+          Authorization: `bearer ${localStorage.getItem("d_tok")}`,
         },
         body: JSON.stringify({
           title: editTitle,
@@ -332,7 +331,6 @@ const CardThree = ({
     addLoadingState(loadingKey);
 
     try {
-      const authToken = localStorage.getItem("d_tok");
       const wrappedDocs = {
         selectedDocs,
         course: localStorage.getItem("course"),
@@ -342,7 +340,7 @@ const CardThree = ({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `bearer ${authToken}`,
+          Authorization: `bearer ${localStorage.getItem("d_tok")}`,
         },
         body: JSON.stringify(wrappedDocs),
       });
@@ -712,6 +710,8 @@ const CardThree = ({
                               .replace(/^"(.*)"$/, "$1")
                               .replace(/^["']|["']$/g, "")
                               .replace(/^#+\s*/gm, "")
+                              .replace(/\*\*/g, "")
+                              .replace(/---/g, "")
                               .slice(0, 120)}
                             {(note?.Response?.length ?? 0) > 120 && "..."}
                           </div>

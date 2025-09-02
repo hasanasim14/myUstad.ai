@@ -93,7 +93,7 @@ const CardOne = ({
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `bearer ${localStorage.getItem("token")}`,
+            Authorization: `bearer ${localStorage.getItem("d_tok")}`,
           },
         }
       );

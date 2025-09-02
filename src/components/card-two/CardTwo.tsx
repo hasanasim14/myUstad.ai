@@ -23,7 +23,7 @@ const CardTwo = ({ onPinNote, selectedDocs }: CardTwoProps) => {
 
   return (
     <div
-      className={`h-[85vh] shadow-2xl md:border md:rounded-xl overflow-hidden ${
+      className={`h-[85vh] shadow-xl md:border md:rounded-xl overflow-hidden ${
         theme === "dark"
           ? "border-[#3a3a3a] bg-gray-900"
           : "border-gray-200 bg-white"
