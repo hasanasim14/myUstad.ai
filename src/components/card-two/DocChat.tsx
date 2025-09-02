@@ -49,8 +49,54 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
   const streamRef = useRef<MediaStream | null>(null);
   const { theme } = useTheme();
 
+  // check for session id for get chat api
   useEffect(() => {
-    setMessages([initialBotMessage]);
+    const sessionId = localStorage.getItem("session_id");
+
+    if (!sessionId) {
+      setMessages([initialBotMessage]);
+      return;
+    }
+
+    const fetchChats = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/get-chats/${sessionId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `bearer ${localStorage.getItem("d_tok")}`,
+            },
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch chat history");
+
+        const data = await response.json();
+
+        if (data.success && Array.isArray(data.data)) {
+          // eslint-disable-next-line
+          const formattedMessages = data.data.map((item: any) => ({
+            from: item.type.toLowerCase() === "user" ? "user" : "bot",
+            text: item.content,
+            time: new Date(item.ts).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          }));
+
+          setMessages((prev) => [initialBotMessage, ...formattedMessages]);
+        } else {
+          setMessages([initialBotMessage]);
+        }
+      } catch (err) {
+        console.error("Error fetching chats:", err);
+        setMessages([initialBotMessage]);
+      }
+    };
+
+    fetchChats();
   }, [refreshTrigger]);
 
   // eslint-disable-next-line
@@ -153,7 +199,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
 
           try {
             const response = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/transcribe`,
+              `${process.env.NEXT_PUBLIC_BASE_URL}/transcribe`,
               {
                 method: "POST",
                 body: formData,
@@ -226,7 +272,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
         answer: null,
       });
 
-      const sessionId = sessionStorage.getItem("session_id") || "";
+      const sessionId = localStorage.getItem("session_id") || "";
 
       const payload = {
         question: userInput,
@@ -240,6 +286,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
         conversation: payload.conversation,
         session_id: sessionId,
         selectedDocs: selectedDocs,
+        course: localStorage.getItem("course"),
       };
 
       let response;
@@ -257,10 +304,13 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
         });
       } else {
         response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/query_with_filter`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}/query_with_filter`,
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `bearer ${localStorage.getItem("d_tok")}`,
+            },
             body: JSON.stringify(filterpayload),
           }
         );
@@ -269,7 +319,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
       const data = await response.json();
 
       if (data.session_id) {
-        sessionStorage.setItem("session_id", data.session_id);
+        localStorage.setItem("session_id", data.session_id);
       }
 
       const botReply =

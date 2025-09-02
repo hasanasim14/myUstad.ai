@@ -18,6 +18,7 @@ const CardTwo = ({ onPinNote, selectedDocs }: CardTwoProps) => {
   const { theme } = useTheme();
 
   const handleClear = () => {
+    localStorage.removeItem("session_id");
     setRefreshTrigger((prev) => prev + 1);
   };
 

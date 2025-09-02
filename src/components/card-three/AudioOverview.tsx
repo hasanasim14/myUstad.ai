@@ -25,7 +25,7 @@ const AudioOverview = ({
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedSessionId = sessionStorage.getItem("session_id") || "";
+      const storedSessionId = localStorage.getItem("session_id") || "";
       setSessionId(storedSessionId);
     }
   }, []);
