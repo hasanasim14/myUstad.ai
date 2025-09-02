@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// import { useLocation } from "react-router-dom";
+import { useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw"; // 👈 allows raw HTML like <mark> to render
+import rehypeRaw from "rehype-raw";
 
 const MarkdownViewer = () => {
   const [content, setContent] = useState("");
@@ -12,9 +12,8 @@ const MarkdownViewer = () => {
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const url = params.get("url");
+  const searchParams = useSearchParams();
+  const url = searchParams.get("url");
 
   useEffect(() => {
     if (!url) return;
@@ -37,16 +36,16 @@ const MarkdownViewer = () => {
     fetchData();
   }, [url]);
 
-  const highlightContent = (content, highlight) => {
+  // Highlighting logic
+  const highlightContent = (content: string, highlight: string) => {
     if (!highlight || !content) return content;
 
-    // Escape special regex characters in the highlight text
-    const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const escapeRegex = (str: string) =>
+      str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     const highlightPattern = escapeRegex(highlight.trim());
     const regex = new RegExp(`(${highlightPattern})`, "gi");
 
-    // Replace matches with highlighted version
     return content.replace(regex, (match) => {
       return `<mark class="bg-yellow-300 px-0.5 rounded-sm">${match}</mark>`;
     });
@@ -70,7 +69,7 @@ const MarkdownViewer = () => {
               <div className="text-blue-900">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeRaw]} // allow <mark> etc.
+                  rehypePlugins={[rehypeRaw]}
                 >
                   {highlight}
                 </ReactMarkdown>
