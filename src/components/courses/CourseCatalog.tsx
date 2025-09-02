@@ -51,7 +51,7 @@ const CourseCatalog = () => {
   return (
     <div
       className={`min-h-screen ${
-        theme === "light" ? "bg-gray-50" : "bg-[#0A0C15]"
+        theme === "dark" ? "bg-[#0A0C15]" : "bg-gray-50"
       }`}
     >
       {/* Header */}
@@ -60,16 +60,16 @@ const CourseCatalog = () => {
       {/* Hero Section */}
       <section
         className={`py-20 ${
-          theme === "light"
-            ? "bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white"
-            : "bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 text-white"
+          theme === "dark"
+            ? "bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 text-white"
+            : "bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white"
         }`}
       >
         <div className="max-w-6xl mx-auto px-6 text-center">
           <div className="mb-6">
             <BookOpen
               className={`w-16 h-16 mx-auto mb-4 ${
-                theme === "light" ? "text-blue-200" : "text-indigo-300"
+                theme === "dark" ? "text-indigo-300" : "text-blue-200"
               }`}
             />
           </div>
@@ -78,7 +78,7 @@ const CourseCatalog = () => {
           </h1>
           <p
             className={`text-xl md:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed ${
-              theme === "light" ? "text-blue-100" : "text-indigo-200"
+              theme === "dark" ? "text-indigo-200" : "text-blue-100"
             }`}
           >
             Start, switch, or advance your career with world-class courses from
@@ -87,16 +87,16 @@ const CourseCatalog = () => {
           <div className="max-w-lg mx-auto relative">
             <Search
               className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
-                theme === "light" ? "text-gray-400" : "text-slate-400"
+                theme === "dark" ? "text-slate-400" : "text-gray-400"
               }`}
             />
             <Input
               type="text"
               placeholder="What do you want to learn today?"
               className={`pl-12 py-4 text-lg shadow-lg rounded-full focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 ${
-                theme === "light"
-                  ? "text-gray-900 bg-white border-gray-200 placeholder:text-gray-500"
-                  : "text-white bg-slate-800 border-slate-700 placeholder:text-slate-400"
+                theme === "dark"
+                  ? "text-white bg-slate-800 border-slate-700 placeholder:text-slate-400"
+                  : "text-gray-900 bg-white border-gray-200 placeholder:text-gray-500"
               }`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -110,14 +110,14 @@ const CourseCatalog = () => {
         <div className="mb-12 text-center">
           <h2
             className={`text-3xl font-bold mb-4 ${
-              theme === "light" ? "text-gray-900" : "text-slate-300"
+              theme === "dark" ? "text-slate-300" : "text-gray-900"
             }`}
           >
             Featured Courses
           </h2>
           <p
             className={`text-lg max-w-2xl mx-auto ${
-              theme === "light" ? "text-gray-600" : "text-slate-300"
+              theme === "dark" ? "text-slate-300" : "text-gray-600"
             }`}
           >
             Discover high-quality courses designed to help you master new skills
@@ -130,9 +130,9 @@ const CourseCatalog = () => {
             <Card
               key={course?.value}
               className={`group cursor-pointer hover:shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 hover:-translate-y-2 shadow-lg overflow-hidden ${
-                theme === "light"
-                  ? "bg-white border-gray-200 hover:border-indigo-300"
-                  : "bg-slate-800 border-slate-700"
+                theme === "dark"
+                  ? "bg-slate-800 border-slate-700"
+                  : "bg-white border-gray-200 hover:border-indigo-300"
               }`}
               onClick={() => handleCourseClick(course?.value)}
             >
@@ -150,7 +150,7 @@ const CourseCatalog = () => {
               <CardContent className="p-8">
                 <h3
                   className={`font-bold text-xl mb-4 group-hover:text-indigo-400 transition-colors duration-200 leading-tight ${
-                    theme === "light" ? "text-gray-900" : "text-white"
+                    theme === "dark" ? "text-white" : "text-gray-900"
                   }`}
                 >
                   {course.CourseName}
@@ -158,7 +158,7 @@ const CourseCatalog = () => {
 
                 <div
                   className={`space-y-3 ${
-                    theme === "light" ? "text-gray-600" : "text-slate-300"
+                    theme === "dark" ? "text-slate-300" : "text-gray-600"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -193,19 +193,19 @@ const CourseCatalog = () => {
             <div className="max-w-md mx-auto">
               <BookOpen
                 className={`w-16 h-16 mx-auto mb-4 ${
-                  theme === "light" ? "text-gray-400" : "text-slate-600"
+                  theme === "dark" ? "text-slate-600" : " text-gray-400"
                 }`}
               />
               <h3
                 className={`text-xl font-semibold mb-2 ${
-                  theme === "light" ? "text-gray-900" : "text-white"
+                  theme === "dark" ? "text-white" : "text-gray-900"
                 }`}
               >
                 More Courses Coming Soon
               </h3>
               <p
                 className={`${
-                  theme === "light" ? "text-gray-600" : "text-slate-300"
+                  theme === "dark" ? "text-slate-300" : "text-gray-600"
                 }`}
               >
                 We&apos;re constantly adding new courses to help you learn and
@@ -219,16 +219,16 @@ const CourseCatalog = () => {
       {/* Footer */}
       <footer
         className={`py-8 mt-20 border-t ${
-          theme === "light"
-            ? "bg-gray-100 text-gray-900 border-gray-200"
-            : "bg-slate-950 text-white border-slate-800"
+          theme === "dark"
+            ? "bg-slate-950 text-white border-slate-800"
+            : "bg-gray-100 text-gray-900 border-gray-200"
         }`}
       >
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center">
             <p
               className={`${
-                theme === "light" ? "text-gray-600" : "text-slate-400"
+                theme === "dark" ? "text-slate-400" : "text-gray-600"
               }`}
             >
               &copy; 2025 myUstad.ai. All rights reserved.

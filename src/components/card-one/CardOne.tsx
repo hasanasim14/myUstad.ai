@@ -129,9 +129,9 @@ const CardOne = ({
       className={`h-[85vh] md:border md:rounded-lg transition-all duration-300 overflow-hidden
     ${isCollapsed ? "w-15" : "w-full"}
     ${
-      theme === "light"
-        ? "bg-[#FDFDFD] border-gray-200"
-        : "bg-transparent border-[#3a3a3a]"
+      theme === "dark"
+        ? "bg-transparent border-[#3a3a3a]"
+        : "bg-[#FDFDFD] border-gray-200"
     }
   `}
     >
@@ -140,9 +140,9 @@ const CardOne = ({
         <div className="flex justify-center p-3">
           <button
             className={`cursor-pointer p-2 rounded-lg transition-colors ${
-              theme === "light"
-                ? "hover:bg-gray-100 text-gray-700"
-                : "hover:bg-[#2a2a2a] text-white"
+              theme === "dark"
+                ? "hover:bg-[#2a2a2a] text-white"
+                : "hover:bg-gray-100 text-gray-700"
             }`}
             onClick={toggleCollapse}
           >
@@ -154,21 +154,21 @@ const CardOne = ({
         <>
           <div
             className={`flex justify-between items-center font-semibold rounded-t-[10px] border-b ${
-              theme === "light" ? "border-gray-200" : "border-[#3a3a3a]"
+              theme === "dark" ? "border-[#3a3a3a]" : "border-gray-200"
             }`}
           >
             <span
               className={`text-lg text-sm font-semibold p-4 ${
-                theme === "light" ? "text-gray-900" : "text-white"
+                theme === "dark" ? "text-white" : "text-gray-900"
               }`}
             >
               Course Content
             </span>
             <button
               className={`cursor-pointer p-2 m-2 rounded-lg transition-colors ${
-                theme === "light"
-                  ? "hover:bg-gray-100 text-gray-700"
-                  : "hover:bg-[#2a2a2a] text-white"
+                theme === "dark"
+                  ? "hover:bg-[#2a2a2a] text-white"
+                  : "hover:bg-gray-100 text-gray-700"
               }`}
               onClick={toggleCollapse}
             >
@@ -183,8 +183,8 @@ const CardOne = ({
                 <div className="p-4 w-full max-w-none">
                   <div className="flex justify-between items-center pl-6">
                     <h3
-                      className={`uppercase ${
-                        theme === "light" ? "text-gray-900" : "text-white"
+                      className={`uppercase${
+                        theme === "dark" ? "text-white" : "text-gray-900"
                       }`}
                     >
                       {openedDoc.name}
@@ -192,9 +192,9 @@ const CardOne = ({
                     <button
                       onClick={() => setOpenedDoc(null)}
                       className={`text-xl transition-colors ${
-                        theme === "light"
-                          ? "text-red-600 hover:text-red-800"
-                          : "text-red-500 hover:text-red-700"
+                        theme === "dark"
+                          ? "text-red-500 hover:text-red-700"
+                          : "text-red-600 hover:text-red-800"
                       }`}
                     >
                       <X />
@@ -202,10 +202,10 @@ const CardOne = ({
                   </div>
 
                   <div
-                    className={`mt-2 w-full ${
-                      theme === "light"
-                        ? "prose prose-gray max-w-none"
-                        : "prose prose-invert max-w-none"
+                    className={`mt-2 w-full prose ${
+                      theme === "dark"
+                        ? "prose-invert max-w-none"
+                        : "prose-gray max-w-none"
                     }`}
                   >
                     {openedDoc.video ? (
@@ -230,7 +230,7 @@ const CardOne = ({
                 <>
                   <h3
                     className={`px-4 font-medium ${
-                      theme === "light" ? "text-gray-700" : "text-white"
+                      theme === "dark" ? "text-white" : "text-gray-700"
                     } `}
                   >
                     {cardData?.title}
@@ -243,26 +243,26 @@ const CardOne = ({
                       <div key={idx} className="p-2">
                         <div
                           className={`flex items-center gap-2 cursor-pointer p-2 rounded transition-colors ${
-                            theme === "light"
-                              ? "hover:bg-gray-100 text-gray-900"
-                              : "hover:bg-[#3a3a3a] text-white"
+                            theme === "dark"
+                              ? "hover:bg-[#3a3a3a] text-white"
+                              : "hover:bg-gray-100 text-gray-900"
                           }`}
                           onClick={() => toggleModule(module.name)}
                         >
                           {isOpen ? (
                             <ChevronDown
                               className={`shrink-0 ${
-                                theme === "light"
-                                  ? "text-gray-600"
-                                  : "text-gray-300"
+                                theme === "dark"
+                                  ? "text-gray-300"
+                                  : "text-gray-600"
                               }`}
                             />
                           ) : (
                             <ChevronRight
                               className={`shrink-0 ${
-                                theme === "light"
-                                  ? "text-gray-600"
-                                  : "text-gray-300"
+                                theme === "dark"
+                                  ? "text-gray-300"
+                                  : "text-gray-600"
                               }`}
                             />
                           )}
@@ -281,16 +281,16 @@ const CardOne = ({
                                   >
                                     <FileText
                                       className={`h-5 w-5 shrink-0 ${
-                                        theme === "light"
-                                          ? "text-gray-500"
-                                          : "text-gray-400"
+                                        theme === "dark"
+                                          ? "text-gray-400"
+                                          : "text-gray-500"
                                       }`}
                                     />
                                     <span
                                       className={`cursor-pointer hover:underline transition-colors ${
-                                        theme === "light"
-                                          ? "text-gray-700 hover:text-gray-900"
-                                          : "text-gray-300 hover:text-white"
+                                        theme === "dark"
+                                          ? "text-gray-300 hover:text-white"
+                                          : "text-gray-700 hover:text-gray-900"
                                       }`}
                                       onClick={() => openDocument(doc)}
                                     >
@@ -299,9 +299,9 @@ const CardOne = ({
                                     <input
                                       type="checkbox"
                                       className={`rounded transition-colors ${
-                                        theme === "light"
-                                          ? "text-blue-600 focus:ring-blue-500 border-gray-300"
-                                          : "text-blue-400 focus:ring-blue-400 border-gray-600 bg-gray-700"
+                                        theme === "dark"
+                                          ? "text-blue-400 focus:ring-blue-400 border-gray-600 bg-gray-700"
+                                          : "text-blue-600 focus:ring-blue-500 border-gray-300"
                                       }`}
                                       checked={selectedDocs.some(
                                         // eslint-disable-next-line

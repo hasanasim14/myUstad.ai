@@ -436,9 +436,9 @@ const CardThree = ({
         isCollapsed ? "w-15" : "w-full max-w-sm lg:max-w-md xl:max-w-lg"
       } 
       ${
-        theme === "light"
-          ? "bg-white border-gray-200 text-gray-900"
-          : "bg-transparent border-[#3a3a3a] text-white"
+        theme === "dark"
+          ? "bg-transparent border-[#3a3a3a] text-white"
+          : "bg-white border-gray-200 text-gray-900"
       }
       `}
     >
@@ -446,9 +446,9 @@ const CardThree = ({
         <div className="flex justify-center p-3">
           <button
             className={`cursor-pointer p-2 rounded-lg transition-colors ${
-              theme === "light"
-                ? "hover:bg-gray-100 text-gray-700"
-                : "hover:bg-[#2a2a2a] text-white"
+              theme === "dark"
+                ? "hover:bg-[#2a2a2a] text-white"
+                : "hover:bg-gray-100 text-gray-700"
             }`}
             onClick={toggleCollapse}
           >
@@ -459,21 +459,21 @@ const CardThree = ({
         <div className="flex flex-col h-full">
           <div
             className={`flex justify-between items-center font-semibold border-b p-2 flex-shrink-0 ${
-              theme === "light" ? "border-gray-200" : "border-[#3a3a3a]"
+              theme === "dark" ? "border-[#3a3a3a]" : "border-gray-200"
             }`}
           >
             <span
               className={`p-2 ${
-                theme === "light" ? "text-gray-900" : "text-white"
+                theme === "dark" ? "text-white" : "text-gray-900"
               }`}
             >
               Library
             </span>
             <button
               className={`cursor-pointer p-2 rounded-lg transition-colors ${
-                theme === "light"
-                  ? "hover:bg-gray-100 text-gray-700"
-                  : "hover:bg-[#2a2a2a] text-white"
+                theme === "dark"
+                  ? "hover:bg-[#2a2a2a] text-white"
+                  : "hover:bg-gray-100 text-gray-700"
               }`}
               onClick={toggleCollapse}
             >
@@ -498,14 +498,14 @@ const CardThree = ({
 
             <div
               className={`border-y pt-3 pb-3 ${
-                theme === "light" ? "border-gray-200" : "border-[#3a3a3a]"
+                theme === "dark" ? "border-[#3a3a3a]" : "border-gray-200"
               }`}
             >
               <Button
                 className={`w-full mb-3 border transition-colors ${
-                  theme === "light"
-                    ? "border-gray-200 text-gray-700 bg-gray-50 hover:bg-gray-100 hover:border-gray-300"
-                    : "border-[#3a3a3a] text-white bg-slate-700/40 hover:bg-slate-700/50 hover:border-slate-500"
+                  theme === "dark"
+                    ? "border-[#3a3a3a] text-white bg-slate-700/40 hover:bg-slate-700/50 hover:border-slate-500"
+                    : "border-gray-200 text-gray-700 bg-gray-50 hover:bg-gray-100 hover:border-gray-300"
                 }`}
                 onClick={handleAddNote}
               >
@@ -519,9 +519,9 @@ const CardThree = ({
                     disabled={!selectedDocs.length}
                     key={label}
                     className={`border transition-colors w-[calc(50%-4px)] p-2 ${
-                      theme === "light"
-                        ? "border-gray-200 text-gray-700 bg-gray-50 hover:bg-gray-100 hover:border-gray-300 disabled:bg-gray-50 disabled:text-gray-400"
-                        : "border-[#3a3a3a] text-white bg-slate-700/40 hover:bg-slate-700/50 hover:border-slate-500"
+                      theme === "dark"
+                        ? "border-[#3a3a3a] text-white bg-slate-700/40 hover:bg-slate-700/50 hover:border-slate-500"
+                        : "border-gray-200 text-gray-700 bg-gray-50 hover:bg-gray-100 hover:border-gray-300 disabled:bg-gray-50 disabled:text-gray-400"
                     }`}
                     onClick={() => {
                       if (label === "Mind Map") {
@@ -547,19 +547,15 @@ const CardThree = ({
                   <div
                     key={loadingKey}
                     className={`border rounded-lg p-4 flex items-center gap-2 ${
-                      theme === "light"
-                        ? "border-gray-200 bg-gray-50"
-                        : "border-[#3a3a3a]"
+                      theme === "dark"
+                        ? "border-[#3a3a3a]"
+                        : "border-gray-200 bg-gray-50"
                     }`}
                   >
-                    <Loader2
-                      className={`h-4 w-4 animate-spin ${
-                        theme === "light" ? "text-gray-500" : "text-gray-500"
-                      }`}
-                    />
+                    <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
                     <span
                       className={`text-sm animate-pulse ${
-                        theme === "light" ? "text-gray-600" : "text-gray-700"
+                        theme === "dark" ? "text-gray-700" : "text-gray-600"
                       }`}
                     >
                       Generating {loadingKey.split("-")[0]}...
@@ -575,19 +571,19 @@ const CardThree = ({
                       className={`group relative cursor-pointer rounded-xl border transition-all duration-300 p-3
     ${
       clickedIndex === index
-        ? theme === "light"
-          ? "bg-blue-50 border-blue-200 shadow-lg"
-          : "bg-slate-800/90 border-slate-600 shadow-lg"
-        : theme === "light"
-        ? "bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300"
-        : "bg-transparent border-[#3a3a3a] hover:bg-slate-700/40 hover:border-slate-500"
+        ? theme === "dark"
+          ? "bg-slate-800/90 border-slate-600 shadow-lg"
+          : "bg-blue-50 border-blue-200 shadow-lg"
+        : theme === "dark"
+        ? "bg-transparent border-[#3a3a3a] hover:bg-slate-700/40 hover:border-slate-500"
+        : "bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300"
     }`}
                     >
                       {/* Header */}
                       <div className="flex justify-between items-center">
                         <span
                           className={`text-sm font-semibold truncate max-w-[210px] ${
-                            theme === "light" ? "text-gray-900" : "text-white"
+                            theme === "dark" ? "text-white" : "text-gray-900"
                           }`}
                         >
                           {note.Title}
@@ -605,16 +601,16 @@ const CardThree = ({
                               }}
                               className={`p-1 rounded-lg transition ${
                                 clickedIndex === index
-                                  ? theme === "light"
-                                    ? "bg-red-100 text-red-600"
-                                    : "bg-red-500/20 text-red-400"
+                                  ? theme === "dark"
+                                    ? "bg-red-500/20 text-red-400"
+                                    : "bg-red-100 text-red-600"
                                   : playingIndex === index
-                                  ? theme === "light"
-                                    ? "bg-green-100 text-green-600"
-                                    : "bg-green-500/20 text-green-400"
-                                  : theme === "light"
-                                  ? "hover:bg-gray-100 text-gray-600"
-                                  : "hover:bg-slate-600/50 text-slate-300"
+                                  ? theme === "dark"
+                                    ? "bg-green-500/20 text-green-400"
+                                    : "bg-green-100 text-green-600"
+                                  : theme === "dark"
+                                  ? "hover:bg-slate-600/50 text-slate-300"
+                                  : "hover:bg-gray-100 text-gray-600"
                               }`}
                             >
                               <Headphones className="w-4 h-4" />
@@ -626,9 +622,9 @@ const CardThree = ({
                             <PopoverTrigger asChild>
                               <Button
                                 className={`p-0 bg-transparent rounded-lg transition-colors ${
-                                  theme === "light"
-                                    ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                                    : "text-slate-300 hover:text-white hover:bg-slate-600/50"
+                                  theme === "dark"
+                                    ? "text-slate-300 hover:text-white hover:bg-slate-600/50"
+                                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                                 }`}
                                 onClick={(e) => e.stopPropagation()}
                               >
@@ -637,9 +633,9 @@ const CardThree = ({
                             </PopoverTrigger>
                             <PopoverContent
                               className={`w-36 p-1 rounded-md border shadow-xl ${
-                                theme === "light"
-                                  ? "border-gray-200 bg-white"
-                                  : "border-slate-600"
+                                theme === "dark"
+                                  ? "border-slate-600"
+                                  : "border-gray-200 bg-white"
                               }`}
                               align="end"
                               sideOffset={8}
@@ -650,9 +646,9 @@ const CardThree = ({
                                     variant="ghost"
                                     size="sm"
                                     className={`justify-start gap-2 px-3 py-2 h-8 text-sm ${
-                                      theme === "light"
-                                        ? "text-red-600 hover:bg-red-50"
-                                        : "text-red-400"
+                                      theme === "dark"
+                                        ? "text-red-400"
+                                        : "text-red-600 hover:bg-red-50"
                                     }`}
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -674,15 +670,15 @@ const CardThree = ({
 
                       <div
                         className={`mt-2 text-xs leading-relaxed ${
-                          theme === "light" ? "text-gray-600" : "text-slate-300"
+                          theme === "dark" ? "text-slate-300" : "text-gray-600"
                         }`}
                       >
                         {note.docType === "Podcast" ? (
                           <div
                             className={`italic ${
-                              theme === "light"
-                                ? "text-gray-500"
-                                : "text-slate-400"
+                              theme === "dark"
+                                ? "text-slate-400"
+                                : "text-gray-500"
                             }`}
                           >
                             🎙 Podcast note. Open to play.
@@ -693,9 +689,9 @@ const CardThree = ({
                               p: ({ ...props }) => (
                                 <p
                                   className={`line-clamp-1 m-0 text-xs sm:text-sm ${
-                                    theme === "light"
-                                      ? "text-gray-600"
-                                      : "text-slate-300"
+                                    theme === "dark"
+                                      ? "text-slate-300"
+                                      : "text-gray-600"
                                   }`}
                                   {...props}
                                 />
@@ -722,7 +718,7 @@ const CardThree = ({
                 ) : (
                   <div
                     className={`text-center py-8 ${
-                      theme === "light" ? "text-gray-600" : "text-gray-400"
+                      theme === "dark" ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
                     <p>

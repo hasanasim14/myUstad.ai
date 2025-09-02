@@ -77,9 +77,9 @@ const Navbar = () => {
   return (
     <nav
       className={`backdrop-blur-md px-4 py-2 shadow-sm border-b ${
-        theme === "light"
-          ? "bg-white/90 text-gray-900 border-gray-200"
-          : "bg-gray-900/90 text-white border-gray-800"
+        theme === "dark"
+          ? "bg-gray-900/90 text-white border-gray-800"
+          : "bg-white/90 text-gray-900 border-gray-200"
       }`}
     >
       <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -92,9 +92,9 @@ const Navbar = () => {
             <a
               href="/courses"
               className={`transition-colors ${
-                theme === "light"
-                  ? "text-gray-700 hover:text-gray-900"
-                  : "text-gray-300 hover:text-white"
+                theme === "dark"
+                  ? "text-gray-300 hover:text-white"
+                  : "text-gray-700 hover:text-gray-900"
               }`}
             >
               Home
@@ -102,9 +102,9 @@ const Navbar = () => {
             <a
               href="/courses"
               className={`transition-colors ${
-                theme === "light"
-                  ? "text-gray-700 hover:text-gray-900"
-                  : "text-gray-300 hover:text-white"
+                theme === "dark"
+                  ? "text-gray-300 hover:text-white"
+                  : "text-gray-700 hover:text-gray-900"
               }`}
             >
               Courses
@@ -112,9 +112,9 @@ const Navbar = () => {
             <a
               href="mailto:info@aisystems.com"
               className={`transition-colors ${
-                theme === "light"
-                  ? "text-gray-700 hover:text-gray-900"
-                  : "text-gray-300 hover:text-white"
+                theme === "dark"
+                  ? "text-gray-300 hover:text-white"
+                  : "text-gray-700 hover:text-gray-900"
               }`}
             >
               Contact
@@ -130,9 +130,9 @@ const Navbar = () => {
                 size="icon"
                 onClick={toggleTheme}
                 className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                  theme === "light"
-                    ? "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                    : "bg-gray-800 hover:bg-gray-700 text-gray-300"
+                  theme === "dark"
+                    ? "bg-gray-800 hover:bg-gray-700 text-gray-300"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                 }`}
               >
                 {mounted && theme === "light" ? (
@@ -147,9 +147,9 @@ const Navbar = () => {
                 variant="ghost"
                 onClick={() => setOpenFeedbackModal(true)}
                 className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                  theme === "light"
-                    ? "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                    : "bg-gray-800 hover:bg-gray-700 text-gray-300"
+                  theme === "dark"
+                    ? "bg-gray-800 hover:bg-gray-700 text-gray-300"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                 }`}
               >
                 <PenSquare className="h-5 w-5" />
@@ -160,9 +160,9 @@ const Navbar = () => {
                   <Button
                     variant="ghost"
                     className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                      theme === "light"
-                        ? "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                        : "bg-gray-800 hover:bg-gray-700 text-gray-300"
+                      theme === "dark"
+                        ? "bg-gray-800 hover:bg-gray-700 text-gray-300"
+                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                     }`}
                   >
                     <Languages className="h-5 w-5" />
@@ -171,14 +171,14 @@ const Navbar = () => {
                 <PopoverContent
                   side="bottom"
                   className={`p-2 w-32 border ${
-                    theme === "light"
-                      ? "bg-white border-gray-200"
-                      : "bg-gray-800 border-gray-700"
+                    theme === "dark"
+                      ? "bg-gray-800 border-gray-700"
+                      : "bg-white border-gray-200"
                   }`}
                 >
                   <div
                     className={`mb-1 text-sm font-normal ${
-                      theme === "light" ? "text-gray-600" : "text-gray-400"
+                      theme === "dark" ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
                     Select Language:
@@ -190,9 +190,9 @@ const Navbar = () => {
                       className={`cursor-pointer text-sm py-[0.125rem] ${
                         lang === selectedLanguage
                           ? "font-bold text-blue-500"
-                          : theme === "light"
-                          ? "font-normal text-gray-700 hover:text-gray-900"
-                          : "font-normal text-gray-300 hover:text-white"
+                          : theme === "dark"
+                          ? "font-normal text-gray-300 hover:text-white"
+                          : "font-normal text-gray-700 hover:text-gray-900"
                       }`}
                     >
                       {lang}
@@ -205,9 +205,9 @@ const Navbar = () => {
                 <PopoverTrigger asChild>
                   <Button
                     className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                      theme === "light"
-                        ? "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                        : "bg-gray-800 hover:bg-gray-700 text-gray-300"
+                      theme === "dark"
+                        ? "bg-gray-800 hover:bg-gray-700 text-gray-300"
+                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                     }`}
                   >
                     <CircleUser className="h-5 w-5" />
@@ -215,9 +215,9 @@ const Navbar = () => {
                 </PopoverTrigger>
                 <PopoverContent
                   className={`w-56 p-1 rounded-lg border ${
-                    theme === "light"
-                      ? "bg-white border-gray-200"
-                      : "bg-gray-800 border-gray-700"
+                    theme === "dark"
+                      ? "bg-gray-800 border-gray-700"
+                      : "bg-white border-gray-200"
                   }`}
                   align="end"
                   sideOffset={8}
@@ -227,9 +227,9 @@ const Navbar = () => {
                       variant="ghost"
                       size="sm"
                       className={`justify-start gap-2 px-3 py-2 h-8 text-sm font-normal text-red-500 ${
-                        theme === "light"
-                          ? "hover:bg-red-50 hover:text-red-600"
-                          : "hover:bg-red-900/20 hover:text-red-400"
+                        theme === "dark"
+                          ? "hover:bg-red-900/20 hover:text-red-400"
+                          : "hover:bg-red-50 hover:text-red-600"
                       }`}
                       onClick={handleLogout}
                     >
@@ -251,9 +251,9 @@ const Navbar = () => {
             <button
               onClick={toggleMenu}
               className={`ml-2 ${
-                theme === "light"
-                  ? "text-gray-700 hover:text-gray-900"
-                  : "text-gray-300 hover:text-white"
+                theme === "dark"
+                  ? "text-gray-300 hover:text-white"
+                  : "text-gray-700 hover:text-gray-900"
               }`}
             >
               {showMenu ? <X size={20} /> : <Menu size={20} />}
@@ -274,9 +274,9 @@ const Navbar = () => {
           />
           <div
             className={`fixed top-0 right-0 w-64 h-full shadow-lg z-50 transition-all duration-500 ease-in-out ${
-              theme === "light"
-                ? "bg-white text-gray-900"
-                : "bg-gray-900 text-white"
+              theme === "dark"
+                ? "bg-gray-900 text-white"
+                : "bg-white text-gray-900"
             } ${
               showMenu
                 ? "translate-x-0 opacity-100"
@@ -285,16 +285,16 @@ const Navbar = () => {
           >
             <div
               className={`px-6 py-4 flex justify-between items-center border-b ${
-                theme === "light" ? "border-gray-200" : "border-gray-700"
+                theme === "ligdarkht" ? "border-gray-700" : "border-gray-200"
               }`}
             >
               <span className="text-xl font-bold">Menu</span>
               <button
                 onClick={() => setShowMenu(false)}
                 className={`${
-                  theme === "light"
-                    ? "text-gray-600 hover:text-gray-900"
-                    : "text-gray-400 hover:text-white"
+                  theme === "dark"
+                    ? "text-gray-400 hover:text-white"
+                    : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 <X />
@@ -308,9 +308,9 @@ const Navbar = () => {
                   href="#"
                   onClick={() => setShowMenu(false)}
                   className={`block ${
-                    theme === "light"
-                      ? "text-gray-700 hover:text-blue-600"
-                      : "text-gray-300 hover:text-blue-400"
+                    theme === "dark"
+                      ? "text-gray-300 hover:text-blue-400"
+                      : "text-gray-700 hover:text-blue-600"
                   }`}
                 >
                   {item}
@@ -322,9 +322,9 @@ const Navbar = () => {
               <button
                 onClick={toggleTheme}
                 className={`flex items-center gap-2 p-2 ${
-                  theme === "light"
-                    ? "text-gray-700 hover:text-blue-600"
-                    : "text-gray-300 hover:text-blue-400"
+                  theme === "dark"
+                    ? "text-gray-300 hover:text-blue-400"
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 {mounted && theme === "light" ? (
@@ -336,9 +336,9 @@ const Navbar = () => {
               </button>
               <button
                 className={`flex items-center gap-2 p-2 ${
-                  theme === "light"
-                    ? "text-gray-700 hover:text-blue-600"
-                    : "text-gray-300 hover:text-blue-400"
+                  theme === "dark"
+                    ? "text-gray-300 hover:text-blue-400"
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 <Bell className="w-4 h-4" />
@@ -346,9 +346,9 @@ const Navbar = () => {
               </button>
               <button
                 className={`flex items-center gap-2 p-2 ${
-                  theme === "light"
-                    ? "text-gray-700 hover:text-blue-600"
-                    : "text-gray-300 hover:text-blue-400"
+                  theme === "dark"
+                    ? "text-gray-300 hover:text-blue-400"
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 <CircleUser className="w-4 h-4" />

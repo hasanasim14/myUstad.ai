@@ -124,13 +124,13 @@ const AudioOverview = ({
   return (
     <div
       className={`border rounded-lg p-3 mb-3 ${
-        theme === "light" ? "border-gray-200" : "border-[#3a3a3a]"
+        theme === "dark" ? "border-[#3a3a3a]" : "border-gray-200"
       }`}
     >
       <div className="flex justify-between items-center font-semibold mb-1 relative">
         <span
           className={`text-sm ${
-            theme === "light" ? " text-gray-700" : "text-white"
+            theme === "dark" ? "text-white" : "text-gray-700"
           }`}
         >
           Audio Overview

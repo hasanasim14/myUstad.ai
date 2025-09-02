@@ -106,7 +106,7 @@ export default function Home() {
   return (
     <div
       className={`flex flex-col min-h-screen ${
-        theme === "light" ? "bg-white" : "bg-[#131313]"
+        theme === "dark" ? "bg-[#131313]" : "bg-white"
       }`}
     >
       <Navbar />
