@@ -17,6 +17,7 @@ import {
 import { useTheme } from "next-themes";
 import { Input } from "../ui/input";
 import ReactMarkdown from "react-markdown";
+import removeMarkdown from "remove-markdown";
 
 interface DocChatProps {
   selectedDocs: SelectedDocs;
@@ -357,7 +358,8 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }: DocChatProps) => {
 
   const handleCopyMessage = async (text: string, index: number) => {
     try {
-      await navigator.clipboard.writeText(typeof text === "string" ? text : "");
+      const plainText = removeMarkdown(typeof text === "string" ? text : "");
+      await navigator.clipboard.writeText(plainText);
       setCopiedIndex(index);
       setTimeout(() => setCopiedIndex(null), 2000);
     } catch (error) {

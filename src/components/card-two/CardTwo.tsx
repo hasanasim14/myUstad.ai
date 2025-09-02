@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
-import DocChat from "./DocChat";
 import { useTheme } from "next-themes";
 import { SelectedDocs } from "@/lib/types";
+import DocChat from "./DocChat";
 
 interface CardTwoProps {
   // eslint-disable-next-line
