@@ -307,14 +307,6 @@ const NoteViewModal = ({ isOpen, onClose, note }: NoteViewModalProps) => {
                     className="w-full"
                     preload="metadata"
                   />
-
-                  <p
-                    className={`text-center text-sm ${
-                      theme === "dark" ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
-                    {note.Title}
-                  </p>
                 </div>
               ) : null}
             </div>
