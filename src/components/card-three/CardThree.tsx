@@ -1,5 +1,7 @@
 "use client";
 
+import type React from "react";
+
 import { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import AudioOverview from "./AudioOverview";
@@ -19,7 +21,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
-import { Note, SelectedDocs } from "@/lib/types";
+import type { Note, SelectedDocs } from "@/lib/types";
 import { Button } from "../ui/button";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -128,8 +130,9 @@ const CardThree = ({
       );
 
       if (!res.ok) throw new Error(`Mindmap API failed: ${res.status}`);
-      await res.json();
-      setTimeout(fetchNotes, 500);
+      const data = await res.json();
+      setMindmapMarkdown(data.markdown);
+      setMindmapOpen(true);
     } catch (error) {
       console.error("Error generating mindmap:", error);
     } finally {
@@ -210,6 +213,10 @@ const CardThree = ({
       Response: "New note content...",
       editable: true,
     };
+
+    setPlayingIndex((prev) => (prev !== null ? prev + 1 : null));
+    setClickedIndex((prev) => (prev !== null ? prev + 1 : null));
+
     setNotes([newNote, ...notes]);
   };
 
@@ -235,6 +242,21 @@ const CardThree = ({
           delete newCache[docKey];
           setPodcastCache(newCache);
         }
+
+        setPlayingIndex((prev) => {
+          if (prev === null) return null;
+          if (prev === indexToDelete) return null;
+          if (prev > indexToDelete) return prev - 1;
+          return prev;
+        });
+
+        setClickedIndex((prev) => {
+          if (prev === null) return null;
+          if (prev === indexToDelete) return null;
+          if (prev > indexToDelete) return prev - 1;
+          return prev;
+        });
+
         setNotes(updatedNotes);
         toast.success("Note Deleted!");
       }
@@ -348,8 +370,14 @@ const CardThree = ({
       if (!contentResponse.ok)
         throw new Error(`Content API error: ${contentResponse.status}`);
 
-      await contentResponse.text();
-      await fetchNotes();
+      const content = await contentResponse.text();
+      const newNote = {
+        Title: `${type} - ${new Date().toLocaleString()}`,
+        Response: content,
+        editable: true,
+        docType: type,
+      };
+      setNotes([newNote, ...notes]);
     } catch (error) {
       console.error(`Failed to fetch ${type}:`, error);
     } finally {
