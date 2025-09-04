@@ -228,14 +228,6 @@ const CardOne = ({
                 </div>
               ) : (
                 <>
-                  <h3
-                    className={`px-4 font-medium ${
-                      theme === "dark" ? "text-white" : "text-gray-700"
-                    } `}
-                  >
-                    {cardData?.title}
-                  </h3>
-
                   {/* eslint-disable-next-line */}
                   {cardData?.modules?.map((module: any, idx: number) => {
                     const isOpen = openModules[module.name];
@@ -266,7 +258,9 @@ const CardOne = ({
                               }`}
                             />
                           )}
-                          <span className="font-medium">{module.name}</span>
+                          <span className="font-medium text-sm">
+                            {module.name}
+                          </span>
                         </div>
 
                         {isOpen && module.documents.length > 0 && (
@@ -287,7 +281,7 @@ const CardOne = ({
                                       }`}
                                     />
                                     <span
-                                      className={`cursor-pointer hover:underline transition-colors ${
+                                      className={`cursor-pointer hover:underline transition-colors text-sm ${
                                         theme === "dark"
                                           ? "text-gray-300 hover:text-white"
                                           : "text-gray-700 hover:text-gray-900"

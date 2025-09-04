@@ -1,16 +1,16 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import type { Note, SelectedDocs } from "@/lib/types";
+import { useTheme } from "next-themes";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
 import CardOne from "@/components/card-one/CardOne";
 import CardThree from "@/components/card-three/CardThree";
 import CardTwo from "@/components/card-two/CardTwo";
 import MarkdownViewer from "@/components/MarkdownView";
 import Navbar from "@/components/Navbar";
-import type { Note, SelectedDocs } from "@/lib/types";
-import { useTheme } from "next-themes";
-import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
 
 export default function Home() {
   const pathname = usePathname();
@@ -21,12 +21,19 @@ export default function Home() {
   const [isThirdCardCollapsed, setIsThirdCardCollapsed] = useState(false);
   const [isFirstCardCollapsed, setIsFirstCardCollapsed] = useState(false);
   const { theme } = useTheme();
+  const router = useRouter();
 
-  // 👇 Automatically open/mount a component when pathname is /highlight
+  useEffect(() => {
+    const token = localStorage.getItem("d_tok");
+    if (!token) {
+      router.push("/login");
+    }
+  }, []);
+
   useEffect(() => {
     console.log("the pathname ", pathname);
     if (pathname === "/highlight") {
-      setTab("highlight"); // or "chat" or "content" depending on which one you want
+      setTab("highlight");
     }
   }, [pathname]);
 
