@@ -18,9 +18,14 @@ interface CourseProps {
 const CourseCatalog = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [courseData, setCourseData] = useState<CourseProps[]>([]);
-  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const { theme, systemTheme } = useTheme();
   const router = useRouter();
 
+  // Track mounted to prevent hydration mismatch
+  useEffect(() => setMounted(true), []);
+
+  // Fetch courses
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -35,7 +40,7 @@ const CourseCatalog = () => {
           }
         );
         const data = await response.json();
-        setCourseData(data?.data);
+        setCourseData(data?.data || []);
       } catch (error) {
         console.error("the error while fetching data", error);
       }
@@ -48,10 +53,18 @@ const CourseCatalog = () => {
     router.push("/workspace");
   };
 
+  // Resolved theme (system aware)
+  const effectiveTheme = theme === "system" ? systemTheme : theme;
+
+  // Fallback before mount to prevent flash
+  if (!mounted) {
+    return <div className="min-h-screen bg-gray-50" />;
+  }
+
   return (
     <div
       className={`min-h-screen ${
-        theme === "dark" ? "bg-[#0A0C15]" : "bg-gray-50"
+        effectiveTheme === "dark" ? "bg-[#0A0C15]" : "bg-gray-50"
       }`}
     >
       {/* Header */}
@@ -60,7 +73,7 @@ const CourseCatalog = () => {
       {/* Hero Section */}
       <section
         className={`py-20 ${
-          theme === "dark"
+          effectiveTheme === "dark"
             ? "bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 text-white"
             : "bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white"
         }`}
@@ -69,7 +82,7 @@ const CourseCatalog = () => {
           <div className="mb-6">
             <BookOpen
               className={`w-16 h-16 mx-auto mb-4 ${
-                theme === "dark" ? "text-indigo-300" : "text-blue-200"
+                effectiveTheme === "dark" ? "text-indigo-300" : "text-blue-200"
               }`}
             />
           </div>
@@ -78,7 +91,7 @@ const CourseCatalog = () => {
           </h1>
           <p
             className={`text-xl md:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed ${
-              theme === "dark" ? "text-indigo-200" : "text-blue-100"
+              effectiveTheme === "dark" ? "text-indigo-200" : "text-blue-100"
             }`}
           >
             Start, switch, or advance your career with world-class courses from
@@ -87,14 +100,14 @@ const CourseCatalog = () => {
           <div className="max-w-lg mx-auto relative">
             <Search
               className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
-                theme === "dark" ? "text-slate-400" : "text-gray-400"
+                effectiveTheme === "dark" ? "text-slate-400" : "text-gray-400"
               }`}
             />
             <Input
               type="text"
               placeholder="What do you want to learn today?"
               className={`pl-12 py-4 text-lg shadow-lg rounded-full focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 ${
-                theme === "dark"
+                effectiveTheme === "dark"
                   ? "text-white bg-slate-800 border-slate-700 placeholder:text-slate-400"
                   : "text-gray-900 bg-white border-gray-200 placeholder:text-gray-500"
               }`}
@@ -110,14 +123,14 @@ const CourseCatalog = () => {
         <div className="mb-12 text-center">
           <h2
             className={`text-3xl font-bold mb-4 ${
-              theme === "dark" ? "text-slate-300" : "text-gray-900"
+              effectiveTheme === "dark" ? "text-slate-300" : "text-gray-900"
             }`}
           >
             Featured Courses
           </h2>
           <p
             className={`text-lg max-w-2xl mx-auto ${
-              theme === "dark" ? "text-slate-300" : "text-gray-600"
+              effectiveTheme === "dark" ? "text-slate-300" : "text-gray-600"
             }`}
           >
             Discover high-quality courses designed to help you master new skills
@@ -130,7 +143,7 @@ const CourseCatalog = () => {
             <Card
               key={course?.value}
               className={`group cursor-pointer hover:shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 hover:-translate-y-2 shadow-lg overflow-hidden ${
-                theme === "dark"
+                effectiveTheme === "dark"
                   ? "bg-slate-800 border-slate-700"
                   : "bg-white border-gray-200 hover:border-indigo-300"
               }`}
@@ -138,8 +151,8 @@ const CourseCatalog = () => {
             >
               <div className="relative overflow-hidden">
                 <Image
-                  width="400"
-                  height="240"
+                  width={400}
+                  height={240}
                   src="/course.png"
                   alt={course.CourseName}
                   className="w-full h-60 object-cover group-hover:scale-110 transition-transform duration-500"
@@ -150,7 +163,7 @@ const CourseCatalog = () => {
               <CardContent className="p-8">
                 <h3
                   className={`font-bold text-xl mb-4 group-hover:text-indigo-400 transition-colors duration-200 leading-tight ${
-                    theme === "dark" ? "text-white" : "text-gray-900"
+                    effectiveTheme === "dark" ? "text-white" : "text-gray-900"
                   }`}
                 >
                   {course.CourseName}
@@ -158,7 +171,9 @@ const CourseCatalog = () => {
 
                 <div
                   className={`space-y-3 ${
-                    theme === "dark" ? "text-slate-300" : "text-gray-600"
+                    effectiveTheme === "dark"
+                      ? "text-slate-300"
+                      : "text-gray-600"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -187,25 +202,27 @@ const CourseCatalog = () => {
           ))}
         </div>
 
-        {/* Empty State Enhancement */}
+        {/* Empty State */}
         {courseData.length === 1 && (
           <div className="text-center mt-16 py-12">
             <div className="max-w-md mx-auto">
               <BookOpen
                 className={`w-16 h-16 mx-auto mb-4 ${
-                  theme === "dark" ? "text-slate-600" : " text-gray-400"
+                  effectiveTheme === "dark"
+                    ? "text-slate-600"
+                    : " text-gray-400"
                 }`}
               />
               <h3
                 className={`text-xl font-semibold mb-2 ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
+                  effectiveTheme === "dark" ? "text-white" : "text-gray-900"
                 }`}
               >
                 More Courses Coming Soon
               </h3>
               <p
                 className={`${
-                  theme === "dark" ? "text-slate-300" : "text-gray-600"
+                  effectiveTheme === "dark" ? "text-slate-300" : "text-gray-600"
                 }`}
               >
                 We&apos;re constantly adding new courses to help you learn and
@@ -219,7 +236,7 @@ const CourseCatalog = () => {
       {/* Footer */}
       <footer
         className={`py-8 mt-20 border-t ${
-          theme === "dark"
+          effectiveTheme === "dark"
             ? "bg-slate-950 text-white border-slate-800"
             : "bg-gray-100 text-gray-900 border-gray-200"
         }`}
@@ -228,7 +245,7 @@ const CourseCatalog = () => {
           <div className="text-center">
             <p
               className={`${
-                theme === "dark" ? "text-slate-400" : "text-gray-600"
+                effectiveTheme === "dark" ? "text-slate-400" : "text-gray-600"
               }`}
             >
               &copy; 2025 myUstad.ai. All rights reserved.

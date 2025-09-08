@@ -228,7 +228,7 @@ const Navbar = () => {
                       size="sm"
                       className={`justify-start gap-2 px-3 py-2 h-8 text-sm font-normal text-red-500 ${
                         theme === "dark"
-                          ? "hover:bg-red-900/20 hover:text-red-400"
+                          ? "hover:text-red-400"
                           : "hover:bg-red-50 hover:text-red-600"
                       }`}
                       onClick={handleLogout}
