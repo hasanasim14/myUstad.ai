@@ -53,7 +53,7 @@ export default function Home() {
       Response: answer,
       editable: false,
     };
-    setNotes((prev) => [...prev, newNote]);
+    setNotes((prev) => [newNote, ...prev]);
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/save-note`, {
@@ -66,6 +66,7 @@ export default function Home() {
           title: newNote?.Title,
           note: newNote?.Response,
           course: localStorage.getItem("course"),
+          docKey: "",
         }),
       });
 
