@@ -3,7 +3,6 @@
 import type React from "react";
 
 import { useState, useEffect, useRef } from "react";
-import ReactMarkdown from "react-markdown";
 import AudioOverview from "./AudioOverview";
 import MindmapModal from "./MindmapModal";
 import {
@@ -22,9 +21,13 @@ import {
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import type { Note, SelectedDocs } from "@/lib/types";
-import { Button } from "../ui/button";
-import { ScrollArea, ScrollBar } from "../ui/scroll-area";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from "@/components/ui/button";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { PopoverClose } from "@radix-ui/react-popover";
 import NoteEditModal from "./NoteEditModal";
 import NoteViewModal from "./NoteViewModal";
@@ -62,6 +65,8 @@ const CardThree = ({
   const abortControllers = useRef<Record<number, AbortController>>({});
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
+
+  console.log("the editing modal", isEditModalOpen);
 
   const addLoadingState = (type: string) => {
     setLoadingStates((prev) => new Set([...prev, type]));
@@ -130,9 +135,8 @@ const CardThree = ({
       );
 
       if (!res.ok) throw new Error(`Mindmap API failed: ${res.status}`);
-      const data = await res.json();
-      setMindmapMarkdown(data.markdown);
-      setMindmapOpen(true);
+      await res.json();
+      setTimeout(fetchNotes, 500);
     } catch (error) {
       console.error("Error generating mindmap:", error);
     } finally {
@@ -213,11 +217,12 @@ const CardThree = ({
       Response: "New note content...",
       editable: true,
     };
-
-    setPlayingIndex((prev) => (prev !== null ? prev + 1 : null));
-    setClickedIndex((prev) => (prev !== null ? prev + 1 : null));
-
     setNotes([newNote, ...notes]);
+
+    setCurrentEditNoteIndex(0);
+    setEditTitle(newNote.Title ?? "");
+    setEditContent(newNote.Response ?? "");
+    setIsEditModalOpen(true);
   };
 
   const handleDeleteNote = async (docKey: string, indexToDelete: number) => {
@@ -242,21 +247,6 @@ const CardThree = ({
           delete newCache[docKey];
           setPodcastCache(newCache);
         }
-
-        setPlayingIndex((prev) => {
-          if (prev === null) return null;
-          if (prev === indexToDelete) return null;
-          if (prev > indexToDelete) return prev - 1;
-          return prev;
-        });
-
-        setClickedIndex((prev) => {
-          if (prev === null) return null;
-          if (prev === indexToDelete) return null;
-          if (prev > indexToDelete) return prev - 1;
-          return prev;
-        });
-
         setNotes(updatedNotes);
         toast.success("Note Deleted!");
       }
@@ -292,7 +282,7 @@ const CardThree = ({
       return;
     }
 
-    if (note.editable) {
+    if (note.docType === "Note") {
       setCurrentEditNoteIndex(index);
       setEditTitle(note.Title ?? "");
       setEditContent(note.Response ?? "");
@@ -303,7 +293,7 @@ const CardThree = ({
     }
   };
 
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = async (docKey?: string) => {
     if (currentEditNoteIndex === null) return;
 
     try {
@@ -317,6 +307,7 @@ const CardThree = ({
           title: editTitle,
           note: editContent,
           course: localStorage.getItem("course"),
+          docKey: docKey || "",
         }),
       });
 
@@ -370,14 +361,8 @@ const CardThree = ({
       if (!contentResponse.ok)
         throw new Error(`Content API error: ${contentResponse.status}`);
 
-      const content = await contentResponse.text();
-      const newNote = {
-        Title: `${type} - ${new Date().toLocaleString()}`,
-        Response: content,
-        editable: true,
-        docType: type,
-      };
-      setNotes([newNote, ...notes]);
+      await contentResponse.text();
+      await fetchNotes();
     } catch (error) {
       console.error(`Failed to fetch ${type}:`, error);
     } finally {
@@ -627,8 +612,8 @@ const CardThree = ({
                                     size="sm"
                                     className={`justify-start gap-2 px-3 py-2 h-8 text-sm ${
                                       theme === "dark"
-                                        ? "text-red-400"
-                                        : "text-red-600 hover:bg-red-50"
+                                        ? "text-red-400 hover:text-red-400"
+                                        : "text-red-600 hover:text-red-500 hover:bg-red-200"
                                     }`}
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -663,23 +648,6 @@ const CardThree = ({
                           >
                             🎙 Podcast note. Open to play.
                           </div>
-                        ) : note.editable ? (
-                          <ReactMarkdown
-                            components={{
-                              p: ({ ...props }) => (
-                                <p
-                                  className={`line-clamp-1 m-0 text-xs sm:text-sm ${
-                                    theme === "dark"
-                                      ? "text-slate-300"
-                                      : "text-gray-600"
-                                  }`}
-                                  {...props}
-                                />
-                              ),
-                            }}
-                          >
-                            {note?.Response}
-                          </ReactMarkdown>
                         ) : (
                           <div className="line-clamp-1">
                             {note?.Response?.replace(/\\n/g, " ")
@@ -722,7 +690,7 @@ const CardThree = ({
             setEditTitle={setEditTitle}
             editContent={editContent}
             setEditContent={setEditContent}
-            isEditable={notes[currentEditNoteIndex || 0]?.editable || false}
+            docKey={notes[currentEditNoteIndex || 0]?.docKey}
           />
 
           {/* View Note Modal */}

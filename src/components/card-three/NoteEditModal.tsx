@@ -15,12 +15,12 @@ import { Label } from "@/components/ui/label";
 interface NoteEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: () => void;
+  onSave: (docKey?: string) => void;
   editTitle: string;
   setEditTitle: (title: string) => void;
   editContent: string;
   setEditContent: (content: string) => void;
-  isEditable: boolean;
+  docKey?: string;
 }
 
 const NoteEditModal = ({
@@ -31,7 +31,7 @@ const NoteEditModal = ({
   setEditTitle,
   editContent,
   setEditContent,
-  isEditable,
+  docKey,
 }: NoteEditModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -60,7 +60,6 @@ const NoteEditModal = ({
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
               placeholder="Enter your note title..."
-              disabled={!isEditable}
               className="w-full h-12 text-base bg-input border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 placeholder:text-muted-foreground"
             />
           </div>
@@ -78,7 +77,6 @@ const NoteEditModal = ({
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 placeholder="Start writing your note content here..."
-                disabled={!isEditable}
                 className="min-h-[320px] resize-none text-base leading-relaxed bg-input border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 placeholder:text-muted-foreground"
               />
               {!editContent && (
@@ -98,14 +96,12 @@ const NoteEditModal = ({
           >
             Cancel
           </Button>
-          {isEditable && (
-            <Button
-              onClick={onSave}
-              className="flex-1 sm:flex-none h-11 px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-medium transition-all duration-200 shadow-sm hover:shadow-md"
-            >
-              Save Changes
-            </Button>
-          )}
+          <Button
+            onClick={() => onSave(docKey)}
+            className="flex-1 sm:flex-none h-11 px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+          >
+            Save Changes
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
