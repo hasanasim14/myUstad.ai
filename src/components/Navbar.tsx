@@ -26,9 +26,9 @@ const Navbar = () => {
   const [selectedLanguage, setSelectedLanguage] = useState("English");
   const [openFeedbackModal, setOpenFeedbackModal] = useState(false);
 
+  const { theme, setTheme } = useTheme();
   const languages = ["English", "Urdu", "Punjabi", "Sindhi", "Pashto"];
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
@@ -75,14 +75,8 @@ const Navbar = () => {
   };
 
   return (
-    <nav
-      className={`sticky top-0 z-50 backdrop-blur-md px-4 py-2 shadow-sm border-b ${
-        theme === "dark"
-          ? "bg-gray-900/90 text-white border-gray-800"
-          : "bg-white/90 text-gray-900 border-gray-200"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
+    <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+      <div className="max-w-7xl mx-auto flex justify-between items-center px-4 py-2">
         <div className="flex items-center space-x-6">
           <span className="text-2xl font-bold tracking-wide">myUstad.ai</span>
         </div>
@@ -91,31 +85,19 @@ const Navbar = () => {
           <div className="flex space-x-6 text-sm font-medium">
             <a
               href="/courses"
-              className={`transition-colors ${
-                theme === "dark"
-                  ? "text-gray-300 hover:text-white"
-                  : "text-gray-700 hover:text-gray-900"
-              }`}
+              className="text-muted-foreground hover:text-foreground transition-colors"
             >
               Home
             </a>
             <a
               href="/courses"
-              className={`transition-colors ${
-                theme === "dark"
-                  ? "text-gray-300 hover:text-white"
-                  : "text-gray-700 hover:text-gray-900"
-              }`}
+              className="text-muted-foreground hover:text-foreground transition-colors"
             >
               Courses
             </a>
             <a
               href="mailto:info@aisystems.com"
-              className={`transition-colors ${
-                theme === "dark"
-                  ? "text-gray-300 hover:text-white"
-                  : "text-gray-700 hover:text-gray-900"
-              }`}
+              className="text-muted-foreground hover:text-foreground transition-colors"
             >
               Contact
             </a>
@@ -129,11 +111,7 @@ const Navbar = () => {
                 variant="ghost"
                 size="icon"
                 onClick={toggleTheme}
-                className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                  theme === "dark"
-                    ? "bg-gray-800 hover:bg-gray-700 text-gray-300"
-                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                }`}
+                className="h-10 w-10 rounded-full"
               >
                 {mounted && theme === "light" ? (
                   <Moon className="h-[1.2rem] w-[1.2rem]" />
@@ -146,41 +124,19 @@ const Navbar = () => {
               <Button
                 variant="ghost"
                 onClick={() => setOpenFeedbackModal(true)}
-                className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                  theme === "dark"
-                    ? "bg-gray-800 hover:bg-gray-700 text-gray-300"
-                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                }`}
+                className="h-10 w-10 rounded-full"
               >
                 <PenSquare className="h-5 w-5" />
               </Button>
 
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                      theme === "dark"
-                        ? "bg-gray-800 hover:bg-gray-700 text-gray-300"
-                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                    }`}
-                  >
+                  <Button variant="ghost" className="h-10 w-10 rounded-full">
                     <Languages className="h-5 w-5" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent
-                  side="bottom"
-                  className={`p-2 w-32 border ${
-                    theme === "dark"
-                      ? "bg-gray-800 border-gray-700"
-                      : "bg-white border-gray-200"
-                  }`}
-                >
-                  <div
-                    className={`mb-1 text-sm font-normal ${
-                      theme === "dark" ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
+                <PopoverContent side="bottom" className="p-2 w-32">
+                  <div className="mb-1 text-sm font-normal text-muted-foreground">
                     Select Language:
                   </div>
                   {languages.map((lang) => (
@@ -189,10 +145,8 @@ const Navbar = () => {
                       onClick={() => handleLanguageSelect(lang)}
                       className={`cursor-pointer text-sm py-[0.125rem] ${
                         lang === selectedLanguage
-                          ? "font-bold text-blue-500"
-                          : theme === "dark"
-                          ? "font-normal text-gray-300 hover:text-white"
-                          : "font-normal text-gray-700 hover:text-gray-900"
+                          ? "font-bold text-primary"
+                          : "font-normal text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       {lang}
@@ -203,22 +157,12 @@ const Navbar = () => {
 
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                      theme === "dark"
-                        ? "bg-gray-800 hover:bg-gray-700 text-gray-300"
-                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                    }`}
-                  >
+                  <Button className="h-10 w-10 rounded-full">
                     <CircleUser className="h-5 w-5" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent
-                  className={`w-56 p-1 rounded-lg border ${
-                    theme === "dark"
-                      ? "bg-gray-800 border-gray-700"
-                      : "bg-white border-gray-200"
-                  }`}
+                  className="w-56 p-1 rounded-lg"
                   align="end"
                   sideOffset={8}
                 >
@@ -226,14 +170,10 @@ const Navbar = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`justify-start gap-2 px-3 py-2 h-8 text-sm font-normal text-red-500 ${
-                        theme === "dark"
-                          ? "hover:text-red-400"
-                          : "hover:bg-red-50 hover:text-red-600"
-                      }`}
+                      className="justify-start gap-2 px-3 py-2 h-8 text-sm font-normal text-destructive hover:text-destructive hover:bg-destructive/10"
                       onClick={handleLogout}
                     >
-                      <LogOut className="h-3.5 w-3.5 text-red-500" />
+                      <LogOut className="h-3.5 w-3.5" />
                       <span>Logout</span>
                     </Button>
                   </div>
@@ -250,11 +190,7 @@ const Navbar = () => {
           {isMobile && (
             <button
               onClick={toggleMenu}
-              className={`ml-2 ${
-                theme === "dark"
-                  ? "text-gray-300 hover:text-white"
-                  : "text-gray-700 hover:text-gray-900"
-              }`}
+              className="ml-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               {showMenu ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -264,95 +200,106 @@ const Navbar = () => {
 
       {isMobile && (
         <>
+          {/* Backdrop overlay */}
           <div
             onClick={() => setShowMenu(false)}
-            className={`fixed inset-0 bg-black bg-opacity-30 transition-opacity duration-300 ${
-              showMenu
-                ? "opacity-100 pointer-events-auto"
-                : "opacity-0 pointer-events-none"
-            }`}
+            className={`fixed inset-0 bg-black/50 backdrop-blur-lg transition-opacity duration-300 
+    ${
+      showMenu
+        ? "opacity-100 pointer-events-auto z-50"
+        : "opacity-0 pointer-events-none z-[-1]"
+    }`}
           />
+
+          {/* Mobile menu panel */}
           <div
-            className={`fixed top-0 right-0 w-64 h-full shadow-lg z-50 transition-all duration-500 ease-in-out ${
-              theme === "dark"
-                ? "bg-gray-900 text-white"
-                : "bg-white text-gray-900"
-            } ${
-              showMenu
-                ? "translate-x-0 opacity-100"
-                : "translate-x-full opacity-0"
+            className={`fixed top-0 right-0 w-80 h-full bg-background border-l border-border shadow-2xl z-50 transition-transform duration-300 ease-out ${
+              showMenu ? "translate-x-0" : "translate-x-full"
             }`}
           >
+            {/* Menu header */}
             <div
-              className={`px-6 py-4 flex justify-between items-center border-b ${
-                theme === "ligdarkht" ? "border-gray-700" : "border-gray-200"
+              className={`px-6 py-4 flex justify-between items-center border-b border-border ${
+                theme === "dark" ? "" : "bg-[#f2f6ff]"
               }`}
             >
               <span className="text-xl font-bold">Menu</span>
               <button
                 onClick={() => setShowMenu(false)}
-                className={`${
-                  theme === "dark"
-                    ? "text-gray-400 hover:text-white"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
+                className="text-muted-foreground hover:text-foreground transition-colors p-1"
               >
-                <X />
+                <X size={20} />
               </button>
             </div>
 
-            <nav className="px-6 space-y-4 mt-4 text-sm">
-              {["Home", "Courses", "Contact"].map((item) => (
+            {/* Navigation links */}
+            <nav
+              className={`px-6 py-6 space-y-4 ${
+                theme === "dark" ? "bg-black" : "bg-[#f2f6ff]"
+              }`}
+            >
+              {[
+                { label: "Home", href: "/courses" },
+                { label: "Courses", href: "/courses" },
+                { label: "Contact", href: "mailto:info@aisystems.com" },
+              ].map((item) => (
                 <a
-                  key={item}
-                  href="#"
+                  key={item.label}
+                  href={item.href}
                   onClick={() => setShowMenu(false)}
-                  className={`block ${
-                    theme === "dark"
-                      ? "text-gray-300 hover:text-blue-400"
-                      : "text-gray-700 hover:text-blue-600"
-                  }`}
+                  className="block text-lg font-medium text-foreground hover:text-primary transition-colors py-2"
                 >
-                  {item}
+                  {item.label}
                 </a>
               ))}
             </nav>
 
-            <div className="px-6 mt-6 space-y-4 text-sm">
+            {/* Action buttons */}
+            <div
+              className={`px-6 py-4 space-y-3 border-t border-border ${
+                theme === "dark" ? "bg-black" : "bg-[#f2f6ff]"
+              }`}
+            >
               <button
-                onClick={toggleTheme}
-                className={`flex items-center gap-2 p-2 ${
-                  theme === "dark"
-                    ? "text-gray-300 hover:text-blue-400"
-                    : "text-gray-700 hover:text-blue-600"
-                }`}
+                onClick={() => {
+                  toggleTheme();
+                  setShowMenu(false);
+                }}
+                className="flex items-center gap-3 w-full p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
               >
                 {mounted && theme === "light" ? (
-                  <Moon size={16} />
+                  <Moon size={18} />
                 ) : (
-                  <Sun size={16} />
+                  <Sun size={18} />
                 )}
-                <span>Toggle Theme</span>
+                <span className="font-medium">Toggle Theme</span>
               </button>
+
               <button
-                className={`flex items-center gap-2 p-2 ${
-                  theme === "dark"
-                    ? "text-gray-300 hover:text-blue-400"
-                    : "text-gray-700 hover:text-blue-600"
-                }`}
+                onClick={() => setShowMenu(false)}
+                className="flex items-center gap-3 w-full p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
               >
-                <Bell className="w-4 h-4" />
-                <span>Notifications</span>
+                <Bell size={18} />
+                <span className="font-medium">Notifications</span>
               </button>
+
               <button
-                className={`flex items-center gap-2 p-2 ${
-                  theme === "dark"
-                    ? "text-gray-300 hover:text-blue-400"
-                    : "text-gray-700 hover:text-blue-600"
-                }`}
+                onClick={() => setShowMenu(false)}
+                className="flex items-center gap-3 w-full p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
               >
-                <CircleUser className="w-4 h-4" />
-                <span>Profile</span>
+                <CircleUser size={18} />
+                <span className="font-medium">Profile</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setShowMenu(false);
+                }}
+                className="flex items-center gap-3 w-full p-3 rounded-lg bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors"
+              >
+                <LogOut size={18} />
+                <span className="font-medium">Logout</span>
               </button>
             </div>
           </div>
