@@ -204,7 +204,7 @@ const LoginForm = () => {
               : "Fill in your details to register"}
           </p>
 
-          <div className="space-y-4">
+          <div className="space-y-4 text-black">
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium">
@@ -215,7 +215,7 @@ const LoginForm = () => {
                 type="text"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full ${
+                className={`w-full text-black ${
                   errors.email
                     ? "border-red-500 focus:ring-red-200"
                     : "border-gray-300 focus:ring-blue-200"
@@ -240,7 +240,7 @@ const LoginForm = () => {
                   value={formData.password}
                   onChange={handleChange}
                   onKeyDown={handleKeyDown}
-                  className={`w-full ${
+                  className={`w-full text-black ${
                     errors.password
                       ? "border-red-500 focus:ring-red-200"
                       : "border-gray-300 focus:ring-blue-200"
