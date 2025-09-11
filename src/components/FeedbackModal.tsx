@@ -113,9 +113,9 @@ export const FeedbackModal = ({ open, onCancel }: FeedbackModalProps) => {
   return (
     <Dialog open={open}>
       <DialogContent
-        className={`w-[80vw] max-w-[80vw] mx-auto ${
+        className={`sm:max-w-[60vw] mx-auto ${
           isDark ? "bg-[#0a0a0a] border-[#3a3a3a]" : "bg-white border-gray-200"
-        } shadow-2xl p-0 flex flex-col max-h-[92vh] [&>button]:hidden`}
+        } shadow-2xl p-0 flex flex-col max-h-[90vh] [&>button]:hidden`}
       >
         {/* Header */}
         <DialogHeader
