@@ -1,10 +1,8 @@
 "use client";
 
 import type React from "react";
-
+import type { Note, SelectedDocs } from "@/lib/types";
 import { useState, useEffect, useRef } from "react";
-import AudioOverview from "./AudioOverview";
-import MindmapModal from "./MindmapModal";
 import {
   GraduationCap,
   FileText,
@@ -20,7 +18,6 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
-import type { Note, SelectedDocs } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
@@ -29,6 +26,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { PopoverClose } from "@radix-ui/react-popover";
+import AudioOverview from "./AudioOverview";
+import MindmapModal from "./MindmapModal";
 import NoteEditModal from "./NoteEditModal";
 import NoteViewModal from "./NoteViewModal";
 
@@ -65,8 +64,6 @@ const CardThree = ({
   const abortControllers = useRef<Record<number, AbortController>>({});
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
-
-  console.log("the editing modal", isEditModalOpen);
 
   const addLoadingState = (type: string) => {
     setLoadingStates((prev) => new Set([...prev, type]));
